@@ -5,8 +5,8 @@ const { Server } = require("socket.io");
 import { UserStore } from "../user/UserStore";
 import { RoomStore } from "../room/RoomStore";
 import { SocketHold } from "../socket/SocketHold";
-import { CONNECTION } from "../../resources/connection-routes";
-import { UserSocketFactory } from "../../factories/UserSocketFactory";
+import { CONNECTION } from "../../../resources/connection-routes";
+import { UserSocketFactory } from "../../../factories/UserSocketFactory";
 
 class ServerHold {
 

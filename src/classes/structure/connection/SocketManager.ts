@@ -1,5 +1,5 @@
 import * as io from "socket.io-client";
-import { CONNECTION } from "../../resources/connection-routes";
+import { CONNECTION } from "../../../resources/connection-routes";
 import { useEffect, useState } from "react";
 import { AnyARecord } from "dns";
 

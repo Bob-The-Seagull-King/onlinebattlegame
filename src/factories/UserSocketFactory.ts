@@ -1,6 +1,6 @@
-import { SocketHold } from "../classes/socket/SocketHold";
-import { ServerHold } from "../classes/server/ServerHold";
-import { UserHold, IUserConstruct } from "../classes/user/UserHold";
+import { SocketHold } from "../classes/structure/socket/SocketHold";
+import { ServerHold } from "../classes/structure/server/ServerHold";
+import { UserHold, IUserConstruct } from "../classes/structure/user/UserHold";
 
 class UserSocketFactory {
 

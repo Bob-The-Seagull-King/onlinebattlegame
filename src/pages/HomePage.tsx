@@ -4,7 +4,7 @@ import logo from '../resources/images/npm install socket.io-client.svg';
 import '../resources/styles/App.css';
 import * as io from "socket.io-client";
 import { useEffect, useState } from "react";
-import { SocketManager } from '../classes/connection/SocketManager';
+import { SocketManager } from '../classes/structure/connection/SocketManager';
 
 const HomePage = (props: any) => {
 

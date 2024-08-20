@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/es/integration/react'
 import { persistor, store } from './store/reducers/store'
-import { SocketManager } from './classes/connection/SocketManager'
+import { SocketManager } from './classes/structure/connection/SocketManager'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { ROUTES } from './resources/routes-constants'
 import HomePage from './pages/HomePage';
