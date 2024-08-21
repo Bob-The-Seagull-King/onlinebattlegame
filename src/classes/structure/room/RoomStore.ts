@@ -66,6 +66,10 @@ class RoomStore {
             this.CurrentRooms[i].RemoveSocket(_socket)
             if (this.CurrentRooms[i].MyMembers.length <= 0) {
                 delete this.CurrentRooms[i];
+            } else {
+                if (this.CurrentRooms[i].MyMembers.length < this.CurrentRooms[i].MaxMembers) {
+                    this.VacantRooms.push(this.CurrentRooms[i])
+                }
             }
         }
     }
