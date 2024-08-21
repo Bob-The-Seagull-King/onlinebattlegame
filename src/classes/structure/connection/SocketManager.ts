@@ -31,7 +31,7 @@ class SocketManager {
 
     public JoinRoom() {
         if (this.Room.length > 0) {
-            this.ActiveSocket.emit("join_room", this.Room);
+            this.ActiveSocket.emit("join_room", {});
         }
     }
 

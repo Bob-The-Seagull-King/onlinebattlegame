@@ -19,9 +19,9 @@ class SocketHold {
     }
 
     private SetSocketAction() {
-        this.MySocket.on("join_room", (data) => {
-            const ResponseMsg = this.MyServer.Rooms.JoinRoom(data, this);
-            this.MyServer.SendMessageToSocket(this, {message: ResponseMsg, room: data.room})
+        this.MySocket.on("join_room", () => {
+            const ResponseMsg = this.MyServer.Rooms.JoinRoom(this);
+            this.MyServer.SendMessageToSocket(this, {message: ResponseMsg})
         });
 
         this.MySocket.on("send_message", (data ) => {

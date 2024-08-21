@@ -6,6 +6,8 @@ import { ServerHold } from "../server/ServerHold";
 class RoomStore {
 
     CurrentRooms: RoomHold[] = [];
+    VacantRooms: RoomHold[] = [];
+
     MyServer: ServerHold;
 
     constructor(_server : ServerHold) {
@@ -26,41 +28,32 @@ class RoomStore {
         }
     }
 
-    public JoinRoom(_data : any, _socket : SocketHold) {
-        const RoomVal = (_data.toString());
+    public JoinRoom(_socket : SocketHold) {
         let JoinReportVal = "";
-        try {
-            if (RoomVal != "") {
-                const CurrentRoom: RoomHold | undefined = this.FindRoom(Number(RoomVal))
-                if (CurrentRoom) {
-                    JoinReportVal = CurrentRoom.AddMember(_socket);
-                } else {
-                    const NewRoom = new RoomHold({
-                                                id: Number(RoomVal),
-                                                size: 2
-                                                }, this);
-                    this.CurrentRooms.push(NewRoom);
-                    JoinReportVal = NewRoom.AddMember(_socket);
-                }
-            } else {
-                let NewId = 0;
-                if (this.CurrentRooms.length == 0) {
-                    NewId = 1;
-                } else {
-                    NewId = this.CurrentRooms[this.CurrentRooms.length-1].MyID + 1;
-                }
-                const NewRoom = new RoomHold({
-                                            id: Number(NewId),
-                                            size: 2
-                                            }, this);
-                this.CurrentRooms.push(NewRoom);
-                JoinReportVal = NewRoom.AddMember(_socket);
-            }
+        try {     
+            let RoomFind : RoomHold = this.FindVacantRoom();
+            JoinReportVal = RoomFind.AddMember(_socket);
+
+            if (RoomFind.MyMembers.length === RoomFind.MaxMembers) { this.VacantRooms.pop(); }
         } catch (e) {
             JoinReportVal = ConnectionReports.ERROR_UNKNOWN
         }
 
         return JoinReportVal;
+    }
+
+    private FindVacantRoom() {
+        if (this.VacantRooms.length > 0) {
+            return this.VacantRooms[0];
+        } else {
+            const NewId = (this.CurrentRooms.length == 0)? 1 : (this.CurrentRooms[this.CurrentRooms.length-1].MyID + 1) ;
+            const RoomFind = new RoomHold({ id: Number(NewId), size: 2 }, this);
+
+            this.CurrentRooms.push(RoomFind);
+            this.VacantRooms.push(RoomFind);
+
+            return RoomFind;
+        }
     }
 
     private FindRoom(_data : number) {
@@ -71,6 +64,9 @@ class RoomStore {
         let i = 0;
         for (i = 0; i < this.CurrentRooms.length; i++) {
             this.CurrentRooms[i].RemoveSocket(_socket)
+            if (this.CurrentRooms[i].MyMembers.length <= 0) {
+                delete this.CurrentRooms[i];
+            }
         }
     }
     
