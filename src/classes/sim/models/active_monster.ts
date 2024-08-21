@@ -41,7 +41,7 @@ class ActiveMonster {
         const ActionList : ActiveAction[] = [];
         let i = 0;
         for (i = 0; i < _actions.length; i++) {
-            ActionList.push(ActionFactory.CreateAction(_actions[i]))
+            ActionList.push(ActionFactory.CreateAction(_actions[i], this))
         }
         return ActionList;
     }

@@ -1,4 +1,5 @@
 import { IDEntry, InfoSetGeneric } from "../../../global_types"
+import { ActiveMonster } from "./active_monster";
 
 interface IActiveAction {
     action     : IDEntry, // The type of the action
@@ -10,6 +11,7 @@ class ActiveAction {
     public Action : IDEntry;
     public Used : number;
     public Trackers : InfoSetGeneric;
+    public Owner    : ActiveMonster;
 
     constructor(_data : IActiveAction) {
         this.Action = _data.action;
