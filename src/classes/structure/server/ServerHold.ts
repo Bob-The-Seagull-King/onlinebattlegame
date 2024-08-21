@@ -51,16 +51,15 @@ class ServerHold {
         this.MainServer.to(_socket.MySocket.id).emit('server_message', _msg);
     }
 
+    public SendConnectionToSocket(_socket : SocketHold, _msg : any) {
+        this.MainServer.to(_socket.MySocket.id).emit('connection_response', _msg);
+    }
+
     public DisconnectSocket(_socket : SocketHold) {
         this.Rooms.RemoveSocket(_socket);
         this.Users.RemoveUser(_socket.MyUser);
-        let i = 0;
-        for (i = 0; i < this.Sockets.length; i++) {
-            if (this.Sockets[i] == _socket) {
-                this.Sockets.splice(i, 1);
-                break;
-            }
-        }
+        const socketvar = this.Sockets.indexOf(_socket);
+        this.Sockets.splice(socketvar, 1);
     }
     
 }

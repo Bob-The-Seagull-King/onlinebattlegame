@@ -19,17 +19,15 @@ class SocketHold {
     }
 
     private SetSocketAction() {
-        this.MySocket.on("join_room", () => {
-            const ResponseMsg = this.MyServer.Rooms.JoinRoom(this);
-            this.MyServer.SendMessageToSocket(this, {message: ResponseMsg})
+        this.MySocket.on("join_room", (data) => {
+            const ResponseMsg = this.MyServer.Rooms.JoinRoom(this, data);
+            this.MyServer.SendConnectionToSocket(this, ResponseMsg)
         });
 
-        this.MySocket.on("send_message", (data ) => {
+        this.MySocket.on("send_message", (data) => {
             const RoomVal = Number(data.room)
-
-            if (this.GetRoom(RoomVal)) {
-                this.GetRoom(RoomVal).AddMessage(this, data)
-            }
+            const Room = this.GetRoom(RoomVal)
+            if (Room) { Room.AddMessage(this, data) }
         });
 
         this.MySocket.on('disconnect', ( ) => {

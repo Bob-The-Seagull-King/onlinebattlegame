@@ -8,7 +8,7 @@ class TeamFactory {
         return newTeam;
     }
 
-    public static CreateNewTeam(_team : IDEntry) {
+    public static CreateNewTeam() {
         const freshTeam : ITeam = {
             items: [],
             monsters: [],

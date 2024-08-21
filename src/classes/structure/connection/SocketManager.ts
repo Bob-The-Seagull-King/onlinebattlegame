@@ -2,6 +2,8 @@ import * as io from "socket.io-client";
 import { CONNECTION } from "../../../resources/connection-routes";
 import { useEffect, useState } from "react";
 import { AnyARecord } from "dns";
+import { Team } from "../../sim/models/team";
+import { TeamFactory } from "../../sim/factories/team_factory";
 
 class SocketManager {
 
@@ -19,6 +21,14 @@ class SocketManager {
         this.ActiveSocket.on("server_message", (data : any) => {
             alert(data.message)
         });
+        
+        this.ActiveSocket.on("connection_response", (data : any) => {
+            if (data.room > 0) {
+                this.ReceiveMessage({message: "Joined Room " + data.room});                
+            } else {
+                this.ReceiveMessage(data)
+            }
+        });
     }
 
     public SetReceiverMethod(_method : any) {
@@ -30,7 +40,8 @@ class SocketManager {
     }
 
     public JoinRoom() {
-        this.ActiveSocket.emit("join_room", {});    
+        const Team : Team = TeamFactory.CreateNewTeam();
+        this.ActiveSocket.emit("join_room", Team);    
     }
 
     public SendMessage(message: any) {

@@ -19,13 +19,8 @@ class UserStore {
     }
 
     public RemoveUser(_user : UserHold) {
-        let i = 0;
-        for (i = 0; i < this.CurrentUsers.length; i++) {
-            if (this.CurrentUsers[i] == _user) {
-                this.CurrentUsers.splice(i, 1);
-                break;
-            }
-        }
+        const userIndex = this.CurrentUsers.indexOf(_user);
+        this.CurrentUsers.splice(userIndex, 1);
     }
     
 }

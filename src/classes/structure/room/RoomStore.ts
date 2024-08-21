@@ -2,6 +2,7 @@ import { RoomHold } from "./RoomHold";
 import { SocketHold } from "../socket/SocketHold";
 import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { ServerHold } from "../server/ServerHold";
+import { Team } from "../../sim/models/team";
 
 class RoomStore {
 
@@ -20,31 +21,32 @@ class RoomStore {
     }
 
     public RemoveRoom(_room : RoomHold) {
-        let i = 0;
-        for (i = 0; i < this.CurrentRooms.length; i++) {
-            if (this.CurrentRooms[i] == _room) {
-                this.CurrentRooms.splice(i, 1);
-                break;
-            }
-        }
+        let value = this.CurrentRooms.indexOf(_room);
+        this.CurrentRooms.splice(value, 1);
     }
 
-    public JoinRoom(_socket : SocketHold) {
+    public RemoveRoomVacant(_room : RoomHold) {
+        let value = this.VacantRooms.indexOf(_room);
+        this.VacantRooms.splice(value, 1);
+    }
+
+    public JoinRoom(_socket : SocketHold, _data : Team) {
         let JoinReportVal = "";
+        let RoomVal : number = -1;
         try {     
             let RoomFind : RoomHold = this.FindVacantRoom();
-            JoinReportVal = RoomFind.AddMember(_socket);
-            console.log("ADD TO ROOM" + RoomFind.MyID)
+            JoinReportVal = RoomFind.AddMember(_socket, _data);
+
+            if (JoinReportVal === ConnectionReports.CONNECTED_TO_ROOM) {
+                RoomVal = RoomFind.MyID;
+            }
 
             if (RoomFind.MyMembers.length === RoomFind.MaxMembers) { 
-                console.log("POP FROM VACANCY" + RoomFind.MyID)
-                this.VacantRooms.pop(); 
+                this.RemoveRoomVacant(RoomFind);
             }
             
-        } catch (e) {
-            JoinReportVal = ConnectionReports.ERROR_UNKNOWN
-        }
-        return JoinReportVal;
+        } catch (e) { JoinReportVal = ConnectionReports.ERROR_UNKNOWN }
+        return {message: JoinReportVal, room: RoomVal};
     }
 
     private FindVacantRoom() {
@@ -64,24 +66,15 @@ class RoomStore {
 
     public RemoveSocket(_socket : SocketHold) {
         let i = 0;
-        for (i = 0; i < this.CurrentRooms.length; i++) {
-            this.CurrentRooms[i].RemoveSocket(_socket)
-            if (this.CurrentRooms[i].MyMembers.length <= 0) {
-                let j = 0
-                for (j = 0; j < this.VacantRooms.length; j++) {
-                    if (this.VacantRooms[j] === this.CurrentRooms[i]) {
-                        this.VacantRooms.splice(j, 1);
-                        console.log("REMOVE FROM VACANCY" + this.CurrentRooms[i].MyID)
-                    }
-                }
-                console.log("REMOVE ROOM" + this.CurrentRooms[i].MyID)
-                this.CurrentRooms.splice(i, 1);
-            } else {
-                if ((this.CurrentRooms[i].MyMembers.length < this.CurrentRooms[i].MaxMembers) &&
-                    (!this.VacantRooms.includes(this.CurrentRooms[i]))) {
-                    console.log("ADD ROOM" + this.CurrentRooms[i].MyID)
-                    this.VacantRooms.push(this.CurrentRooms[i])
-                }
+        for (i = 0; i < _socket.MyRooms.length; i++) {
+            const RoomSubj = _socket.MyRooms[i];
+            _socket.MyRooms[i].RemoveSocket(_socket)
+            if (RoomSubj.MyMembers.length <= 0) {
+                this.RemoveRoom(RoomSubj);
+                this.RemoveRoomVacant(RoomSubj);
+            } else if ((RoomSubj.MyMembers.length < RoomSubj.MaxMembers) &&
+                (!this.VacantRooms.includes(RoomSubj))) {
+                this.VacantRooms.push(RoomSubj)   
             }
         }
     }
