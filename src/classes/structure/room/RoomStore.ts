@@ -7,6 +7,7 @@ class RoomStore {
 
     CurrentRooms: RoomHold[] = [];
     VacantRooms: RoomHold[] = [];
+    ID_Count: number = 1;
 
     MyServer: ServerHold;
 
@@ -33,12 +34,16 @@ class RoomStore {
         try {     
             let RoomFind : RoomHold = this.FindVacantRoom();
             JoinReportVal = RoomFind.AddMember(_socket);
+            console.log("ADD TO ROOM" + RoomFind.MyID)
 
-            if (RoomFind.MyMembers.length === RoomFind.MaxMembers) { this.VacantRooms.pop(); }
+            if (RoomFind.MyMembers.length === RoomFind.MaxMembers) { 
+                console.log("POP FROM VACANCY" + RoomFind.MyID)
+                this.VacantRooms.pop(); 
+            }
+            
         } catch (e) {
             JoinReportVal = ConnectionReports.ERROR_UNKNOWN
         }
-
         return JoinReportVal;
     }
 
@@ -46,8 +51,9 @@ class RoomStore {
         if (this.VacantRooms.length > 0) {
             return this.VacantRooms[0];
         } else {
-            const NewId = (this.CurrentRooms.length == 0)? 1 : (this.CurrentRooms[this.CurrentRooms.length-1].MyID + 1) ;
+            const NewId = this.ID_Count;
             const RoomFind = new RoomHold({ id: Number(NewId), size: 2 }, this);
+            this.ID_Count += 1;
 
             this.CurrentRooms.push(RoomFind);
             this.VacantRooms.push(RoomFind);
@@ -56,18 +62,24 @@ class RoomStore {
         }
     }
 
-    private FindRoom(_data : number) {
-        return this.CurrentRooms.find(room => room.MyID === _data)
-    }
-
     public RemoveSocket(_socket : SocketHold) {
         let i = 0;
         for (i = 0; i < this.CurrentRooms.length; i++) {
             this.CurrentRooms[i].RemoveSocket(_socket)
             if (this.CurrentRooms[i].MyMembers.length <= 0) {
-                delete this.CurrentRooms[i];
+                let j = 0
+                for (j = 0; j < this.VacantRooms.length; j++) {
+                    if (this.VacantRooms[j] === this.CurrentRooms[i]) {
+                        this.VacantRooms.splice(j, 1);
+                        console.log("REMOVE FROM VACANCY" + this.CurrentRooms[i].MyID)
+                    }
+                }
+                console.log("REMOVE ROOM" + this.CurrentRooms[i].MyID)
+                this.CurrentRooms.splice(i, 1);
             } else {
-                if (this.CurrentRooms[i].MyMembers.length < this.CurrentRooms[i].MaxMembers) {
+                if ((this.CurrentRooms[i].MyMembers.length < this.CurrentRooms[i].MaxMembers) &&
+                    (!this.VacantRooms.includes(this.CurrentRooms[i]))) {
+                    console.log("ADD ROOM" + this.CurrentRooms[i].MyID)
                     this.VacantRooms.push(this.CurrentRooms[i])
                 }
             }

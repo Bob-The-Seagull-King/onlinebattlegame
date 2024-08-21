@@ -19,6 +19,7 @@ class ServerHold {
 
     constructor() {
         this.server = http.createServer(app);
+        
         this.MainServer = new Server(this.server, {
             cors: {
               origin: CONNECTION.SERVER_CONNECTION,

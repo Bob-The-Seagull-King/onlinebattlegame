@@ -10,8 +10,8 @@ class SocketManager {
     MessageReceiver: any = null;
 
     constructor() {
-        this.ActiveSocket = io.connect(CONNECTION.SOCKET_CONNECTION);
-        
+        this.ActiveSocket = io.connect(CONNECTION.SOCKET_CONNECTION)
+                
         this.ActiveSocket.on("receive_message", (data : any) => {
             this.ReceiveMessage(data);
         });
@@ -30,9 +30,7 @@ class SocketManager {
     }
 
     public JoinRoom() {
-        if (this.Room.length > 0) {
-            this.ActiveSocket.emit("join_room", {});
-        }
+        this.ActiveSocket.emit("join_room", {});    
     }
 
     public SendMessage(message: any) {
