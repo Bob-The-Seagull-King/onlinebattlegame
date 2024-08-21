@@ -123,11 +123,13 @@ class RoomHold {
     }
 
     public DestroyBattle() {
-        this.GameRoom.Trainers.forEach(element => {
-            (element as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: "Battle Ended In Room " + this.MyID});
-        });
+        if (this.GameRoom) {
+            this.GameRoom.Trainers.forEach(element => {
+                (element as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: "Battle Ended In Room " + this.MyID});
+            });
 
-        delete this.GameRoom;
+            delete this.GameRoom;
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 export const ROUTES = {
     // Super Routes //
-    HOME_ROUTE: '/*',
+    OFFLINE_ROUTE: '/offline',
+    ONLINE_ROUTE: '/online',
 
 }

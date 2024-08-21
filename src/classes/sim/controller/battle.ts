@@ -16,8 +16,7 @@ interface EventHolder {
 	priority: number;
     self: any;
     source: any;
-	// eslint-disable-next-line @typescript-eslint/ban-types
-	callback: Function;
+	callback: any;
     fromsource: boolean;
 }
 

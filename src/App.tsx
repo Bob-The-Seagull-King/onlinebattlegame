@@ -10,9 +10,8 @@ import { persistor, store } from './store/reducers/store'
 import { SocketManager } from './classes/structure/connection/SocketManager'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { ROUTES } from './resources/routes-constants'
-import HomePage from './pages/HomePage';
-
-const appsocketmanager = new SocketManager();
+import OfflinePage from './pages/OfflinePage';
+import OnlinePage from './pages/OnlinePage';
 
 function App() {
   
@@ -21,7 +20,8 @@ function App() {
         <PersistGate loading={null} persistor={persistor}>
             <Router>
                 <Routes>
-                    <Route path={ROUTES.HOME_ROUTE} element={<HomePage socket={appsocketmanager}/>} />
+                <Route path={ROUTES.OFFLINE_ROUTE} element={<OfflinePage/>} />
+                <Route path={ROUTES.ONLINE_ROUTE} element={<OnlinePage/>} />
                 </Routes>
             </Router>
         </PersistGate>
