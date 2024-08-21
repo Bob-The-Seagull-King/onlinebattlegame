@@ -6,14 +6,29 @@ import { ActiveMonster, IActiveMonster } from "./active_monster"
 interface ITeam {
     items       : IActiveItem[],
     monsters    : IActiveMonster[],
-    active      : IActiveMonster[]
+    active      : IActivePos[]
+}
+
+interface IActivePos {
+    monster : IActiveMonster,
+    position : number
+}
+
+class ActivePos {
+    public Monster : ActiveMonster;
+    public Position : number;
+
+    constructor(_mon : ActiveMonster, _pos : number) {
+        this.Monster = _mon;
+        this.Position = _pos;
+    }
 }
 
 class Team {
 
     public Items    : ActiveItem[];
     public Monsters : ActiveMonster[];
-    public Leads    : ActiveMonster[];
+    public Leads    : ActivePos[];
 
     constructor(_data : ITeam) {
         this.Items = this.ItemGenerator(_data.items);
@@ -31,17 +46,21 @@ class Team {
         return ItemList;
     }
 
-    private MonsterGenerator(_monsters : IActiveMonster[], _leads : IActiveMonster[]) {
+    private MonsterGenerator(_monsters : IActiveMonster[], _leads : IActivePos[]) {
         let i = 0;
         for (i = 0; i < _monsters.length ; i++) {
             const MonGen : ActiveMonster = MonsterFactory.CreateMonster(_monsters[i]);
             this.Monsters.push(MonGen);
-            if (_leads.includes(_monsters[i])) {
-                this.Leads.push(MonGen);
+            let j = 0;
+            for (j = 0; j < _leads.length; j++) {
+                if (_leads[j].monster === _monsters[i]) {
+                    this.Leads.push(new ActivePos(MonGen, _leads[j].position));
+                    break;
+                }
             }
         }
     }
 
 }
 
-export {Team, ITeam}
+export {Team, ITeam, ActivePos}
