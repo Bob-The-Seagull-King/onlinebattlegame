@@ -1,5 +1,13 @@
 import { MonsterType } from "./data/enum/types";
 import { ActionCategory, ItemCategory, TokenCategory, TraitCategory } from "./data/enum/categories";
+import { TrainerBase } from "./classes/sim/controller/trainer/trainer_basic";
+import { ActiveMonster } from "./classes/sim/models/active_monster";
+import { ActiveItem } from "./classes/sim/models/active_item";
+import { ActiveAction } from "./classes/sim/models/active_action";
+import { ActivePos } from "./classes/sim/models/team";
+import { Scene } from "./classes/sim/models/terrain/terrain_scene";
+import { Side } from "./classes/sim/models/terrain/terrain_side";
+import { Plot } from "./classes/sim/models/terrain/terrain_plot";
 
 // ----------------------------------- Types ---------------------------------------------
 
@@ -27,6 +35,31 @@ export type BaseStats = {
 
 
 // --------------------------------- Interface -------------------------------------------
+
+export type TurnChoices = {
+    [actiontype : string] : SelectedAction[]
+}
+
+export interface SelectedAction {
+    type    : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE',
+    trainer : TrainerBase
+}
+
+export interface SwitchAction extends SelectedAction {
+    current : ActivePos,
+    newmon : ActiveMonster
+}
+
+export interface ItemAction extends SelectedAction {
+    item : ActiveItem,
+    target : ActiveMonster | Scene | Side[] | Plot[]
+}
+
+export interface ActionAction extends SelectedAction {
+    source : ActiveMonster,
+    action : ActiveAction,
+    target : ActiveMonster[] | Scene | Side[] | Plot[]
+}
 
 // Species
 export interface ISpeciesBattle extends CallEvents {
@@ -98,8 +131,16 @@ export interface ITokenInfo {
     description : DescBlock[]
 }
 
+// Behaviour
+export interface IBehaviour extends BehaviourEvents {
+    id          : number
+}
+
 // Parent interface with all events that can be called
 export interface CallEvents {
+}
+
+export interface BehaviourEvents {
 }
 
 // -------------------------------- Databases --------------------------------------------
@@ -114,4 +155,5 @@ export interface ItemBattleTable {[itemid: IDEntry]: IItemBattle}
 export interface ItemInfoTable {[itemid: IDEntry]: IItemInfo}
 export interface TokenBattleTable {[tokenid: IDEntry]: ITokenBattle}
 export interface TokenInfoTable {[tokenid: IDEntry]: ITokenInfo}
+export interface BehaviourTable {[behaviourid: IDEntry]: IBehaviour}
 export interface TypeChartTable {[typeID: number]: InfoSetNumber}

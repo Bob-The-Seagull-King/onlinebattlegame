@@ -2,6 +2,7 @@ import { SocketHold } from "../socket/SocketHold";
 import { UserHold } from "../user/UserHold";
 import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { RoomStore } from "./RoomStore";
+import { SelectedAction, TurnChoices } from "../../../global_types";
 
 interface IRoomMember {
     socket: SocketHold
@@ -92,7 +93,11 @@ class RoomHold {
             this.MyMessages = [];
         }
     }
+
+    public GetUserTurn(_user : IRoomMember, _options : TurnChoices) : SelectedAction | null {
+        return null;
+    }
     
 }
 
-export {RoomHold}
+export {RoomHold, IRoomMember}
