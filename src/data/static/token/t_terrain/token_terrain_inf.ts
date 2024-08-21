@@ -1,6 +1,6 @@
-import { TokenInfoTable } from "../../../global_types";
+import { TokenInfoTable } from "../../../../global_types";
 
-export const TokenInfoDex : TokenInfoTable = {
+export const TokenTerrainInfoDex : TokenInfoTable = {
     temp: {
         id          : 0,
         name        : "TempToken",
