@@ -33,18 +33,15 @@ class RoomStore {
     public JoinRoom(_socket : SocketHold, _data : Team) {
         let JoinReportVal = "";
         let RoomVal : number = -1;
-        try {     
+        try {
+            if (_socket.MyRooms.length >= 1) {
+                return {message: ConnectionReports.ERROR_ALREADYJOINED, room : RoomVal}
+            }
             let RoomFind : RoomHold = this.FindVacantRoom();
             JoinReportVal = RoomFind.AddMember(_socket, _data);
 
-            if (JoinReportVal === ConnectionReports.CONNECTED_TO_ROOM) {
-                RoomVal = RoomFind.MyID;
-            }
-
-            if (RoomFind.MyMembers.length === RoomFind.MaxMembers) { 
-                this.RemoveRoomVacant(RoomFind);
-            }
-            
+            if (JoinReportVal === ConnectionReports.CONNECTED_TO_ROOM) { RoomVal = RoomFind.MyID; }
+            if (RoomFind.MyMembers.length === RoomFind.MaxMembers) { this.RemoveRoomVacant(RoomFind); }
         } catch (e) { JoinReportVal = ConnectionReports.ERROR_UNKNOWN }
         return {message: JoinReportVal, room: RoomVal};
     }

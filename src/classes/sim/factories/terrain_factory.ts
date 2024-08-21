@@ -11,7 +11,7 @@ class TerrainFactory {
         return newScene;
     }
 
-    public static CreateNewTeam(_plots : number, _sides : number) {
+    public static CreateNewTerrain(_plots : number, _sides : number) {
         const Sides : ISide[] = [];
         let i = 0;
 

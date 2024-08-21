@@ -10,7 +10,7 @@ const HomePage = (props: any) => {
 
   // Build method for manager
   const receiveMessage = (data : any) => {
-    setMessageReceived(data.message);
+    setMessageReceived(messageReceived + "\n" + data.message);
   }
 
   // Handle Manager
@@ -52,7 +52,7 @@ const HomePage = (props: any) => {
       />
       <button onClick={sendMessage}> Send Message</button>
       <h1> Message:</h1>
-      {messageReceived}
+      <div style={{whiteSpace: "pre-line"}} >{messageReceived}</div>
     </div>
   );
 }

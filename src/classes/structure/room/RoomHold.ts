@@ -5,6 +5,11 @@ import { RoomStore } from "./RoomStore";
 import { SelectedAction, TurnChoices } from "../../../global_types";
 import { Team } from "../../sim/models/team";
 import { Battle } from "../../sim/controller/battle";
+import { TrainerBase } from "../../sim/controller/trainer/trainer_basic";
+import { TerrainFactory } from "../../sim/factories/terrain_factory";
+import { Scene } from "../../sim/models/terrain/terrain_scene";
+import { BattleFactory } from "../../sim/factories/battle_factory";
+import { TrainerUser } from "../../sim/controller/trainer/trainer_user";
 
 interface IRoomMember {
     socket: SocketHold
@@ -40,19 +45,25 @@ class RoomHold {
     }
 
     public AddMember(_socket : SocketHold, _team : Team) {
+        let MemberResultVal = ""
         try {
             let i = 0
             for (i = 0; i < this.MyMembers.length; i++ ) {
-                if (this.MyMembers[i].socket == _socket) { return ConnectionReports.ERROR_ALREADYJOINED; }
+                if (this.MyMembers[i].socket == _socket) { MemberResultVal = ConnectionReports.ERROR_ALREADYJOINED; }
             }
 
             if (this.MyMembers.length < this.MaxMembers) {
                 this.CreateMember(_socket, _team);
-                return ConnectionReports.CONNECTED_TO_ROOM;
+                MemberResultVal = ConnectionReports.CONNECTED_TO_ROOM;
             } else {
-                return ConnectionReports.ERROR_ROOMFULL
+                MemberResultVal = ConnectionReports.ERROR_ROOMFULL
             }
-        } catch (e) { return ConnectionReports.ERROR_UNKNOWN; }
+        } catch (e) { MemberResultVal = ConnectionReports.ERROR_UNKNOWN; }
+
+        if (this.MyMembers.length >= this.MaxMembers) {
+            this.GenerateBattle();
+        }
+        return MemberResultVal;
     }
 
     public CreateMember(_socket : SocketHold, _team : Team) {
@@ -68,6 +79,10 @@ class RoomHold {
                 this.MyMembers.splice(i, 1);
                 break;
             }
+        }
+        if ((this.MyMembers.length < this.MaxMembers) &&
+            (this.GameRoom !== null)) {
+                this.DestroyBattle();
         }
     }
 
@@ -91,6 +106,29 @@ class RoomHold {
         return null;
     }
     
+    public GenerateBattle() {
+        const Trainers : TrainerUser[] = [];
+        const newScene : Scene = TerrainFactory.CreateNewTerrain(1,2);
+        
+        let i = 0
+        for (i = 0; i < this.MyMembers.length; i++) {
+            const newTrainer : TrainerUser = new TrainerUser({user : this.MyMembers[i], room: this, team: this.MyMembers[i].team, pos : i});
+            Trainers.push(newTrainer);
+        }
+        
+        this.GameRoom = BattleFactory.CreateBattle(Trainers, newScene);
+        Trainers.forEach(element => {
+            element.User.socket.MySocket.to(this.MyID).emit("receive_message", {message: "Battle Room Made For Room" + this.MyID});
+        });
+    }
+
+    public DestroyBattle() {
+        this.GameRoom.Trainers.forEach(element => {
+            (element as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: "Battle Ended In Room " + this.MyID});
+        });
+
+        delete this.GameRoom;
+    }
 }
 
 export {RoomHold, IRoomMember}
