@@ -2,7 +2,7 @@ import { ActionBattleTable } from "../../../global_types";
 import { MonsterType } from "../../enum/types";
 import { ActionCategory } from "../../enum/categories";
 
-export const SpeciesDataDex : ActionBattleTable = {
+export const ActionBattleDex : ActionBattleTable = {
     temp : {
         id          : 0,
         type        : MonsterType.None,

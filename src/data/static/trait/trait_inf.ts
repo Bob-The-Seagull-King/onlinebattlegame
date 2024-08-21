@@ -1,6 +1,6 @@
 import { TraitInfoTable } from "../../../global_types";
 
-export const SpeciesDataDex : TraitInfoTable = {
+export const TraitInfoDex : TraitInfoTable = {
     temp: {
         id          : 0,
         name        : "TempTrait",

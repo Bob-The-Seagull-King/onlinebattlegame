@@ -1,7 +1,7 @@
 import { SpeciesBattleTable } from "../../../global_types";
 import { MonsterType } from "../../enum/types";
 
-export const SpeciesDataDex : SpeciesBattleTable = {
+export const SpeciesBattleDex : SpeciesBattleTable = {
     temp : {
         id      : 0,
         type    : [MonsterType.None],

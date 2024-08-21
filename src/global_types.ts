@@ -5,7 +5,8 @@ import { ActionCategory, ItemCategory, TokenCategory, TraitCategory } from "./da
 
 // Used for mapping tables
 export type IDEntry = Lowercase<string>;
-export type InfoSet = {[type : number]: number};
+export type InfoSetNumber = {[type : number]: number};
+export type InfoSetGeneric = {[id : IDEntry]: any};
 
 export type DescBlock = {
     cat : string,
@@ -113,4 +114,4 @@ export interface ItemBattleTable {[itemid: IDEntry]: IItemBattle}
 export interface ItemInfoTable {[itemid: IDEntry]: IItemInfo}
 export interface TokenBattleTable {[tokenid: IDEntry]: ITokenBattle}
 export interface TokenInfoTable {[tokenid: IDEntry]: ITokenInfo}
-export interface TypeChartTable {[typeID: number]: InfoSet}
+export interface TypeChartTable {[typeID: number]: InfoSetNumber}

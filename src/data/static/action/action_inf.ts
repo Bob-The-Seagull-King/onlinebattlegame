@@ -2,7 +2,7 @@ import { ActionInfoTable } from "../../../global_types";
 import { MonsterType } from "../../enum/types";
 import { ActionCategory } from "../../enum/categories";
 
-export const SpeciesDataDex : ActionInfoTable = {
+export const ActionInfoDex : ActionInfoTable = {
     temp : {
         id          : 0,
         name        : "TempAction",
