@@ -15,7 +15,7 @@ class SocketManager {
         this.ActiveSocket = io.connect(CONNECTION.SOCKET_CONNECTION)
                 
         this.ActiveSocket.on("receive_message", (data : any) => {
-            this.ReceiveMessage(data);
+            this.ReceiveMessage(data.message);
         });
         
         this.ActiveSocket.on("server_message", (data : any) => {
@@ -24,9 +24,9 @@ class SocketManager {
         
         this.ActiveSocket.on("connection_response", (data : any) => {
             if (data.room > 0) {
-                this.ReceiveMessage({message: "Joined Room " + data.room});                
+                this.ReceiveMessage("Joined Room " + data.room);                
             } else {
-                this.ReceiveMessage(data)
+                this.ReceiveMessage(data.message)
             }
         });
     }
@@ -50,7 +50,7 @@ class SocketManager {
     }
 
     public ReceiveMessage(data : any) {
-        this.MessageReceiver(data)
+        this.MessageReceiver(data.message)
     }
     
 }

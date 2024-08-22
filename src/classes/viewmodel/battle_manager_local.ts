@@ -1,3 +1,4 @@
+import { MessageSet } from "../../global_types";
 import { Battle } from "../sim/controller/battle";
 import { TrainerBase } from "../sim/controller/trainer/trainer_basic";
 import { TrainerBot } from "../sim/controller/trainer/trainer_bot";
@@ -12,29 +13,44 @@ import { BattleManager, IBattleManager } from "./battle_manager";
 class OfflineBattleManager extends BattleManager {
 
     public GameBattle : Battle = null;
-
+    public Trainer : TrainerLocal = null;
 
     public StartBattle() {
         if (this.GameBattle === null) {
             this.GameBattle = this.GenerateBattle();
-            this.ReturnMessage({message:"Battle Generated"});
+            this.funcReceiveResults("Battle Generated");
         } else {
-            this.ReturnMessage({message:"Battle Already In Place"});
+            this.funcReceiveResults("Battle Already In Place");
         }
     }
 
     public GenerateBattle() {
-        
         const myTeam : Team = TeamFactory.CreateNewTeam();
-        const otherTeam : Team = TeamFactory.CreateNewTeam();
+        const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this});
+        this.Trainer = myTrainer;
 
-        const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0});
+        const otherTeam : Team = TeamFactory.CreateNewTeam();
         const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam, pos: 1, behaviour: []});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
 
-        const newBattle : Battle = BattleFactory.CreateBattle([myTrainer, otherTrainer], battleScene)
+        const newBattle : Battle = BattleFactory.CreateBattle([myTrainer, otherTrainer], battleScene, this)
         return newBattle;
+    }
+
+    public ReceiveMessages(_messages : MessageSet) {
+        let Val = "";
+        _messages.forEach(element => {
+            Object.keys(element).forEach(item => {
+                Val += "\n" + item + " : " + element[item].type + element[item].trainer.Position;
+            })
+        })
+        console.log(Val.toString())
+        this.funcReceiveResults(Val.toString())
+    }
+
+    public GetTurnsTest() {
+        this.GameBattle.GetTurns();
     }
 
 }

@@ -116,7 +116,7 @@ class RoomHold {
             Trainers.push(newTrainer);
         }
         
-        this.GameRoom = BattleFactory.CreateBattle(Trainers, newScene);
+        this.GameRoom = BattleFactory.CreateBattle(Trainers, newScene, this.EmitMessage);
         Trainers.forEach(element => {
             element.User.socket.MySocket.to(this.MyID).emit("receive_message", {message: "Battle Room Made For Room" + this.MyID});
         });

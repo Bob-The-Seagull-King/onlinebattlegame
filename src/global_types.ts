@@ -15,6 +15,7 @@ import { Plot } from "./classes/sim/models/terrain/terrain_plot";
 export type IDEntry = Lowercase<string>;
 export type InfoSetNumber = {[type : number]: number};
 export type InfoSetGeneric = {[id : IDEntry]: any};
+export type MessageSet = {[id : IDEntry]: any}[];
 
 export type DescBlock = {
     cat : string,

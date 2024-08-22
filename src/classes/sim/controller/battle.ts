@@ -1,8 +1,10 @@
+import { Console } from "console";
 import { ActionBattleDex } from "../../../data/static/action/action_btl";
 import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
+import { IDEntry, MessageSet, SelectedAction, TurnChoices } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
@@ -11,6 +13,7 @@ import { Plot } from "../models/terrain/terrain_plot";
 import { Scene } from "../models/terrain/terrain_scene";
 import { Side } from "../models/terrain/terrain_side";
 import { TrainerBase } from "./trainer/trainer_basic";
+import { BattleManager } from "../../viewmodel/battle_manager";
 
 interface EventHolder {
 	priority: number;
@@ -23,10 +26,44 @@ interface EventHolder {
 class Battle {
     public Trainers: TrainerBase[];
     public Scene : Scene;
+    public SendMessage : any;
 
-    constructor(_trainers : TrainerBase[], _scene : Scene) {
+    constructor(_trainers : TrainerBase[], _scene : Scene, _manager : any) {
         this.Trainers = _trainers;
         this.Scene = _scene
+        this.SendMessage = _manager;
+    }
+
+    public SendOutMessage(_messages : MessageSet) {
+        this.SendMessage.ReceiveMessages(_messages);
+    }
+
+    public async GetTurns() {
+        const Choices : SelectedAction[] = [];
+
+        const TurnPromise = this.Trainers.map(async (item) => {
+            const Options : TurnChoices = this.GetTrainerChoices(item)
+            const Turn : SelectedAction = (item.SelectChoice(Options))
+            Choices.push(Turn)
+        });
+
+        await Promise.all(TurnPromise);
+
+        if (TurnPromise) {
+            const messages : MessageSet = [];
+            Choices.forEach(element => {
+                const Message : {[id : IDEntry]: any} = { "choice" : element}
+                messages.push(Message)
+            })
+            this.SendOutMessage(messages);
+        }
+    }
+
+    public GetTrainerChoices(_trainer : TrainerBase) {
+        const TurnChoices : TurnChoices = {
+            "NONE" : [{type : "NONE", trainer : _trainer}]
+        }
+        return TurnChoices
     }
 
     public runEvent(

@@ -9,15 +9,16 @@ import { OnlineBattleManager } from '../../classes/viewmodel/battle_manager_onli
 import { OfflineBattleManager } from '../../classes/viewmodel/battle_manager_local';
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
 
-const TestDisplay = (props: any) => {
+const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager;
   // Messages States
   const [messageReceived, setMessageReceived] = useState("");
   
-  const receiveMessage = (data : any) => {
-    setMessageReceived(messageReceived + "\n" + data.message);
+  const receiveMessage = (data : string) => {
+    setMessageReceived(messageReceived + "\n" + data);
   }
-  Manager.setReturnFunc(receiveMessage)
+
+  Manager.setOptionsFuncs(receiveMessage,receiveMessage)
   
   // DOM Return
   return (
@@ -28,4 +29,4 @@ const TestDisplay = (props: any) => {
   );
 }
 
-export default TestDisplay;
+export default OptionsDisplay;

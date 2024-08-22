@@ -11,8 +11,8 @@ class OnlineBattleManager extends BattleManager {
     }
     
     public setReturnFunc(_func : any) {
-        this.ReturnMessage = _func;
-        this.MySocket.MessageReceiver = this.ReturnMessage;
+        this.funcReceiveResults = _func;
+        this.MySocket.MessageReceiver = this.funcReceiveResults;
     }
 
 }
