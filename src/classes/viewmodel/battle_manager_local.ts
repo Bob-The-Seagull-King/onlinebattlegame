@@ -24,9 +24,9 @@ class OfflineBattleManager extends BattleManager {
     public StartBattle() {
         if (this.GameBattle === null) {
             this.GameBattle = this.GenerateBattle();
-            this.funcReceiveResults("Battle Generated");
+            this.ReceiveMessages([{"generic" : "Battle Generated"}])
         } else {
-            this.funcReceiveResults("Battle Already In Place");
+            this.ReceiveMessages([{"generic" : "Battle Already In Place"}])
         }
     }
 
@@ -45,13 +45,8 @@ class OfflineBattleManager extends BattleManager {
     }
 
     public ReceiveMessages(_messages : MessageSet) {
-        let Val = "";
-        _messages.forEach(element => {
-            Object.keys(element).forEach(item => {
-                Val += "\n" + item + " : " + element[item].type + element[item].trainer.Position;
-            })
-        })
-        this.funcReceiveResults(Val.toString())
+        this.MessageLog.push(_messages);
+        this.funcReceiveResults();   
     }
 
     public GetTurnsTest() {
@@ -62,7 +57,6 @@ class OfflineBattleManager extends BattleManager {
         this.funcReceiveOptions(_options);
         return new Promise((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {
-            console.log(event.detail)
               resolve(event.detail);
               document.removeEventListener('selectAction', handleEvent as EventListener);
             };

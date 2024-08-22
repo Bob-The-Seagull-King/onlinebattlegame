@@ -12,10 +12,11 @@ import { BattleManager } from '../../classes/viewmodel/battle_manager';
 const MessagesDisplay = (props: any) => {
   const Manager : BattleManager = props.manager;
   // Messages States
-  const [messageReceived, setMessageReceived] = useState("");
+  const [messageReceived, setMessageReceived] = useState([]);
   
-  const receiveMessage = (data : string) => {
-    setMessageReceived(messageReceived + "\n" + data);
+  const receiveMessage = () => {
+    const CurrentMessages =  Object.assign([], Manager.MessageLog);
+    setMessageReceived(CurrentMessages);
   }
   
   Manager.setResultFuncs(receiveMessage)
@@ -24,7 +25,18 @@ const MessagesDisplay = (props: any) => {
   return (
     <div className="App">
       <h1> Message:</h1>
-      <div style={{whiteSpace: "pre-line"}} >{messageReceived}</div>
+      <div>
+      {messageReceived.map(item => (
+          <div key={"messageset"+messageReceived.indexOf(item)}>
+            <p>{"Message Set " + messageReceived.indexOf(item)}</p>
+            {Manager.TranslateMessages(item).map(element => (
+              <p key={"messageofset"+messageReceived.indexOf(item)+(element)}>
+                {element}
+              </p>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
