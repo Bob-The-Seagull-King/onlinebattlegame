@@ -8,7 +8,7 @@ class ITrainerLocal extends ITrainer {
 
 class TrainerLocal extends TrainerBase {
 
-    public Manager;
+    public Manager : OfflineBattleManager;
 
     constructor(_team : ITrainerLocal) {
         super(_team)
@@ -16,6 +16,7 @@ class TrainerLocal extends TrainerBase {
     }
     
     public SelectChoice(_options: TurnChoices): SelectedAction | null {
+        this.Manager.ReceiveOptions(_options);
         try {
             const TypeCount = Object.keys(_options).length;
             if (TypeCount > 0) {

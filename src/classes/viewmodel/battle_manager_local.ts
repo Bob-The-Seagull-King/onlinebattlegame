@@ -1,4 +1,4 @@
-import { MessageSet } from "../../global_types";
+import { MessageSet, SelectedAction, TurnChoices } from "../../global_types";
 import { Battle } from "../sim/controller/battle";
 import { TrainerBase } from "../sim/controller/trainer/trainer_basic";
 import { TrainerBot } from "../sim/controller/trainer/trainer_bot";
@@ -51,6 +51,14 @@ class OfflineBattleManager extends BattleManager {
 
     public GetTurnsTest() {
         this.GameBattle.GetTurns();
+    }
+
+    public ReceiveOptions(_options : TurnChoices) {
+        this.funcReceiveOptions(_options);
+    }
+
+    public SendOptions(_option : SelectedAction) {
+        console.log(_option);
     }
 
 }

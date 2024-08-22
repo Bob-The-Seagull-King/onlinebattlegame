@@ -50,6 +50,7 @@ class Battle {
         await Promise.all(TurnPromise);
 
         if (TurnPromise) {
+            // TURN Behaviour Goes Here
             const messages : MessageSet = [];
             Choices.forEach(element => {
                 const Message : {[id : IDEntry]: any} = { "choice" : element}

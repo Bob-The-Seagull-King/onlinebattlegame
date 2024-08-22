@@ -8,23 +8,40 @@ import { SocketManager } from '../../classes/structure/connection/SocketManager'
 import { OnlineBattleManager } from '../../classes/viewmodel/battle_manager_online';
 import { OfflineBattleManager } from '../../classes/viewmodel/battle_manager_local';
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
+import { SelectedAction, TurnChoices } from '../../global_types';
 
 const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager;
   // Messages States
-  const [messageReceived, setMessageReceived] = useState("");
+
+  const [optionsReceived, setOptionsReceived] = useState([]);
   
-  const receiveMessage = (data : string) => {
-    setMessageReceived(messageReceived + "\n" + data);
+
+  const receiveOptions = (data : TurnChoices) => {
+    const options : SelectedAction[] = []
+    Object.keys(data).forEach(item =>  {
+      data[item].forEach(element => {
+        options.push(element)
+      })
+    })
+    setOptionsReceived(options);
   }
 
-  Manager.setOptionsFuncs(receiveMessage,receiveMessage)
+  Manager.setOptionsFuncs(receiveOptions)
+
+  const SendSingleOption = (_item : SelectedAction) => {
+    Manager.SendOptions(_item)
+  }
   
   // DOM Return
   return (
     <div className="App">
-      <h1> Message:</h1>
-      <div style={{whiteSpace: "pre-line"}} >{messageReceived}</div>
+      {optionsReceived.map(item => (
+        <>
+          <button onClick={() => SendSingleOption(item)}>{item.type}</button>
+        </>
+      ))
+      }
     </div>
   );
 }

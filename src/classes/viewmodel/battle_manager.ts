@@ -7,15 +7,13 @@ class BattleManager {
 
     public funcReceiveResults : any;
     public funcReceiveOptions : any;
-    public funcSendOptions : any;
 
     public setResultFuncs(receiveresults : any) {
         this.funcReceiveResults = receiveresults;
     }
     
-    public setOptionsFuncs(receiveoptions : any, sendoptions : any) {
+    public setOptionsFuncs(receiveoptions : any) {
         this.funcReceiveOptions = receiveoptions;
-        this.funcSendOptions = sendoptions;
     }
 
     public SendOptions(_option : SelectedAction) {
