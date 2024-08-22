@@ -14,17 +14,10 @@ const OfflinePage = (props: any) => {
   const joinOfflineBattle = () => {
     battleManager.StartBattle();
   };
-
-  function testBattle() {
-    if (battleManager.GameBattle) {
-      battleManager.GetTurnsTest();
-    }
-  }
   
   // DOM Return
   return (
     <div className="App">
-      <button onClick={testBattle}> Join test Battle</button>
       <button onClick={joinOfflineBattle}> Join Offline Battle</button>
       <MessagesDisplay manager={battleManager}/>
       <OptionsDisplay manager={battleManager}/>

@@ -32,10 +32,20 @@ class Battle {
         this.Trainers = _trainers;
         this.Scene = _scene
         this.SendMessage = _manager;
+
+        this.StartBattle();
     }
 
     public SendOutMessage(_messages : MessageSet) {
         this.SendMessage.ReceiveMessages(_messages);
+    }
+
+    public async StartBattle() {
+        
+        let cont = true;
+        while(cont) {
+            cont = await this.GetTurns();
+        }
     }
 
     public async GetTurns() {
@@ -57,6 +67,7 @@ class Battle {
                 messages.push(Message)
             })
             this.SendOutMessage(messages);
+            return true;
         }
     }
 
