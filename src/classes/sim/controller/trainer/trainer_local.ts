@@ -15,20 +15,9 @@ class TrainerLocal extends TrainerBase {
         this.Manager = _team.manager;
     }
     
-    public SelectChoice(_options: TurnChoices): SelectedAction | null {
-        this.Manager.ReceiveOptions(_options);
-        try {
-            const TypeCount = Object.keys(_options).length;
-            if (TypeCount > 0) {
-                const TypeRnmd = Math.floor(Math.random() * TypeCount);
-                const ActionRnmd = Math.floor(Math.random() * _options[Object.keys(_options)[TypeRnmd]].length);
-
-                return _options[Object.keys(_options)[TypeRnmd]][ActionRnmd]
-            }
-        } catch(e) {
-            return null
-        }
-        return null
+    public async SelectChoice(_options: TurnChoices)  {
+        const SelectedAction = await this.Manager.ReceiveOptions(_options);
+        return SelectedAction;
     }
 
 }

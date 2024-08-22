@@ -18,7 +18,7 @@ class TrainerUser extends TrainerBase {
         this.Room = _team.room;
     }
     
-    public SelectChoice(_options: TurnChoices): SelectedAction | null {
+    public async SelectChoice(_options: TurnChoices) {
         return this.Room.GetUserTurn(this.User, _options);
     }
 

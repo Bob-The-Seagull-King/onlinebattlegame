@@ -16,7 +16,7 @@ class TrainerBase {
         this.Position = _team.pos;
     }
     
-    public SelectChoice(_options: TurnChoices): SelectedAction | null { return null; }
+    public async SelectChoice(_options: TurnChoices) { return null; }
 
 }
 

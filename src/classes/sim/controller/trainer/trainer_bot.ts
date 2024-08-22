@@ -14,7 +14,7 @@ class TrainerBot extends TrainerBase {
         this.Behaviour = _team.behaviour;
     }
     
-    public SelectChoice(_options: TurnChoices): SelectedAction | null {
+    public async SelectChoice(_options: TurnChoices) {
         try {
             const TypeCount = Object.keys(_options).length;
             if (TypeCount > 0) {

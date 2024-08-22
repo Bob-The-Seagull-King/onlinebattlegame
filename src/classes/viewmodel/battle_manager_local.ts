@@ -10,6 +10,12 @@ import { Team } from "../sim/models/team";
 import { Scene } from "../sim/models/terrain/terrain_scene";
 import { BattleManager, IBattleManager } from "./battle_manager";
 
+// Define the Action type
+type EventAction = {
+    type: string;
+    payload?: any;
+  };
+
 class OfflineBattleManager extends BattleManager {
 
     public GameBattle : Battle = null;
@@ -54,10 +60,21 @@ class OfflineBattleManager extends BattleManager {
 
     public ReceiveOptions(_options : TurnChoices) {
         this.funcReceiveOptions(_options);
+        return new Promise((resolve) => {
+            const handleEvent = (event: CustomEvent<EventAction>) => {
+            console.log(event.detail)
+              resolve(event.detail);
+              document.removeEventListener('selectAction', handleEvent as EventListener);
+            };
+        
+            document.addEventListener('selectAction', handleEvent as EventListener);
+          });
     }
 
     public SendOptions(_option : SelectedAction) {
-        console.log(_option);
+        const event = new CustomEvent<EventAction>('selectAction', { detail: _option });
+        document.dispatchEvent(event);
+        this.funcReceiveOptions([]);
     }
 
 }

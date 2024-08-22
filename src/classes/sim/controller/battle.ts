@@ -43,7 +43,7 @@ class Battle {
 
         const TurnPromise = this.Trainers.map(async (item) => {
             const Options : TurnChoices = this.GetTrainerChoices(item)
-            const Turn : SelectedAction = (item.SelectChoice(Options))
+            const Turn : SelectedAction = await (item.SelectChoice(Options))
             Choices.push(Turn)
         });
 

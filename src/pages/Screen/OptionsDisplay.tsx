@@ -37,9 +37,9 @@ const OptionsDisplay = (props: any) => {
   return (
     <div className="App">
       {optionsReceived.map(item => (
-        <>
+        <div key={"choice" + optionsReceived.indexOf(item)}>
           <button onClick={() => SendSingleOption(item)}>{item.type}</button>
-        </>
+        </div>
       ))
       }
     </div>
