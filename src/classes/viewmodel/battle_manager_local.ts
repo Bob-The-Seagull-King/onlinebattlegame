@@ -45,7 +45,6 @@ class OfflineBattleManager extends BattleManager {
                 Val += "\n" + item + " : " + element[item].type + element[item].trainer.Position;
             })
         })
-        console.log(Val.toString())
         this.funcReceiveResults(Val.toString())
     }
 
