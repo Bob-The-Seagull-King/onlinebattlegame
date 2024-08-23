@@ -2,7 +2,7 @@ import { SocketHold } from "../socket/SocketHold";
 import { UserHold } from "../user/UserHold";
 import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { RoomStore } from "./RoomStore";
-import { SelectedAction, TurnChoices } from "../../../global_types";
+import { MessageSet, SelectedAction, TurnChoices } from "../../../global_types";
 import { Team } from "../../sim/models/team";
 import { Battle } from "../../sim/controller/battle";
 import { TrainerBase } from "../../sim/controller/trainer/trainer_basic";
@@ -10,6 +10,9 @@ import { TerrainFactory } from "../../sim/factories/terrain_factory";
 import { Scene } from "../../sim/models/terrain/terrain_scene";
 import { BattleFactory } from "../../sim/factories/battle_factory";
 import { TrainerUser } from "../../sim/controller/trainer/trainer_user";
+import { EventEmitter } from 'events';
+
+const eventEmitter = new EventEmitter();
 
 interface IRoomMember {
     socket: SocketHold
@@ -18,6 +21,11 @@ interface IRoomMember {
     authority: number
     team : Team
 }
+
+type EventAction = {
+    type: string;
+    payload?: any;
+  };
 
 interface IRoomConstruct {
     id: number
@@ -96,14 +104,23 @@ class RoomHold {
         if (this.MyMessages.length >= this.MaxMembers) {
             let i = 0;
             for (i = 0; i < this.MyMessages.length; i ++) {
-                this.MyMessages[i].member.socket.MySocket.to(this.MyID).emit("receive_message", this.MyMessages[i].message);
+                this.MyMessages[i].member.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : this.MyMessages[i].message}]});
             }  
             this.MyMessages = [];
         }
     }
 
-    public GetUserTurn(_user : IRoomMember, _options : TurnChoices) : SelectedAction | null {
-        return null;
+    public async GetUserTurn(_user : TrainerUser, _options : TurnChoices) {
+        _user.User.socket.MySocket.to(this.MyID).emit("receive_battle_options", {message: _options, username: _user.User.user.MySocket.MyID});
+        return new Promise<SelectedAction>((resolve) => {
+            eventEmitter.once('selectAction'+_user.User.user.MySocket.MyID, (action: SelectedAction) => {
+                resolve(action);
+            });
+        });
+    }
+    
+    public SendOptions(_option : SelectedAction, refID : string) {
+        eventEmitter.emit('selectAction'+refID, _option);
     }
     
     public GenerateBattle() {
@@ -112,24 +129,31 @@ class RoomHold {
         
         let i = 0
         for (i = 0; i < this.MyMembers.length; i++) {
-            const newTrainer : TrainerUser = new TrainerUser({user : this.MyMembers[i], room: this, team: this.MyMembers[i].team, pos : i});
+            const newTrainer : TrainerUser = new TrainerUser({user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i});
             Trainers.push(newTrainer);
         }
         
-        this.GameRoom = BattleFactory.CreateBattle(Trainers, newScene, this.EmitMessage);
+        this.GameRoom = BattleFactory.CreateBattle(Trainers, newScene, this);
         Trainers.forEach(element => {
-            element.User.socket.MySocket.to(this.MyID).emit("receive_message", {message: "Battle Room Made For Room" + this.MyID});
+            element.User.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : "Battle Room Made For Room" + this.MyID}]});
         });
     }
 
     public DestroyBattle() {
         if (this.GameRoom) {
             this.GameRoom.Trainers.forEach(element => {
-                (element as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: "Battle Ended In Room " + this.MyID});
+                (element as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : "Battle Ended In Room " + this.MyID}]});
             });
 
             delete this.GameRoom;
         }
+    }
+
+    public ReceiveMessages(_messages : MessageSet) {
+        this.MyMembers.forEach(item => {
+            console.log(this.MyMembers);
+            item.socket.MySocket.to(this.MyID).emit("receive_battle_message", {message: _messages});
+        })
     }
 }
 

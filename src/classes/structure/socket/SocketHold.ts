@@ -1,6 +1,7 @@
 import { UserHold } from "../user/UserHold";
 import { ServerHold } from "../server/ServerHold";
 import { RoomHold } from "../room/RoomHold";
+import { SelectedAction } from "../../../global_types";
 
 class SocketHold {
 
@@ -28,6 +29,15 @@ class SocketHold {
             const RoomVal = Number(data.room)
             const Room = this.GetRoom(RoomVal)
             if (Room) { Room.AddMessage(this, data) }
+        });
+
+        this.MySocket.on("send_option", (data) => {
+            const RoomVal = Number(data.room)
+            const Room = this.GetRoom(RoomVal)
+            const Action : SelectedAction = data.option;
+            if (Room) {
+                Room.SendOptions(Action, this.MyUser.MySocket.MyID);
+            }
         });
 
         this.MySocket.on('disconnect', ( ) => {

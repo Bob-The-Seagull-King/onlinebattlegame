@@ -53,7 +53,7 @@ class Battle {
 
         const TurnPromise = this.Trainers.map(async (item) => {
             const Options : TurnChoices = this.GetTrainerChoices(item)
-            const Turn : SelectedAction = await (item.SelectChoice(Options))
+            const Turn : SelectedAction = await (item.SelectChoice(Options, this.SendMessage))
             Choices.push(Turn)
         });
 
@@ -63,6 +63,7 @@ class Battle {
             // TURN Behaviour Goes Here
             const messages : MessageSet = [];
             Choices.forEach(element => {
+                element.trainer = new TrainerBase({ team : element.trainer.Team, pos : element.trainer.Position })
                 const Message : {[id : IDEntry]: any} = { "choice" : element}
                 messages.push(Message)
             })
@@ -72,8 +73,9 @@ class Battle {
     }
 
     public GetTrainerChoices(_trainer : TrainerBase) {
+        const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position })
         const TurnChoices : TurnChoices = {
-            "NONE" : [{type : "NONE", trainer : _trainer}]
+            "NONE" : [{type : "NONE", trainer : baseTrainer}]
         }
         return TurnChoices
     }

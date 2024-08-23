@@ -4,22 +4,20 @@ import { ITrainer, TrainerBase } from "./trainer_basic";
 
 class ITrainerUser extends ITrainer {
     user : IRoomMember;
-    room : RoomHold;
 }
 
 class TrainerUser extends TrainerBase {
 
     public User : IRoomMember;
-    public Room : RoomHold;
 
     constructor(_team : ITrainerUser) {
         super(_team)
         this.User = _team.user;
-        this.Room = _team.room;
     }
     
-    public async SelectChoice(_options: TurnChoices) {
-        return this.Room.GetUserTurn(this.User, _options);
+    public async SelectChoice(_options: TurnChoices, _room : RoomHold) {
+        const SelectedAction = await _room.GetUserTurn(this, _options)
+        return SelectedAction;
     }
 
 }
