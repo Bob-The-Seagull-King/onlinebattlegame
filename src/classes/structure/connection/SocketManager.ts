@@ -2,7 +2,7 @@ import * as io from "socket.io-client";
 import { CONNECTION } from "../../../resources/connection-routes";
 import { useEffect, useState } from "react";
 import { AnyARecord } from "dns";
-import { Team } from "../../sim/models/team";
+import { ActivePos, Team } from "../../sim/models/team";
 import { TeamFactory } from "../../sim/factories/team_factory";
 import { OnlineBattleManager } from "../../viewmodel/battle_manager_online";
 import { SelectedAction } from "../../../global_types";
@@ -46,6 +46,8 @@ class SocketManager {
     public JoinRoom() {
         const Team : Team = TeamFactory.CreateNewTeam();
         Team.Monsters.push(MonsterFactory.CreateNewMonster("temp"))
+        Team.Monsters[0].AddFreshAction("temp");
+        Team.Leads.push(new ActivePos( Team.Monsters[0], 0))
         this.ActiveSocket.emit("join_room", Team);    
     }
 

@@ -1,3 +1,4 @@
+import { IDEntry } from "../../../global_types";
 import { ItemFactory } from "../factories/item_factory";
 import { MonsterFactory } from "../factories/monster_factory";
 import { ActiveItem, IActiveItem } from "./active_item"
@@ -61,7 +62,10 @@ class Team {
         }
     }
 
-    
+    public AddFreshMonster(_monster : IDEntry) {
+        const NewMonster = MonsterFactory.CreateNewMonster(_monster);
+        this.Monsters.push(NewMonster)
+    }
 
 }
 

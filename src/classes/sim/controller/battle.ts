@@ -89,12 +89,16 @@ class Battle {
         const Choices : SelectedAction[] = [];
 
         const TurnPromise = this.Trainers.map(async (item) => {
-            const Options : TurnChoices = this.GetTrainerChoices(item)
-            const Turn : SelectedAction = await (item.SelectChoice(Options, this.SendMessage))
-            if (Turn) {
-                Turn.trainer = item
-                Choices.push(Turn)
-            }
+            const LeadPromise = item.Team.Leads.map( async (element) => {
+                const Options : TurnChoices = this.GetTrainerChoices(item, element)
+                const Turn : SelectedAction = await (item.SelectChoice(Options, this.SendMessage))
+                if (Turn) {
+                    Turn.trainer = item
+                    Choices.push(Turn)
+                }
+            })
+
+            await Promise.all(LeadPromise);
         });
 
         await Promise.all(TurnPromise);
@@ -104,7 +108,7 @@ class Battle {
         }
     }
 
-    public GetTrainerChoices(_trainer : TrainerBase) {
+    public GetTrainerChoices(_trainer : TrainerBase, _monster : ActivePos) {
         const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position, name: _trainer.Name })
         const TurnChoices : TurnChoices = {
             "NONE" : [{type : "NONE", trainer : baseTrainer}]

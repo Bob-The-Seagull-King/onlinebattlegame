@@ -7,7 +7,7 @@ import { BattleFactory } from "../sim/factories/battle_factory";
 import { MonsterFactory } from "../sim/factories/monster_factory";
 import { TeamFactory } from "../sim/factories/team_factory";
 import { TerrainFactory } from "../sim/factories/terrain_factory";
-import { Team } from "../sim/models/team";
+import { ActivePos, Team } from "../sim/models/team";
 import { Scene } from "../sim/models/terrain/terrain_scene";
 import { BattleManager, IBattleManager } from "./battle_manager";
 
@@ -33,12 +33,16 @@ class OfflineBattleManager extends BattleManager {
 
     public GenerateBattle() {
         const myTeam : Team = TeamFactory.CreateNewTeam();
-        myTeam.Monsters.push(MonsterFactory.CreateNewMonster("temp"))
+        myTeam.AddFreshMonster("temp");
+        myTeam.Monsters[0].AddFreshAction("temp");
+        myTeam.Leads.push(new ActivePos( myTeam.Monsters[0], 0))
         const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
 
         const otherTeam : Team = TeamFactory.CreateNewTeam();
-        otherTeam.Monsters.push(MonsterFactory.CreateNewMonster("temp"))
+        otherTeam.AddFreshMonster("temp");
+        otherTeam.Monsters[0].AddFreshAction("temp");
+        otherTeam.Leads.push(new ActivePos( otherTeam.Monsters[0], 0))
         const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam, pos: 1, behaviour: [], name: "Bot"});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)

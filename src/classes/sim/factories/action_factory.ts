@@ -4,18 +4,18 @@ import { ActiveMonster } from "../models/active_monster";
 
 class ActionFactory {
 
-    public static CreateAction(_action : IActiveAction, _owner : ActiveMonster) {
+    public static CreateAction(_action : IActiveAction) {
         const newAction = new ActiveAction(_action);
         return newAction;
     }
 
-    public static CreateNewAction(_action : IDEntry, _owner : ActiveMonster) {
+    public static CreateNewAction(_action : IDEntry) {
         const freshAction : IActiveAction = {
             action: _action,
             used: 0,
             trackers: {}
         }
-        return ActionFactory.CreateAction(freshAction, _owner);
+        return ActionFactory.CreateAction(freshAction);
     }
 
 }
