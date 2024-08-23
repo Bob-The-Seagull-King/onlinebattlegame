@@ -6,6 +6,7 @@ import { Team } from "../../sim/models/team";
 import { TeamFactory } from "../../sim/factories/team_factory";
 import { OnlineBattleManager } from "../../viewmodel/battle_manager_online";
 import { SelectedAction } from "../../../global_types";
+import { MonsterFactory } from "../../sim/factories/monster_factory";
 
 class SocketManager {
 
@@ -44,6 +45,7 @@ class SocketManager {
 
     public JoinRoom() {
         const Team : Team = TeamFactory.CreateNewTeam();
+        Team.Monsters.push(MonsterFactory.CreateNewMonster("temp"))
         this.ActiveSocket.emit("join_room", Team);    
     }
 

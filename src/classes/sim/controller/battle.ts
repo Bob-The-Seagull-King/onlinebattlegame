@@ -44,8 +44,34 @@ class Battle {
         
         let cont = true;
         while(cont) {
-            cont = await this.GetTurns();
+            cont = await this.RunRound();
         }
+    }
+
+    public async RunRound() {
+        const Choices : SelectedAction[] = await this.GetTurns()
+
+        if (Choices) {
+            const messages : MessageSet = [];
+            Choices.forEach(element => {
+                element.trainer = new TrainerBase({ team : element.trainer.Team, pos : element.trainer.Position, name: element.trainer.Name })
+                const Message : {[id : IDEntry]: any} = { "choice" : element}
+                messages.push(Message)
+            })
+            this.SendOutMessage(messages);
+            // return true;
+            return this.IsBattleAlive();
+        }
+    }
+
+    public IsBattleAlive() {
+        let LivingCount = 0
+        this.Trainers.forEach(item => {
+            if (item.Team.IsAlive()) {
+                LivingCount += 1
+            }
+        })
+        return (LivingCount > 1)
     }
 
     public async GetTurns() {
@@ -60,15 +86,7 @@ class Battle {
         await Promise.all(TurnPromise);
 
         if (TurnPromise) {
-            // TURN Behaviour Goes Here
-            const messages : MessageSet = [];
-            Choices.forEach(element => {
-                element.trainer = new TrainerBase({ team : element.trainer.Team, pos : element.trainer.Position, name: element.trainer.Name })
-                const Message : {[id : IDEntry]: any} = { "choice" : element}
-                messages.push(Message)
-            })
-            this.SendOutMessage(messages);
-            return true;
+            return Choices;
         }
     }
 

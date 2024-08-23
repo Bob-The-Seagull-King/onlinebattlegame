@@ -61,6 +61,16 @@ class Team {
         }
     }
 
+    public IsAlive() {
+        let LivingCount = 0
+        this.Monsters.forEach(item => {
+            if (item.HP_Current > 0) {
+                LivingCount += 1;
+            }
+        })
+        return (LivingCount > 0);
+    }
+
 }
 
 export {Team, ITeam, ActivePos}

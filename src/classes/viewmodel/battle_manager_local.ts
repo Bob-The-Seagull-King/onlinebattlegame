@@ -4,6 +4,7 @@ import { TrainerBase } from "../sim/controller/trainer/trainer_basic";
 import { TrainerBot } from "../sim/controller/trainer/trainer_bot";
 import { TrainerLocal } from "../sim/controller/trainer/trainer_local";
 import { BattleFactory } from "../sim/factories/battle_factory";
+import { MonsterFactory } from "../sim/factories/monster_factory";
 import { TeamFactory } from "../sim/factories/team_factory";
 import { TerrainFactory } from "../sim/factories/terrain_factory";
 import { Team } from "../sim/models/team";
@@ -32,10 +33,12 @@ class OfflineBattleManager extends BattleManager {
 
     public GenerateBattle() {
         const myTeam : Team = TeamFactory.CreateNewTeam();
+        myTeam.Monsters.push(MonsterFactory.CreateNewMonster("temp"))
         const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
 
         const otherTeam : Team = TeamFactory.CreateNewTeam();
+        otherTeam.Monsters.push(MonsterFactory.CreateNewMonster("temp"))
         const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam, pos: 1, behaviour: [], name: "Bot"});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
