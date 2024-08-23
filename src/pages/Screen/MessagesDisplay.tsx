@@ -23,19 +23,21 @@ const MessagesDisplay = (props: any) => {
   
   // DOM Return
   return (
-    <div className="App">
-      <h1> Message:</h1>
-      <div>
-      {messageReceived.map(item => (
-          <div key={"messageset"+messageReceived.indexOf(item)}>
-            <p>{"Message Set " + messageReceived.indexOf(item)}</p>
-            {Manager.TranslateMessages(item).map(element => (
-              <p key={"messageofset"+messageReceived.indexOf(item)+(element)}>
-                {element}
-              </p>
+    <div className="">
+      <h1 className="BigText"> BATTLE MESSAGES</h1>
+      <div className="BasicElementContainer overflow-auto flex-grow-1">
+        <div className="ForceHeight50">
+            {messageReceived.map(item => (
+              <div key={"messageset"+messageReceived.indexOf(item)}>
+                <p>{"Message Set " + messageReceived.indexOf(item)}</p>
+                {Manager.TranslateMessages(item).map(element => (
+                  <p key={"messageofset"+messageReceived.indexOf(item)+(element)}>
+                    {element}
+                  </p>
+                ))}
+              </div>
             ))}
           </div>
-        ))}
       </div>
     </div>
   );

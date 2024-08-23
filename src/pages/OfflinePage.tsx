@@ -19,20 +19,20 @@ const OfflinePage = (props: any) => {
   
   // DOM Return
   return (
-    <div className="App">
+    <div className="TestWebBody">
       <div className="row">
         <div className="col-12">
-          <Button onClick={joinOfflineBattle} size="lg"> Join Offline Battle</Button>
+          <Button bsPrefix="TestButton MedText" onClick={joinOfflineBattle} size="lg"> Start Local Battle</Button>
         </div>
       </div>
       <div className="row">
         <div className="col-4">
-          <div className="BasicElementContainer CapHeight80">
-            <OptionsDisplay manager={battleManager}/>
+          <div className="TestWebComponentHolder">
+            <OptionsDisplay manager={battleManager}/> 
           </div>
         </div>
         <div className="col-8">
-          <div className="BasicElementContainer CapHeight80">
+          <div className="TestWebComponentHolder">
             <MessagesDisplay manager={battleManager}/>
           </div>
         </div>

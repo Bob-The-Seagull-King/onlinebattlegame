@@ -9,6 +9,7 @@ import { OnlineBattleManager } from '../../classes/viewmodel/battle_manager_onli
 import { OfflineBattleManager } from '../../classes/viewmodel/battle_manager_local';
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
 import { SelectedAction, TurnChoices } from '../../global_types';
+import Button from 'react-bootstrap/Button';
 
 const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager;
@@ -35,13 +36,17 @@ const OptionsDisplay = (props: any) => {
   
   // DOM Return
   return (
-    <div className="App">
-      {optionsReceived.map(item => (
-        <div key={"choice" + optionsReceived.indexOf(item)}>
-          <button onClick={() => SendSingleOption(item)}>{item.type}</button>
+    <div>      
+      <h1 className="BigText"> BATTLE OPTIONS</h1>
+      <div className="BasicElementContainer overflow-auto">
+        <div className="ForceHeight50" style={{width:"100%", justifyContent:"center"}}>
+          {optionsReceived.map(item => (
+            <div key={"choice" + optionsReceived.indexOf(item)}>
+              <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(item)}>{item.type}</Button>
+            </div>
+          )) }
         </div>
-      ))
-      }
+      </div>
     </div>
   );
 }
