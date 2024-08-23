@@ -1,0 +1,12 @@
+@import './ColoursCustom.scss';
+
+.BasicElementContainer {
+    display: flex; /* make element size relative to content */
+    border-radius: 0.2em;
+    box-shadow: inset 0 0 5px 1px var(--colour_main_grey);
+    padding: 0.5em;
+}
+
+.CapHeight80 {
+    max-height: calc(80vh);
+}

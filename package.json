@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
+    "sass": "^1.77.8",
     "ts-node": "^10.9.2"
   },
   "browserslist": {
