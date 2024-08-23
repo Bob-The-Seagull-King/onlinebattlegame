@@ -35,7 +35,7 @@ class ServerHold {
 
     private SetupServer() {
         this.MainServer.on("connection", (socket) => {
-            UserSocketFactory.BuildUserAndSocket(socket, this);
+            UserSocketFactory.BuildUserAndSocket(socket, this, this.Users);
         });
         
         this.MainServer.listen(this.PortNum, () => {
@@ -56,6 +56,7 @@ class ServerHold {
     }
 
     public DisconnectSocket(_socket : SocketHold) {
+        console.log(`User Disconnected: ${_socket.MySocket.id}`);
         this.Rooms.RemoveSocket(_socket);
         this.Users.RemoveUser(_socket.MyUser);
         const socketvar = this.Sockets.indexOf(_socket);

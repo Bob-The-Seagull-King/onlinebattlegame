@@ -8,7 +8,7 @@ import { IDEntry, MessageSet, SelectedAction, TurnChoices } from "../../../globa
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
-import { ActivePos } from "../models/team";
+import { ActivePos, Team } from "../models/team";
 import { Plot } from "../models/terrain/terrain_plot";
 import { Scene } from "../models/terrain/terrain_scene";
 import { Side } from "../models/terrain/terrain_side";
@@ -66,12 +66,23 @@ class Battle {
 
     public IsBattleAlive() {
         let LivingCount = 0
+        
         this.Trainers.forEach(item => {
-            if (item.Team.IsAlive()) {
+            if (this.IsAlive(item.Team)) {
                 LivingCount += 1
             }
         })
         return (LivingCount > 1)
+    }
+
+    public IsAlive(_team : Team) {
+        let LivingCount = 0
+        _team.Monsters.forEach(item => {
+            if (item.HP_Current > 0) {
+                LivingCount += 1;
+            }
+        })
+        return (LivingCount > 0);
     }
 
     public async GetTurns() {
