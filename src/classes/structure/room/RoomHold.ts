@@ -129,7 +129,7 @@ class RoomHold {
         
         let i = 0
         for (i = 0; i < this.MyMembers.length; i++) {
-            const newTrainer : TrainerUser = new TrainerUser({user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i});
+            const newTrainer : TrainerUser = new TrainerUser({user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i, name: this.MyMembers[i].user.Name.toString()});
             Trainers.push(newTrainer);
         }
         

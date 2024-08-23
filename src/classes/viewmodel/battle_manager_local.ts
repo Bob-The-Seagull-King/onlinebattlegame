@@ -32,11 +32,11 @@ class OfflineBattleManager extends BattleManager {
 
     public GenerateBattle() {
         const myTeam : Team = TeamFactory.CreateNewTeam();
-        const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this});
+        const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
 
         const otherTeam : Team = TeamFactory.CreateNewTeam();
-        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam, pos: 1, behaviour: []});
+        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam, pos: 1, behaviour: [], name: "Bot"});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
 

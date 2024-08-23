@@ -63,7 +63,7 @@ class Battle {
             // TURN Behaviour Goes Here
             const messages : MessageSet = [];
             Choices.forEach(element => {
-                element.trainer = new TrainerBase({ team : element.trainer.Team, pos : element.trainer.Position })
+                element.trainer = new TrainerBase({ team : element.trainer.Team, pos : element.trainer.Position, name: element.trainer.Name })
                 const Message : {[id : IDEntry]: any} = { "choice" : element}
                 messages.push(Message)
             })
@@ -73,7 +73,7 @@ class Battle {
     }
 
     public GetTrainerChoices(_trainer : TrainerBase) {
-        const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position })
+        const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position, name: _trainer.Name })
         const TurnChoices : TurnChoices = {
             "NONE" : [{type : "NONE", trainer : baseTrainer}]
         }

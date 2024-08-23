@@ -5,16 +5,19 @@ import { Team } from "../../models/team"
 class ITrainer {
     team : Team
     pos  : number
+    name : string
 }
 
 class TrainerBase {
 
     public Team : Team;
     public Position : number;
+    public Name : string;
 
     constructor(_team : ITrainer) {
         this.Team = _team.team;
         this.Position = _team.pos;
+        this.Name = _team.name;
     }
     
     public async SelectChoice(_options: TurnChoices, _room? : any) { return null; }

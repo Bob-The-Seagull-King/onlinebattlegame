@@ -45,7 +45,7 @@ class BattleManager {
                 let MessageStr = ""
                 if (item === 'choice') {
                     MessageStr = "Selected Action: "
-                    if (element[item].type === 'NONE') { MessageStr += "Trainer " + element[item].trainer.Position +  " Did Nothing" }
+                    if (element[item].type === 'NONE') { MessageStr += "Trainer " + element[item].trainer.Name +  " Did Nothing" }
                 } else if (item === 'generic') {
                     MessageStr = element[item]
                 }
