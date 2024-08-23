@@ -39,12 +39,17 @@ const OptionsDisplay = (props: any) => {
     <div>      
       <h1 className="BigText"> BATTLE OPTIONS</h1>
       <div className="BasicElementContainer overflow-auto">
-        <div className="ForceHeight50" style={{width:"100%", justifyContent:"center"}}>
-          {optionsReceived.map(item => (
-            <div key={"choice" + optionsReceived.indexOf(item)}>
-              <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(item)}>{item.type}</Button>
+        <div className='row justify-content-center'>
+          <div className='col-11'>
+            <div className="ForceHeight50" style={{width:"100%", justifyContent:"center"}}>
+              {optionsReceived.map(item => (
+                <div key={"choice" + optionsReceived.indexOf(item)}>
+                  <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(item)}>{item.type}</Button>
+                </div>
+              )) }
             </div>
-          )) }
+
+          </div>
         </div>
       </div>
     </div>

@@ -151,7 +151,6 @@ class RoomHold {
 
     public ReceiveMessages(_messages : MessageSet) {
         this.MyMembers.forEach(item => {
-            console.log(this.MyMembers);
             item.socket.MySocket.to(this.MyID).emit("receive_battle_message", {message: _messages});
         })
     }
