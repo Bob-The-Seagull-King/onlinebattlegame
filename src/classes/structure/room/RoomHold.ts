@@ -2,7 +2,7 @@ import { SocketHold } from "../socket/SocketHold";
 import { UserHold } from "../user/UserHold";
 import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { RoomStore } from "./RoomStore";
-import { MessageSet, SelectedAction, TurnChoices } from "../../../global_types";
+import { MessageSet, SelectedAction, TurnChoices, TurnSelect } from "../../../global_types";
 import { Team } from "../../sim/models/team";
 import { Battle } from "../../sim/controller/battle";
 import { TrainerBase } from "../../sim/controller/trainer/trainer_basic";
@@ -110,7 +110,7 @@ class RoomHold {
         }
     }
 
-    public async GetUserTurn(_user : TrainerUser, _options : TurnChoices) {
+    public async GetUserTurn(_user : TrainerUser, _options : TurnSelect) {
         _user.User.socket.MySocket.to(this.MyID).emit("receive_battle_options", {message: _options, username: _user.User.user.MySocket.MyID});
         return new Promise<SelectedAction>((resolve) => {
             eventEmitter.once('selectAction'+_user.User.user.MySocket.MyID, (action: SelectedAction) => {

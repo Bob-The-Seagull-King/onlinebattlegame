@@ -1,4 +1,4 @@
-import { SelectedAction, TurnChoices } from "../../../../global_types";
+import { SelectedAction, TurnChoices, TurnSelect } from "../../../../global_types";
 import { IRoomMember, RoomHold } from "../../../structure/room/RoomHold";
 import { ITrainer, TrainerBase } from "./trainer_basic";
 
@@ -15,7 +15,7 @@ class TrainerUser extends TrainerBase {
         this.User = _team.user;
     }
     
-    public async SelectChoice(_options: TurnChoices, _room : RoomHold) {
+    public async SelectChoice(_options: TurnSelect, _room : RoomHold) {
         const SelectedAction = await _room.GetUserTurn(this, _options)
         return SelectedAction;
     }

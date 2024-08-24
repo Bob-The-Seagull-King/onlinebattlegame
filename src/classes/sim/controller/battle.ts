@@ -91,7 +91,7 @@ class Battle {
         const TurnPromise = this.Trainers.map(async (item) => {
             const LeadPromise = item.Team.Leads.map( async (element) => {
                 const Options : TurnChoices = this.GetTrainerChoices(item, element)
-                const Turn : SelectedAction = await (item.SelectChoice(Options, this.SendMessage))
+                const Turn : SelectedAction = await (item.SelectChoice({ Choices: Options, Position: element.Position}, this.SendMessage))
                 if (Turn) {
                     Turn.trainer = item
                     Choices.push(Turn)

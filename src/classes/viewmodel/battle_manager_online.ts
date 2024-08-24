@@ -23,22 +23,29 @@ class OnlineBattleManager extends BattleManager {
         this.funcReceiveResults();   
     }
 
-    public ReceiveOptions(_options : TurnChoices) : Promise<SelectedAction> {
-        this.funcReceiveOptions(_options);
+    public ReceiveOptions(_options : TurnChoices, _position : number) : Promise<SelectedAction> {
+        
+        Object.keys(_options).forEach(item =>  {
+            _options[item].forEach(element => {
+            this.ChoicesLog.push({ action : element, pos : _position})
+            })
+        })
+        this.funcReceiveOptions();
         return new Promise<SelectedAction>((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {
               resolve(event.detail as SelectedAction);
-              document.removeEventListener('selectAction', handleEvent as EventListener);
+              document.removeEventListener('selectAction'+_position, handleEvent as EventListener);
             };
         
-            document.addEventListener('selectAction', handleEvent as EventListener);
+            document.addEventListener('selectAction'+_position, handleEvent as EventListener);
           });
     }
 
-    public SendOptions(_option : SelectedAction) {
-        const event = new CustomEvent<EventAction>('selectAction', { detail: _option });
+    public SendOptions(_option : SelectedAction, _position : number) {
+        const event = new CustomEvent<EventAction>('selectAction'+_position, { detail: _option });
         document.dispatchEvent(event);
-        this.funcReceiveOptions([]);
+        this.ChoicesLog = this.ChoicesLog.filter(item => item.pos !== _position)
+        this.funcReceiveOptions();
     }
 
 }

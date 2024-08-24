@@ -8,9 +8,11 @@ class BattleManager {
     public funcReceiveResults : any;
     public funcReceiveOptions : any;
     public MessageLog : MessageSet[];
+    public ChoicesLog : { action : SelectedAction, pos : number}[];
 
     constructor() {
         this.MessageLog = [];
+        this.ChoicesLog = [];
     }
 
     public setResultFuncs(receiveresults : any) {
@@ -21,11 +23,11 @@ class BattleManager {
         this.funcReceiveOptions = receiveoptions;
     }
 
-    public SendOptions(_option : SelectedAction) {
+    public SendOptions(_option : SelectedAction, _position : number) {
         undefined;
     }
 
-    public ReceiveOptions(_options : TurnChoices) {
+    public ReceiveOptions(_options : TurnChoices, _position : number) {
         undefined;
     }
 

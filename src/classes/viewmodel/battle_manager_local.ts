@@ -36,6 +36,9 @@ class OfflineBattleManager extends BattleManager {
         myTeam.AddFreshMonster("temp");
         myTeam.Monsters[0].AddFreshAction("temp");
         myTeam.Leads.push(new ActivePos( myTeam.Monsters[0], 0))
+        myTeam.AddFreshMonster("temp");
+        myTeam.Monsters[1].AddFreshAction("temp");
+        myTeam.Leads.push(new ActivePos( myTeam.Monsters[1], 1))
         const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
 
@@ -60,22 +63,28 @@ class OfflineBattleManager extends BattleManager {
         this.GameBattle.GetTurns();
     }
 
-    public ReceiveOptions(_options : TurnChoices) {
-        this.funcReceiveOptions(_options);
+    public ReceiveOptions(_options : TurnChoices, _position : number) {
+        Object.keys(_options).forEach(item =>  {
+            _options[item].forEach(element => {
+            this.ChoicesLog.push({ action : element, pos : _position})
+            })
+        })
+        this.funcReceiveOptions();
         return new Promise((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {
               resolve(event.detail);
-              document.removeEventListener('selectAction', handleEvent as EventListener);
+              document.removeEventListener('selectAction'+_position, handleEvent as EventListener);
             };
         
-            document.addEventListener('selectAction', handleEvent as EventListener);
+            document.addEventListener('selectAction'+_position, handleEvent as EventListener);
           });
     }
 
-    public SendOptions(_option : SelectedAction) {
-        const event = new CustomEvent<EventAction>('selectAction', { detail: _option });
+    public SendOptions(_option : SelectedAction, _position : number) {
+        const event = new CustomEvent<EventAction>('selectAction'+_position, { detail: _option });
         document.dispatchEvent(event);
-        this.funcReceiveOptions([]);
+        this.ChoicesLog = this.ChoicesLog.filter(item => item.pos !== _position)
+        this.funcReceiveOptions();
     }
 
 }

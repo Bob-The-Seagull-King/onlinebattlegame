@@ -37,6 +37,11 @@ export type BaseStats = {
 
 // --------------------------------- Interface -------------------------------------------
 
+export type TurnSelect = {
+    Choices : TurnChoices,
+    Position : number
+}
+
 export type TurnChoices = {
     [actiontype : string] : SelectedAction[]
 }

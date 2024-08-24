@@ -21,7 +21,7 @@ class SocketManager {
         this.ActiveSocket.on("receive_battle_message", (data : any) => {
              this.ReceiveMessage(data.message); });
         this.ActiveSocket.on("receive_battle_options", async (data : any) => { 
-            const newAction : SelectedAction = await this.BattleManager.ReceiveOptions(data.message);
+            const newAction : SelectedAction = await this.BattleManager.ReceiveOptions(data.message.Choices, data.message.Position);
             if (newAction) {
              this.SendAction(newAction);
             }

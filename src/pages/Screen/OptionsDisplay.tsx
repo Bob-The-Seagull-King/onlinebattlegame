@@ -15,23 +15,18 @@ const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager;
   // Messages States
 
-  const [optionsReceived, setOptionsReceived] = useState([]);
+  const [optionsReceived, setOptionsReceived] = useState(Manager.ChoicesLog);
   
 
-  const receiveOptions = (data : TurnChoices) => {
-    const options : SelectedAction[] = []
-    Object.keys(data).forEach(item =>  {
-      data[item].forEach(element => {
-        options.push(element)
-      })
-    })
+  const receiveOptions = () => {
+    const options =  Object.assign([], Manager.ChoicesLog);
     setOptionsReceived(options);
   }
 
   Manager.setOptionsFuncs(receiveOptions)
 
-  const SendSingleOption = (_item : SelectedAction) => {
-    Manager.SendOptions(_item)
+  const SendSingleOption = (_item : { action : SelectedAction, pos : number}) => {
+    Manager.SendOptions(_item.action, _item.pos)
   }
   
   // DOM Return
@@ -44,7 +39,7 @@ const OptionsDisplay = (props: any) => {
             <div className="ForceHeight50" style={{width:"100%", justifyContent:"center"}}>
               {optionsReceived.map(item => (
                 <div key={"choice" + optionsReceived.indexOf(item)}>
-                  <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(item)}>{item.type}</Button>
+                  <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(item)}>{item.action.type}</Button>
                 </div>
               )) }
             </div>

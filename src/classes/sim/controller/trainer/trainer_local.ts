@@ -1,4 +1,4 @@
-import { SelectedAction, TurnChoices } from "../../../../global_types";
+import { SelectedAction, TurnChoices, TurnSelect } from "../../../../global_types";
 import { OfflineBattleManager } from "../../../viewmodel/battle_manager_local";
 import { ITrainer, TrainerBase } from "./trainer_basic";
 
@@ -15,8 +15,8 @@ class TrainerLocal extends TrainerBase {
         this.Manager = _team.manager;
     }
     
-    public async SelectChoice(_options: TurnChoices)  {
-        const SelectedAction = await this.Manager.ReceiveOptions(_options);
+    public async SelectChoice(_options: TurnSelect)  {
+        const SelectedAction = await this.Manager.ReceiveOptions(_options.Choices, _options.Position);
         return SelectedAction;
     }
 

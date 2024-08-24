@@ -1,4 +1,4 @@
-import { SelectedAction, TurnChoices } from "../../../../global_types";
+import { SelectedAction, TurnChoices, TurnSelect } from "../../../../global_types";
 import { RoomHold } from "../../../structure/room/RoomHold";
 import { Team } from "../../models/team"
 
@@ -20,7 +20,7 @@ class TrainerBase {
         this.Name = _team.name;
     }
     
-    public async SelectChoice(_options: TurnChoices, _room? : any) { return null; }
+    public async SelectChoice(_options: TurnSelect, _room? : any) { return null; }
 
 }
 
