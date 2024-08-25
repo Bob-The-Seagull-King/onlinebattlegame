@@ -3,11 +3,11 @@ import { MonsterType } from "../../enum/types";
 import { ActionCategory } from "../../enum/categories";
 
 export const ActionInfoDex : ActionInfoTable = {
-    temp : {
+    tackle : {
         id          : 0,
-        name        : "TempAction",
+        name        : "Tackle",
         description : [
-            {cat: "", text: "This Does Normal Damage"}
+            {cat: "", text: "The monster slams itself into the opponent."}
         ]
     }
 }

@@ -1,5 +1,6 @@
 enum ActionCategory {
-    None = ""
+    None = "",
+    Blunt = "Blunt"
 }
 
 enum TraitCategory {

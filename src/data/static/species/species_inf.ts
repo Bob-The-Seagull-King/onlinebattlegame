@@ -1,10 +1,10 @@
 import { SpeciesInfoTable } from "../../../global_types";
 
 export const SpeciesInfoDex : SpeciesInfoTable = {
-    temp: {
+    larvin: {
         id          : 0,
-        name        : "TempMon",
-        subtitle    : "The Temporary",
-        description : "This is a temporary monster."
+        name        : "Larvin",
+        subtitle    : "Storm Follower",
+        description : "They follow the ocean currents, tracking storms by the energy left behind. It's body is so small that even ambient charge will light them up with energy."
     }
 }

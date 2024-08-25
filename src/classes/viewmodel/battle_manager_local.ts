@@ -33,18 +33,15 @@ class OfflineBattleManager extends BattleManager {
 
     public GenerateBattle() {
         const myTeam : Team = TeamFactory.CreateNewTeam();
-        myTeam.AddFreshMonster("temp");
-        myTeam.Monsters[0].AddFreshAction("temp");
+        myTeam.AddFreshMonster("larvin");
+        myTeam.Monsters[0].AddFreshAction("tackle");
         myTeam.Leads.push(new ActivePos( myTeam.Monsters[0], 0))
-        myTeam.AddFreshMonster("temp");
-        myTeam.Monsters[1].AddFreshAction("temp");
-        myTeam.Leads.push(new ActivePos( myTeam.Monsters[1], 1))
         const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
 
         const otherTeam : Team = TeamFactory.CreateNewTeam();
-        otherTeam.AddFreshMonster("temp");
-        otherTeam.Monsters[0].AddFreshAction("temp");
+        otherTeam.AddFreshMonster("larvin");
+        otherTeam.Monsters[0].AddFreshAction("tackle");
         otherTeam.Leads.push(new ActivePos( otherTeam.Monsters[0], 0))
         const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam, pos: 1, behaviour: [], name: "Bot"});
 

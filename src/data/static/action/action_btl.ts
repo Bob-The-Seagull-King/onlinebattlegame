@@ -3,13 +3,13 @@ import { MonsterType } from "../../enum/types";
 import { ActionCategory } from "../../enum/categories";
 
 export const ActionBattleDex : ActionBattleTable = {
-    temp : {
+    tackle : {
         id          : 0,
-        type        : MonsterType.None,
+        type        : MonsterType.Skirmish,
         cost        : 5,
         uses        : 15,
         accuracy    : 0,
         damage_mod  : 0,
-        category    : ActionCategory.None
+        category    : ActionCategory.Blunt
     }
 }
