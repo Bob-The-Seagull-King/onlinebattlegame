@@ -4,7 +4,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { IDEntry, MessageSet, SelectedAction, TurnChoices } from "../../../global_types";
+import { ActionAction, IDEntry, ItemAction, MessageSet, SelectedAction, SubSelectAction, SwitchAction, TurnChoices } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
@@ -109,12 +109,199 @@ class Battle {
     }
 
     public GetTrainerChoices(_trainer : TrainerBase, _monster : ActivePos) {
+        // Simplified Trainer Info for Socket-Safe message size
         const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position, name: _trainer.Name })
-        const TurnChoices : TurnChoices = {
-            "NONE" : [{type : "NONE", trainer : baseTrainer}]
+
+        // Setup Empties
+        const SwitchChoices : SubSelectAction[] = []
+        const ItemChoices : SubSelectAction[] = [];
+        const ActionChoices : SubSelectAction[] = [];
+        const NoneActions : SelectedAction[] = [{type : "NONE", trainer : baseTrainer}];
+
+        const _activeChoices : TurnChoices = {}
+
+        // Gather Choices
+
+
+        // Switch
+        const SwitchOptions : SwitchAction[] = []
+        _trainer.Team.Monsters.forEach(item => {
+            let IsOut = false;
+            for (let i = 0; i < _trainer.Team.Leads.length; i++) {
+                if (_trainer.Team.Leads[i].Monster === item) {
+                    IsOut = true;
+                    break;
+                }
+            }
+            if (IsOut === false) { SwitchOptions.push( { type: "SWITCH", trainer: baseTrainer, current: _monster, newmon: item }) }
+        })
+        SwitchChoices.push({
+            type    : "SWITCH",
+            trainer : baseTrainer,
+            choice  : _monster,
+            options : SwitchOptions
+        })
+
+        // Item
+        _trainer.Team.Items.forEach(item => {
+            const ItemOptions : ItemAction[] = []
+            this.GetTrainerItemChoices(item, _trainer, ItemOptions)
+            ItemChoices.push({
+                type    : "ITEM",
+                trainer : baseTrainer,
+                choice  : item,
+                options : ItemOptions
+            })
+        })
+
+        // Actions
+        _monster.Monster.Actions_Current.forEach(item => {
+            const ActionOptions : ActionAction[] = []
+            this.GetMonsterActionChoices(item, _trainer, _monster, ActionOptions)
+            ItemChoices.push({
+                type    : "ACTION",
+                trainer : baseTrainer,
+                choice  : item,
+                options : ActionOptions
+            })
+        })
+
+        // Assign to choice list
+        if (SwitchChoices.length > 0) { _activeChoices["SWITCH"] = SwitchChoices; }
+        if (ItemChoices.length > 0) { _activeChoices["ITEM"] = ItemChoices; }
+        if (ActionChoices.length > 0) { _activeChoices["ACTION"] = ActionChoices; 
+
         }
-        return TurnChoices
+        if ((SwitchChoices.length <= 0) &&
+            (ItemChoices.length <= 0) &&
+            (ActionChoices.length <= 0)) {
+            _activeChoices["NONE"] = NoneActions;
+        }
+        return _activeChoices
     }
+
+    public GetMonsterActionChoices( _action : ActiveAction, _trainer : TrainerBase, _monster : ActivePos, choiceList : ActionAction[]) {
+        const ActionData = ActionBattleDex[_action.Action];
+        const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position, name: _trainer.Name })
+
+        if (this.runEvent("CanUseMove", _trainer, _trainer, _monster, _monster, _action, true)) {
+            if (ActionData.team_target === "SELF") {
+                choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[_trainer.Position, _monster.Position]] })            
+            } else if (ActionData.team_target === "ALL") {
+                if (ActionData.pos_target === "ALL") {
+                    choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: []
+                    })
+                } else if (ActionData.pos_target === "SIDE") {
+                    const SideList : number[][] = []
+                    this.Scene.Sides.forEach(item => { SideList.push([item.Position]) })
+                    choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: SideList })
+                } else if (ActionData.pos_target === "SINGLE") {
+                    const PlotList : number[][] = []
+                    this.Scene.Plots.forEach(item => {PlotList.push([item.ScenePos, item.Position]) })
+                    choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: PlotList })
+                }
+            } else if (ActionData.team_target === "ANY") {
+                if (ActionData.pos_target === "SIDE") {
+                    this.Scene.Sides.forEach(item => {
+                        choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[item.Position]] })
+                    })
+                } else if (ActionData.pos_target === "SINGLE") {
+                    this.Scene.Plots.forEach(item => {
+                        choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[item.ScenePos, item.Position]] })
+                    })
+                }
+            } else if (ActionData.team_target === "TEAM") {
+                if (ActionData.pos_target === "SIDE") {
+                    choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[_trainer.Position]] })
+                } else if (ActionData.pos_target === "SINGLE") {
+                    this.Scene.Plots.forEach(item => {
+                        if (item.ScenePos === _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[item.ScenePos, item.Position]] })
+                        }
+                    })
+                }
+            } else if (ActionData.team_target === "ENEMY") {
+                if (ActionData.pos_target === "SIDE") {
+                    this.Scene.Sides.forEach(item => {
+                        if (item.Position != _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[item.Position]] })
+                        }
+                    })
+                } else if (ActionData.pos_target === "SINGLE") {
+                    this.Scene.Plots.forEach(item => {
+                        if (item.ScenePos != _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[item.ScenePos, item.Position]] })
+                        }
+                    })
+                }
+            }
+        }
+    }
+
+    public GetTrainerItemChoices(_item : ActiveItem, _trainer : TrainerBase, choiceList : ItemAction[]) {
+        const ItemData = ItemBattleDex[_item.Item];
+        const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position, name: _trainer.Name })
+
+        if (this.runEvent("CanUseItem", _trainer, _trainer, null, _trainer, _item, true)) {
+            if (ItemData.team_target === "ALL") {
+                if (ItemData.pos_target === "ALL") {
+                    choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: []
+                    })
+                } else if (ItemData.pos_target === "SIDE") {
+                    const SideList : number[][] = []
+                    this.Scene.Sides.forEach(item => {
+                        SideList.push([item.Position])
+                    })
+                    choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: SideList })
+                } else if (ItemData.pos_target === "SINGLE") {
+                    const PlotList : number[][] = []
+                    this.Scene.Plots.forEach(item => {
+                        PlotList.push([item.ScenePos, item.Position])
+                    })
+                    choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: PlotList })
+                }
+            } else if (ItemData.team_target === "ANY") {
+                if (ItemData.pos_target === "SIDE") {
+                    this.Scene.Sides.forEach(item => {
+                        choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.Position]] })
+                    })
+                } else if (ItemData.pos_target === "SINGLE") {
+                    this.Scene.Plots.forEach(item => {
+                        choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                    })
+                }
+            } else if (ItemData.team_target === "ENEMY") {
+                if (ItemData.pos_target === "SIDE") {
+                    this.Scene.Sides.forEach(item => {
+                        if (item.Position != _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.Position]] })
+                        }
+                    })
+                } else if (ItemData.pos_target === "SINGLE") {
+                    this.Scene.Plots.forEach(item => {
+                        if (item.ScenePos != _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                        }
+                    })
+                }
+            } else if (ItemData.team_target === "TEAM") {
+                if (ItemData.pos_target === "SIDE") {
+                    this.Scene.Sides.forEach(item => {
+                        if (item.Position === _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.Position]] })
+                        }
+                    })
+                } else if (ItemData.pos_target === "SINGLE") {
+                    this.Scene.Plots.forEach(item => {
+                        if (item.ScenePos === _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                        }
+                    })
+                }
+            }
+        }
+
+    }    
 
     public runEvent(
         eventid: string,
@@ -166,7 +353,6 @@ class Battle {
             if ((relay_variable !== undefined) && (relay_variable !== null)) { args[i] = relay_variable; i += 1; }
             if ((trackVal !== undefined) && (trackVal !== null)) { args[i] = trackVal; i += 1; }
             if ((onEffect !== undefined) && (onEffect !== null)) { args[i] = onEffect; i += 1; }
-            if ((fastExit !== undefined) && (fastExit !== null)) { args[i] = fastExit; i += 1; }
             if ((fastExit !== undefined) && (fastExit !== null)) { args[i] = fastExit; i += 1; }
             if ((_event.fromsource !== undefined) && (_event.fromsource !== null)) { args[i] = _event.fromsource; i += 1; }
             if ((eventdepth !== undefined) && (eventdepth !== null)) {

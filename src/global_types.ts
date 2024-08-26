@@ -8,6 +8,7 @@ import { ActivePos } from "./classes/sim/models/team";
 import { Scene } from "./classes/sim/models/terrain/terrain_scene";
 import { Side } from "./classes/sim/models/terrain/terrain_side";
 import { Plot } from "./classes/sim/models/terrain/terrain_plot";
+import { Battle } from "./classes/sim/controller/battle";
 
 // ----------------------------------- Types ---------------------------------------------
 
@@ -51,20 +52,25 @@ export interface SelectedAction {
     trainer : TrainerBase
 }
 
+export interface SubSelectAction extends SelectedAction {
+    choice  : ActiveMonster | ActiveItem | ActiveAction | ActivePos,
+    options : ItemAction[] | ActionAction[] | SwitchAction[]
+}
+
 export interface SwitchAction extends SelectedAction {
     current : ActivePos,
     newmon : ActiveMonster
 }
 
 export interface ItemAction extends SelectedAction {
-    item : ActiveItem,
-    target : ActiveMonster | Scene | Side[] | Plot[]
+    item    : ActiveItem,
+    target  : number[][]
 }
 
 export interface ActionAction extends SelectedAction {
-    source : ActiveMonster,
+    source : ActivePos,
     action : ActiveAction,
-    target : ActiveMonster[] | Scene | Side[] | Plot[]
+    target : number[][]
 }
 
 // Species
@@ -83,7 +89,7 @@ export interface ISpeciesInfo {
 }
 
 // Action
-export interface IActionBattle extends CallEvents {
+export interface IActionBattle extends CallEvents, ChoiceTarget {
     id          : number,
     type        : MonsterType,
     cost        : number
@@ -113,7 +119,7 @@ export interface ITraitInfo {
 }
 
 // Item
-export interface IItemBattle extends CallEvents {
+export interface IItemBattle extends CallEvents, ChoiceTarget {
     id          : number,
     cost        : number,
     category    : ItemCategory
@@ -143,7 +149,15 @@ export interface IBehaviour extends BehaviourEvents {
 }
 
 // Parent interface with all events that can be called
+export interface ChoiceTarget {
+    team_target : "ALL" | "ANY" | "ENEMY" | "SELF" | "TEAM",
+    pos_target  : "ALL" | "SINGLE" | "SIDE",
+    type_target : "ALL" | "TERRAIN" | "MONSTER"
+}
+
 export interface CallEvents {
+    onCanUseMove? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect: ActiveAction, relayVar: any, fromSource: boolean) => true | false;
+    onCanUseItem? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, source : TrainerBase, sourceEffect: ActiveItem, relayVar: any, fromSource: boolean) => true | false;
 }
 
 export interface BehaviourEvents {

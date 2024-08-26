@@ -35,6 +35,7 @@ class OfflineBattleManager extends BattleManager {
         const myTeam : Team = TeamFactory.CreateNewTeam();
         myTeam.AddFreshMonster("larvin");
         myTeam.Monsters[0].AddFreshAction("tackle");
+        myTeam.AddFreshItem("temp");
         myTeam.Leads.push(new ActivePos( myTeam.Monsters[0], 0))
         const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
@@ -42,6 +43,7 @@ class OfflineBattleManager extends BattleManager {
         const otherTeam : Team = TeamFactory.CreateNewTeam();
         otherTeam.AddFreshMonster("larvin");
         otherTeam.Monsters[0].AddFreshAction("tackle");
+        otherTeam.AddFreshItem("temp");
         otherTeam.Leads.push(new ActivePos( otherTeam.Monsters[0], 0))
         const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam, pos: 1, behaviour: [], name: "Bot"});
 

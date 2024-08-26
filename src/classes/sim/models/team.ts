@@ -47,6 +47,11 @@ class Team {
         return ItemList;
     }
 
+    public AddFreshItem(_item : IDEntry) {
+        const NewItem = ItemFactory.CreateNewAction(_item);
+        this.Items.push(NewItem)
+    }
+
     private MonsterGenerator(_monsters : IActiveMonster[], _leads : IActivePos[]) {
         let i = 0;
         for (i = 0; i < _monsters.length ; i++) {

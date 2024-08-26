@@ -10,6 +10,9 @@ export const ActionBattleDex : ActionBattleTable = {
         uses        : 15,
         accuracy    : 0,
         damage_mod  : 0,
-        category    : ActionCategory.Blunt
+        category    : ActionCategory.Blunt,
+        team_target : "ENEMY",
+        pos_target  : "SINGLE",
+        type_target : "MONSTER"
     }
 }

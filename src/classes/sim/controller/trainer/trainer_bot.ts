@@ -24,9 +24,9 @@ class TrainerBot extends TrainerBase {
                 return _options.Choices[Object.keys(_options.Choices)[TypeRnmd]][ActionRnmd]
             }
         } catch(e) {
-            return null
+            return {type : "NONE", trainer : this}
         }
-        return null
+        return {type : "NONE", trainer : this}
     }
 
 }
