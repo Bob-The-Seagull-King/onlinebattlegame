@@ -1,4 +1,5 @@
 import { MessageSet, SelectedAction, TurnChoices } from "../../global_types";
+import { IBattle } from "../sim/controller/battle";
 import { MessageTranslator } from "../tools/translator";
 
 interface IBattleManager {
@@ -28,7 +29,7 @@ class BattleManager {
         undefined;
     }
 
-    public ReceiveOptions(_options : TurnChoices, _position : number) {
+    public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) {
         undefined;
     }
 

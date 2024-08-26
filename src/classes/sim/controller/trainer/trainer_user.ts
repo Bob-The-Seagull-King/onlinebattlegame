@@ -1,5 +1,7 @@
 import { SelectedAction, TurnChoices, TurnSelect } from "../../../../global_types";
 import { IRoomMember, RoomHold } from "../../../structure/room/RoomHold";
+import { TeamFactory } from "../../factories/team_factory";
+import { Team } from "../../models/team";
 import { ITrainer, TrainerBase } from "./trainer_basic";
 
 class ITrainerUser extends ITrainer {
@@ -20,6 +22,7 @@ class TrainerUser extends TrainerBase {
         return SelectedAction;
     }
 
+    
 }
 
 export {TrainerUser, ITrainerUser}

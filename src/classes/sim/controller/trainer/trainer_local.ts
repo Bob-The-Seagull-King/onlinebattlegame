@@ -16,7 +16,7 @@ class TrainerLocal extends TrainerBase {
     }
     
     public async SelectChoice(_options: TurnSelect)  {
-        const SelectedAction = await this.Manager.ReceiveOptions(_options.Choices, _options.Position);
+        const SelectedAction = await this.Manager.ReceiveOptions(_options.Choices, _options.Position, _options.Battle);
         return SelectedAction;
     }
 

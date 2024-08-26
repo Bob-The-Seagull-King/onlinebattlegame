@@ -1,5 +1,5 @@
 import { MessageSet, SelectedAction, TurnChoices } from "../../global_types";
-import { Battle } from "../sim/controller/battle";
+import { Battle, IBattle } from "../sim/controller/battle";
 import { TrainerBase } from "../sim/controller/trainer/trainer_basic";
 import { TrainerBot } from "../sim/controller/trainer/trainer_bot";
 import { TrainerLocal } from "../sim/controller/trainer/trainer_local";
@@ -36,9 +36,10 @@ class OfflineBattleManager extends BattleManager {
         myTeam.AddFreshMonster("larvin");
         myTeam.AddFreshMonster("larvin");
         myTeam.Monsters[0].AddFreshAction("tackle");
+        myTeam.Monsters[1].AddFreshAction("tackle");
         myTeam.AddFreshItem("temp");
-        myTeam.Leads.push(new ActivePos( myTeam.Monsters[0], 0))
-        const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam, pos: 0, manager: this, name: "Local"});
+        myTeam.Leads.push(new ActivePos( 0, 0, myTeam))
+        const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam.ConvertToInterface(), pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
 
         const otherTeam : Team = TeamFactory.CreateNewTeam();
@@ -46,8 +47,8 @@ class OfflineBattleManager extends BattleManager {
         otherTeam.AddFreshMonster("larvin");
         otherTeam.Monsters[0].AddFreshAction("tackle");
         otherTeam.AddFreshItem("temp");
-        otherTeam.Leads.push(new ActivePos( otherTeam.Monsters[0], 0))
-        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam, pos: 1, behaviour: [], name: "Bot"});
+        otherTeam.Leads.push(new ActivePos(0, 0,otherTeam))
+        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam.ConvertToInterface(), pos: 1, behaviour: [], name: "Bot"});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
 
@@ -64,7 +65,8 @@ class OfflineBattleManager extends BattleManager {
         this.GameBattle.GetTurns();
     }
 
-    public ReceiveOptions(_options : TurnChoices, _position : number) {
+    public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) {
+        console.log(_battle)
         this.ChoicesLog.push({ action : _options, pos : _position})
         this.funcReceiveOptions();
         return new Promise((resolve) => {

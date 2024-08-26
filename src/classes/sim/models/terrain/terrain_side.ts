@@ -34,6 +34,20 @@ class Side {
         return NewPlots;
     }
 
+    public ConvertToInterface() {
+        const _plots : IPlot[] = []
+        this.Plots.forEach(item => {
+            _plots.push(item.ConvertToInterface())
+        })
+        const _interface : ISide = {
+            position: this.Position,
+            tokens: this.Tokens,
+            trackers: this.Trackers,
+            plots: _plots
+        }
+        return _interface;
+    }
+
 }
 
 export {Side, ISide}

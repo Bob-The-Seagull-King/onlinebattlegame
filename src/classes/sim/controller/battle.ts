@@ -10,9 +10,9 @@ import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
 import { ActivePos, Team } from "../models/team";
 import { Plot } from "../models/terrain/terrain_plot";
-import { Scene } from "../models/terrain/terrain_scene";
+import { IScene, Scene } from "../models/terrain/terrain_scene";
 import { Side } from "../models/terrain/terrain_side";
-import { TrainerBase } from "./trainer/trainer_basic";
+import { ITrainer, TrainerBase } from "./trainer/trainer_basic";
 import { BattleManager } from "../../viewmodel/battle_manager";
 
 interface EventHolder {
@@ -21,6 +21,11 @@ interface EventHolder {
     source: any;
 	callback: any;
     fromsource: boolean;
+}
+
+interface IBattle {
+    trainers: ITrainer[],
+    scene: IScene
 }
 
 class Battle {
@@ -34,6 +39,19 @@ class Battle {
         this.SendMessage = _manager;
 
         this.StartBattle();
+    }
+
+    public ConvertToInterface() {
+        const _trainers : ITrainer[] = []
+        this.Trainers.forEach(item => {
+            _trainers.push(item.ConvertToInterface())
+        })
+            
+        const _interface : IBattle = {
+            trainers: _trainers,
+            scene: this.Scene.ConvertToInterface()
+        }
+        return _interface;
     }
 
     public SendOutMessage(_messages : MessageSet) {
@@ -54,7 +72,7 @@ class Battle {
         if (Choices) {
             const messages : MessageSet = [];
             Choices.forEach(element => {
-                element.trainer = new TrainerBase({ team : element.trainer.Team, pos : element.trainer.Position, name: element.trainer.Name })
+                element.trainer = new TrainerBase({ team : element.trainer.Team.ConvertToInterface(), pos : element.trainer.Position, name: element.trainer.Name })
                 const Message : {[id : IDEntry]: any} = { "choice" : element}
                 messages.push(Message)
             })
@@ -92,7 +110,7 @@ class Battle {
             if (item.Team.Leads.length > 0) {
                 const LeadPromise = item.Team.Leads.map( async (element) => {
                     const Options : TurnChoices = this.GetTrainerChoices(item, element)
-                    const Turn : SelectedAction = await (item.SelectChoice({ Choices: Options, Position: element.Position}, this.SendMessage))
+                    const Turn : SelectedAction = await (item.SelectChoice({ Choices: Options, Position: element.Position, Battle: this.ConvertToInterface()}, this.SendMessage))
                     if (Turn) {
                         Turn.trainer = item
                         Choices.push(Turn)
@@ -118,7 +136,7 @@ class Battle {
 
     public GetTrainerChoices(_trainer : TrainerBase, _monster : ActivePos) {
         // Simplified Trainer Info for Socket-Safe message size
-        const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position, name: _trainer.Name })
+        const baseTrainer = new TrainerBase({ team : _trainer.Team.ConvertToInterface(), pos : _trainer.Position, name: _trainer.Name })
 
         // Setup Empties
         const SwitchChoices : SubSelectAction[] = []
@@ -192,7 +210,7 @@ class Battle {
 
     public GetMonsterActionChoices( _action : ActiveAction, _trainer : TrainerBase, _monster : ActivePos, choiceList : ActionAction[]) {
         const ActionData = ActionBattleDex[_action.Action];
-        const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position, name: _trainer.Name })
+        const baseTrainer = new TrainerBase({ team : _trainer.Team.ConvertToInterface(), pos : _trainer.Position, name: _trainer.Name })
 
         if (this.runEvent("CanUseMove", _trainer, _trainer, _monster, _monster, _action, true)) {
             if (ActionData.team_target === "SELF") {
@@ -250,7 +268,7 @@ class Battle {
 
     public GetTrainerItemChoices(_item : ActiveItem, _trainer : TrainerBase, choiceList : ItemAction[]) {
         const ItemData = ItemBattleDex[_item.Item];
-        const baseTrainer = new TrainerBase({ team : _trainer.Team, pos : _trainer.Position, name: _trainer.Name })
+        const baseTrainer = new TrainerBase({ team : _trainer.Team.ConvertToInterface(), pos : _trainer.Position, name: _trainer.Name })
 
         if (this.runEvent("CanUseItem", _trainer, _trainer, null, _trainer, _item, true)) {
             if (ItemData.team_target === "ALL") {
@@ -426,4 +444,4 @@ class Battle {
     }
 }
 
-export {Battle}
+export {Battle, IBattle}

@@ -3,7 +3,7 @@ import { UserHold } from "../user/UserHold";
 import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { RoomStore } from "./RoomStore";
 import { MessageSet, SelectedAction, TurnChoices, TurnSelect } from "../../../global_types";
-import { Team } from "../../sim/models/team";
+import { Team, ITeam } from "../../sim/models/team";
 import { Battle } from "../../sim/controller/battle";
 import { TrainerBase } from "../../sim/controller/trainer/trainer_basic";
 import { TerrainFactory } from "../../sim/factories/terrain_factory";
@@ -19,7 +19,7 @@ interface IRoomMember {
     user: UserHold
     roompos : number
     authority: number
-    team : Team
+    team : ITeam
 }
 
 type EventAction = {
@@ -52,7 +52,7 @@ class RoomHold {
         this.MyStore = _store;
     }
 
-    public AddMember(_socket : SocketHold, _team : Team) {
+    public AddMember(_socket : SocketHold, _team : ITeam) {
         let MemberResultVal = ""
         try {
             let i = 0
@@ -74,7 +74,7 @@ class RoomHold {
         return MemberResultVal;
     }
 
-    public CreateMember(_socket : SocketHold, _team : Team) {
+    public CreateMember(_socket : SocketHold, _team : ITeam) {
         this.MyMembers.push( { socket: _socket, user: _socket.MyUser, roompos: this.MyMembers.length, authority: 0, team : _team } )
         _socket.MyRooms.push(this);
         _socket.MySocket.join(this.MyID);
@@ -130,6 +130,7 @@ class RoomHold {
         let i = 0
         for (i = 0; i < this.MyMembers.length; i++) {
             const newTrainer : TrainerUser = new TrainerUser({user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i, name: this.MyMembers[i].user.Name.toString()});
+
             Trainers.push(newTrainer);
         }
         

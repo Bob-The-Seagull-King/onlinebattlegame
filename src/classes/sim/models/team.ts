@@ -11,17 +11,27 @@ interface ITeam {
 }
 
 interface IActivePos {
-    monster : IActiveMonster,
-    position : number
+    position : number,
+    teampos  : number
 }
 
 class ActivePos {
     public Monster : ActiveMonster;
     public Position : number;
+    public TeamPosition : number;
 
-    constructor(_mon : ActiveMonster, _pos : number) {
-        this.Monster = _mon;
+    constructor(_pos : number, _teampos: number, _team : Team) {
+        this.Monster = _team.Monsters[_teampos];
         this.Position = _pos;
+        this.TeamPosition = _teampos;
+    }
+
+    public ConvertToInterface() {
+        const _interface : IActivePos = {
+            position: this.Position,
+            teampos: this.TeamPosition
+        }
+        return _interface;
     }
 }
 
@@ -57,19 +67,39 @@ class Team {
         for (i = 0; i < _monsters.length ; i++) {
             const MonGen : ActiveMonster = MonsterFactory.CreateMonster(_monsters[i]);
             this.Monsters.push(MonGen);
-            let j = 0;
-            for (j = 0; j < _leads.length; j++) {
-                if (_leads[j].monster === _monsters[i]) {
-                    this.Leads.push(new ActivePos(MonGen, _leads[j].position));
-                    break;
+            _leads.forEach(item => {
+                if (item.teampos === i) {
+                    this.Leads.push(new ActivePos(i, item.position, this));
                 }
-            }
+            })
         }
     }
 
     public AddFreshMonster(_monster : IDEntry) {
         const NewMonster = MonsterFactory.CreateNewMonster(_monster);
         this.Monsters.push(NewMonster)
+    }
+
+    public ConvertToInterface() {
+        const _items : IActiveItem[] = []
+        const _monsters : IActiveMonster[] = []
+        const _leads : IActivePos[] = []
+        this.Items.forEach(item => {
+            _items.push(item.ConvertToInterface())
+        })
+        this.Monsters.forEach(item => {
+            _monsters.push(item.ConvertToInterface())
+        })
+        this.Leads.forEach(item => {
+            _leads.push(item.ConvertToInterface())
+        })
+            
+        const _interface : ITeam = {
+            items       : _items,
+            monsters    : _monsters,
+            active      : _leads
+        }
+        return _interface;
     }
 
 }

@@ -21,7 +21,7 @@ class SocketManager {
         this.ActiveSocket.on("receive_battle_message", (data : any) => {
              this.ReceiveMessage(data.message); });
         this.ActiveSocket.on("receive_battle_options", async (data : any) => {
-            const newAction : SelectedAction = await this.BattleManager.ReceiveOptions(data.message.Choices, data.message.Position);
+            const newAction : SelectedAction = await this.BattleManager.ReceiveOptions(data.message.Choices, data.message.Position, data.message.Battle);
             if (newAction) {
              this.SendAction(newAction);
             }
@@ -47,8 +47,8 @@ class SocketManager {
         const Team : Team = TeamFactory.CreateNewTeam();
         Team.Monsters.push(MonsterFactory.CreateNewMonster("larvin"))
         Team.Monsters[0].AddFreshAction("tackle");
-        Team.Leads.push(new ActivePos( Team.Monsters[0], 0))
-        this.ActiveSocket.emit("join_room", Team);    
+        Team.Leads.push(new ActivePos(0, 0, Team))
+        this.ActiveSocket.emit("join_room", Team.ConvertToInterface());    
     }
 
     public SendMessage(message: any) {

@@ -8,7 +8,7 @@ import { ActivePos } from "./classes/sim/models/team";
 import { Scene } from "./classes/sim/models/terrain/terrain_scene";
 import { Side } from "./classes/sim/models/terrain/terrain_side";
 import { Plot } from "./classes/sim/models/terrain/terrain_plot";
-import { Battle } from "./classes/sim/controller/battle";
+import { Battle, IBattle } from "./classes/sim/controller/battle";
 
 // ----------------------------------- Types ---------------------------------------------
 
@@ -40,7 +40,8 @@ export type BaseStats = {
 
 export type TurnSelect = {
     Choices : TurnChoices,
-    Position : number
+    Position : number,
+    Battle  : IBattle
 }
 
 export type TurnChoices = {

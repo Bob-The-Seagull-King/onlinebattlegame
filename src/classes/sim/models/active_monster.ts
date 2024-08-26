@@ -52,6 +52,26 @@ class ActiveMonster {
         this.Actions_Current.push(NewAction)
     }
 
+    public ConvertToInterface() {
+        const _actions : IActiveAction[] = []
+        this.Actions_Current.forEach(item => {
+            _actions.push(item.ConvertToInterface())
+        })
+            
+        const _interface : IActiveMonster = {
+            species     : this.Species,
+            nickname    : this.Nickname, 
+            actions     : this.Actions,
+            traits      : this.Traits, 
+            boosts      : this.Boosts, 
+            tokens      : this.Tokens, 
+            trackers    : this.Trackers,
+            hp_cur      : this.HP_Current, 
+            actions_cur : _actions
+        }
+        return _interface;
+    }
+
 }
 
 export {IActiveMonster, ActiveMonster}

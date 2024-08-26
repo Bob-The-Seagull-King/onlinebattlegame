@@ -19,6 +19,15 @@ class ActiveAction {
         this.Trackers = _data.trackers;
     }
 
+    public ConvertToInterface() {
+        const _interface : IActiveAction = {
+            action: this.Action,
+            used: this.Used,
+            trackers: this.Trackers
+        }
+        return _interface;
+    }
+
 }
 
 export {IActiveAction, ActiveAction}

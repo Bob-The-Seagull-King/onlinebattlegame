@@ -25,6 +25,15 @@ class Plot {
         this.ScenePos = _side.Position;
     }
 
+    public ConvertToInterface() {
+        const _interface : IPlot = {
+            position: this.Position,
+            tokens: this.Tokens,
+            trackers: this.Trackers
+        }
+        return _interface;
+    }
+
 }
 
 export {Plot, IPlot}

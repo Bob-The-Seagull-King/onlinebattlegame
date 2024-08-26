@@ -2,7 +2,7 @@ import { RoomHold } from "./RoomHold";
 import { SocketHold } from "../socket/SocketHold";
 import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { ServerHold } from "../server/ServerHold";
-import { Team } from "../../sim/models/team";
+import { ITeam, Team } from "../../sim/models/team";
 
 class RoomStore {
 
@@ -30,7 +30,7 @@ class RoomStore {
         this.VacantRooms.splice(value, 1);
     }
 
-    public JoinRoom(_socket : SocketHold, _data : Team) {
+    public JoinRoom(_socket : SocketHold, _data : ITeam) {
         let JoinReportVal = "";
         let RoomVal : number = -1;
         try {

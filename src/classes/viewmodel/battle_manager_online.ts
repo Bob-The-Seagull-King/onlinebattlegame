@@ -1,4 +1,5 @@
 import { MessageSet, SelectedAction, TurnChoices } from "../../global_types";
+import { IBattle } from "../sim/controller/battle";
 import { SocketManager } from "../structure/connection/SocketManager";
 import { BattleManager, IBattleManager } from "./battle_manager";
 
@@ -23,7 +24,8 @@ class OnlineBattleManager extends BattleManager {
         this.funcReceiveResults();   
     }
 
-    public ReceiveOptions(_options : TurnChoices, _position : number) : Promise<SelectedAction> {        
+    public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) : Promise<SelectedAction> {   
+        console.log(_battle)     
         this.ChoicesLog.push({ action : _options, pos : _position})
         this.funcReceiveOptions();
         return new Promise<SelectedAction>((resolve) => {

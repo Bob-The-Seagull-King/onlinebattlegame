@@ -35,6 +35,19 @@ class Scene {
         }
     }
 
+    public ConvertToInterface() {
+        const _sides : ISide[] = []
+        this.Sides.forEach(item => {
+            _sides.push(item.ConvertToInterface())
+        })
+        const _interface : IScene = {
+            tokens: this.Tokens,
+            trackers: this.Trackers,
+            sides: _sides
+        }
+        return _interface;
+    }
+
 
 }
 
