@@ -20,7 +20,7 @@ class SocketManager {
         this.ActiveSocket.on("receive_message", (data : any) => { this.ReceiveMessage(data.message); }); 
         this.ActiveSocket.on("receive_battle_message", (data : any) => {
              this.ReceiveMessage(data.message); });
-        this.ActiveSocket.on("receive_battle_options", async (data : any) => { 
+        this.ActiveSocket.on("receive_battle_options", async (data : any) => {
             const newAction : SelectedAction = await this.BattleManager.ReceiveOptions(data.message.Choices, data.message.Position);
             if (newAction) {
              this.SendAction(newAction);
@@ -45,8 +45,8 @@ class SocketManager {
 
     public JoinRoom() {
         const Team : Team = TeamFactory.CreateNewTeam();
-        Team.Monsters.push(MonsterFactory.CreateNewMonster("temp"))
-        Team.Monsters[0].AddFreshAction("temp");
+        Team.Monsters.push(MonsterFactory.CreateNewMonster("larvin"))
+        Team.Monsters[0].AddFreshAction("tackle");
         Team.Leads.push(new ActivePos( Team.Monsters[0], 0))
         this.ActiveSocket.emit("join_room", Team);    
     }

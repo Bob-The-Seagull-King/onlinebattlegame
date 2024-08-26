@@ -73,17 +73,23 @@ const OptionsMonsterDisplay = (props: any) => {
             <div className="row">                
                 <Collapse in={switchOpen}>
                     <div>
-                        <OptionsSwitchDisplay manager={Manager} turns={Choices["SWITCH"]} position={Position}/>
+                        {Choices["SWITCH"] && 
+                            <OptionsSwitchDisplay manager={Manager} turns={Choices["SWITCH"]} position={Position}/>
+                        }
                     </div>
                 </Collapse>          
                 <Collapse in={itemOpen}>
                     <div>
-                        <OptionsItemDisplay manager={Manager} turns={Choices["ITEM"]} position={Position}/>
+                        {Choices["ITEM"] && 
+                            <OptionsItemDisplay manager={Manager} turns={Choices["ITEM"]} position={Position}/>
+                        }
                     </div>
                 </Collapse>          
                 <Collapse in={actionOpen}>
                     <div>
-                        <OptionsActionDisplay manager={Manager} turns={Choices["ACTION"]} position={Position}/>
+                        {Choices["ACTION"] && 
+                            <OptionsActionDisplay manager={Manager} turns={Choices["ACTION"]} position={Position}/>
+                        }
                     </div>
                 </Collapse>         
                 <Collapse in={noneOpen}>

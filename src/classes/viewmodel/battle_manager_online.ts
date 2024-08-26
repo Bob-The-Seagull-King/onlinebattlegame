@@ -23,9 +23,7 @@ class OnlineBattleManager extends BattleManager {
         this.funcReceiveResults();   
     }
 
-    public ReceiveOptions(_options : TurnChoices, _position : number) : Promise<SelectedAction> {
-        
-        
+    public ReceiveOptions(_options : TurnChoices, _position : number) : Promise<SelectedAction> {        
         this.ChoicesLog.push({ action : _options, pos : _position})
         this.funcReceiveOptions();
         return new Promise<SelectedAction>((resolve) => {
