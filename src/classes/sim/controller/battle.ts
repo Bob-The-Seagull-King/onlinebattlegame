@@ -89,16 +89,24 @@ class Battle {
         const Choices : SelectedAction[] = [];
 
         const TurnPromise = this.Trainers.map(async (item) => {
-            const LeadPromise = item.Team.Leads.map( async (element) => {
-                const Options : TurnChoices = this.GetTrainerChoices(item, element)
-                const Turn : SelectedAction = await (item.SelectChoice({ Choices: Options, Position: element.Position}, this.SendMessage))
+            if (item.Team.Leads.length > 0) {
+                const LeadPromise = item.Team.Leads.map( async (element) => {
+                    const Options : TurnChoices = this.GetTrainerChoices(item, element)
+                    const Turn : SelectedAction = await (item.SelectChoice({ Choices: Options, Position: element.Position}, this.SendMessage))
+                    if (Turn) {
+                        Turn.trainer = item
+                        Choices.push(Turn)
+                    }
+                })
+
+                await Promise.all(LeadPromise);
+            } else {
+                const Turn : SelectedAction = {type: "NONE", trainer: item}
                 if (Turn) {
-                    Turn.trainer = item
                     Choices.push(Turn)
                 }
-            })
+            }
 
-            await Promise.all(LeadPromise);
         });
 
         await Promise.all(TurnPromise);
@@ -135,12 +143,14 @@ class Battle {
             }
             if (IsOut === false) { SwitchOptions.push( { type: "SWITCH", trainer: baseTrainer, current: _monster, newmon: item }) }
         })
-        SwitchChoices.push({
-            type    : "SWITCH",
-            trainer : baseTrainer,
-            choice  : _monster,
-            options : SwitchOptions
-        })
+        if (SwitchOptions.length > 0) {
+            SwitchChoices.push({
+                type    : "SWITCH",
+                trainer : baseTrainer,
+                choice  : _monster,
+                options : SwitchOptions
+            })
+        }
 
         // Item
         _trainer.Team.Items.forEach(item => {
@@ -158,7 +168,7 @@ class Battle {
         _monster.Monster.Actions_Current.forEach(item => {
             const ActionOptions : ActionAction[] = []
             this.GetMonsterActionChoices(item, _trainer, _monster, ActionOptions)
-            ItemChoices.push({
+            ActionChoices.push({
                 type    : "ACTION",
                 trainer : baseTrainer,
                 choice  : item,
@@ -252,35 +262,35 @@ class Battle {
                     this.Scene.Sides.forEach(item => {
                         SideList.push([item.Position])
                     })
-                    choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: SideList })
+                    choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: SideList })
                 } else if (ItemData.pos_target === "SINGLE") {
                     const PlotList : number[][] = []
                     this.Scene.Plots.forEach(item => {
                         PlotList.push([item.ScenePos, item.Position])
                     })
-                    choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: PlotList })
+                    choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: PlotList })
                 }
             } else if (ItemData.team_target === "ANY") {
                 if (ItemData.pos_target === "SIDE") {
                     this.Scene.Sides.forEach(item => {
-                        choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.Position]] })
+                        choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.Position]] })
                     })
                 } else if (ItemData.pos_target === "SINGLE") {
                     this.Scene.Plots.forEach(item => {
-                        choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                        choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
                     })
                 }
             } else if (ItemData.team_target === "ENEMY") {
                 if (ItemData.pos_target === "SIDE") {
                     this.Scene.Sides.forEach(item => {
                         if (item.Position != _trainer.Position) {
-                            choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.Position]] })
+                            choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.Position]] })
                         }
                     })
                 } else if (ItemData.pos_target === "SINGLE") {
                     this.Scene.Plots.forEach(item => {
                         if (item.ScenePos != _trainer.Position) {
-                            choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                            choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
                         }
                     })
                 }
@@ -288,13 +298,13 @@ class Battle {
                 if (ItemData.pos_target === "SIDE") {
                     this.Scene.Sides.forEach(item => {
                         if (item.Position === _trainer.Position) {
-                            choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.Position]] })
+                            choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.Position]] })
                         }
                     })
                 } else if (ItemData.pos_target === "SINGLE") {
                     this.Scene.Plots.forEach(item => {
                         if (item.ScenePos === _trainer.Position) {
-                            choiceList.push({ type: "ACTION", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                            choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
                         }
                     })
                 }

@@ -25,11 +25,8 @@ class OnlineBattleManager extends BattleManager {
 
     public ReceiveOptions(_options : TurnChoices, _position : number) : Promise<SelectedAction> {
         
-        Object.keys(_options).forEach(item =>  {
-            _options[item].forEach(element => {
-            this.ChoicesLog.push({ action : element, pos : _position})
-            })
-        })
+        
+        this.ChoicesLog.push({ action : _options, pos : _position})
         this.funcReceiveOptions();
         return new Promise<SelectedAction>((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {

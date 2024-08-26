@@ -26,12 +26,12 @@ const OfflinePage = (props: any) => {
         </div>
       </div>
       <div className="row">
-        <div className="col-4">
+        <div className="col-6">
           <div className="TestWebComponentHolder">
             <OptionsDisplay manager={battleManager}/> 
           </div>
         </div>
-        <div className="col-8">
+        <div className="col-6">
           <div className="TestWebComponentHolder">
             <MessagesDisplay manager={battleManager}/>
           </div>

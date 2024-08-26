@@ -35,6 +35,7 @@
     box-shadow: 0 0 5px 1px var(--colour_sub_blue);
     &:hover {
         box-shadow: 0 0 10px 2px var(--colour_sub_blue);
+        text-decoration: none;
     }
 }
 
@@ -44,6 +45,53 @@
     display: flex; /* make element size relative to content */
     align-items: center;
     padding: 0.5em;
+
+    border-radius: 0.2em;
+    border-color: var(--colour_main_blue) !important; 
+    border-style: solid;
+    border-width: 2px; 
+    
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 2px 1px var(--colour_sub_blue);
+    &:hover {
+        box-shadow: 0 0 5px 2px var(--colour_sub_blue);
+        text-decoration: none;
+    }
+}
+
+.SubOptionButton {    
+    width: 100%;
+    justify-content: center;
+    display: flex; /* make element size relative to content */
+    align-items: center;
+    padding: 0.5em;
+    margin: 0.5em;
+
+    border-radius: 0.2em;
+    border-color: var(--colour_main_blue) !important; 
+    border-style: solid;
+    border-width: 2px; 
+    
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 2px 1px var(--colour_sub_blue);
+    &:hover {
+        box-shadow: 0 0 5px 2px var(--colour_sub_blue);
+        text-decoration: none;
+    }
+}
+
+.BorderlessButton {   
+    width: 100%;
+    justify-content: center;
+    display: flex; /* make element size relative to content */
+    align-items: center;
+    padding: 0.5em;
+
+    border: none !important;
+    background: none !important;
+}
+
+.BaseBorder {
 
     border-radius: 0.2em;
     border-color: var(--colour_main_blue) !important; 

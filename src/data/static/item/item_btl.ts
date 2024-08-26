@@ -6,7 +6,7 @@ export const ItemBattleDex : ItemBattleTable = {
         id          : 0,
         cost        : 5,
         category    : ItemCategory.None,
-        team_target : "SELF",
+        team_target : "TEAM",
         pos_target  : "SINGLE",
         type_target : "MONSTER"
     }

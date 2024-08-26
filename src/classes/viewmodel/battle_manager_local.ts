@@ -34,6 +34,7 @@ class OfflineBattleManager extends BattleManager {
     public GenerateBattle() {
         const myTeam : Team = TeamFactory.CreateNewTeam();
         myTeam.AddFreshMonster("larvin");
+        myTeam.AddFreshMonster("larvin");
         myTeam.Monsters[0].AddFreshAction("tackle");
         myTeam.AddFreshItem("temp");
         myTeam.Leads.push(new ActivePos( myTeam.Monsters[0], 0))
@@ -41,6 +42,7 @@ class OfflineBattleManager extends BattleManager {
         this.Trainer = myTrainer;
 
         const otherTeam : Team = TeamFactory.CreateNewTeam();
+        otherTeam.AddFreshMonster("larvin");
         otherTeam.AddFreshMonster("larvin");
         otherTeam.Monsters[0].AddFreshAction("tackle");
         otherTeam.AddFreshItem("temp");
@@ -63,11 +65,7 @@ class OfflineBattleManager extends BattleManager {
     }
 
     public ReceiveOptions(_options : TurnChoices, _position : number) {
-        Object.keys(_options).forEach(item =>  {
-            _options[item].forEach(element => {
-            this.ChoicesLog.push({ action : element, pos : _position})
-            })
-        })
+        this.ChoicesLog.push({ action : _options, pos : _position})
         this.funcReceiveOptions();
         return new Promise((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {

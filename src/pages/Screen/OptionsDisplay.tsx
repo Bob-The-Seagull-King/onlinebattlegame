@@ -1,15 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
-import logo from '../resources/images/npm install socket.io-client.svg';
 import '../../resources/styles/App.css';
 import * as io from "socket.io-client";
-import { useEffect, useState } from "react";
-import { SocketManager } from '../../classes/structure/connection/SocketManager';
-import { OnlineBattleManager } from '../../classes/viewmodel/battle_manager_online';
-import { OfflineBattleManager } from '../../classes/viewmodel/battle_manager_local';
+import { useState } from "react";
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
-import { SelectedAction, TurnChoices } from '../../global_types';
-import Button from 'react-bootstrap/Button';
+import { SelectedAction } from '../../global_types';
+import OptionsMonsterDisplay from '../Components/Options/OptionMonsterDisplay';
 
 const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager;
@@ -24,10 +20,6 @@ const OptionsDisplay = (props: any) => {
   }
 
   Manager.setOptionsFuncs(receiveOptions)
-
-  const SendSingleOption = (_item : { action : SelectedAction, pos : number}) => {
-    Manager.SendOptions(_item.action, _item.pos)
-  }
   
   // DOM Return
   return (
@@ -39,11 +31,10 @@ const OptionsDisplay = (props: any) => {
             <div className="ForceHeight50" style={{width:"100%", justifyContent:"center"}}>
               {optionsReceived.map(item => (
                 <div key={"choice" + optionsReceived.indexOf(item)}>
-                  <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(item)}>{item.action.type}</Button>
+                  <OptionsMonsterDisplay manager={Manager} turns={item.action} position={item.pos}/>
                 </div>
               )) }
             </div>
-
           </div>
         </div>
       </div>
