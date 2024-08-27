@@ -1,27 +1,28 @@
-import { MessageSet, SelectedAction, TurnChoices } from "../../global_types";
+import { SelectedAction, TurnChoices } from "../../global_types";
 import { Battle, IBattle } from "../sim/controller/battle";
-import { TrainerBase } from "../sim/controller/trainer/trainer_basic";
 import { TrainerBot } from "../sim/controller/trainer/trainer_bot";
 import { TrainerLocal } from "../sim/controller/trainer/trainer_local";
 import { BattleFactory } from "../sim/factories/battle_factory";
-import { MonsterFactory } from "../sim/factories/monster_factory";
 import { TeamFactory } from "../sim/factories/team_factory";
 import { TerrainFactory } from "../sim/factories/terrain_factory";
 import { ActivePos, Team } from "../sim/models/team";
 import { Scene } from "../sim/models/terrain/terrain_scene";
-import { BattleManager, IBattleManager } from "./battle_manager";
+import { BattleManager } from "./battle_manager";
 
-// Define the Action type
+// Used for handling events
 type EventAction = {
-    type: string;
-    payload?: any;
+    type: string; // The name of the event
+    payload?: any; // The content of the event message
   };
 
 class OfflineBattleManager extends BattleManager {
 
-    public GameBattle : Battle = null;
-    public Trainer : TrainerLocal = null;
+    public GameBattle   : Battle = null;        // The game being played locally
+    public Trainer      : TrainerLocal = null;  // The local user's trainer
 
+    /**
+     * Creates and then starts a new battle.
+     */
     public StartBattle() {
         if (this.GameBattle === null) {
             this.GameBattle = this.GenerateBattle();
@@ -31,6 +32,10 @@ class OfflineBattleManager extends BattleManager {
         }
     }
 
+    /**
+     * Generates a Battle
+     * @returns the newly created battle
+     */
     public GenerateBattle() {
         const myTeam : Team = TeamFactory.CreateNewTeam();
         myTeam.AddFreshMonster("larvin");
@@ -56,15 +61,13 @@ class OfflineBattleManager extends BattleManager {
         return newBattle;
     }
 
-    public ReceiveMessages(_messages : MessageSet) {
-        this.MessageLog.push(_messages);
-        this.funcReceiveResults();   
-    }
-
-    public GetTurnsTest() {
-        this.GameBattle.GetTurns();
-    }
-
+    /**
+     * Received a list of possible choices from the battle and prompts
+     * the user to select one of them
+     * @param _options collection of possible actions to take
+     * @param _position the index of the choice made (for when multiple monsters are on the field at once)
+     * @param _battle current state of the battle
+     */
     public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) {
         this.BattleState = _battle;
         this.ChoicesLog.push({ action : _options, pos : _position})
@@ -78,7 +81,13 @@ class OfflineBattleManager extends BattleManager {
             document.addEventListener('selectAction'+_position, handleEvent as EventListener);
           });
     }
-
+    
+    /**
+     * Send the chosen option to the battle by triggering
+     * an event.
+     * @param _option the SelectedAction chosen
+     * @param _position the index of the choice made (for when multiple monsters are on the field at once)
+     */
     public SendOptions(_option : SelectedAction, _position : number) {
         const event = new CustomEvent<EventAction>('selectAction'+_position, { detail: _option });
         document.dispatchEvent(event);
