@@ -1,6 +1,9 @@
 import { ItemBattleTable } from "../../../global_types";
 import { ItemCategory } from "../../enum/categories";
 
+/**
+ * Item mechanical information database
+ */
 export const ItemBattleDex : ItemBattleTable = {
     temp : {
         id          : 0,

@@ -2,6 +2,9 @@ import { ActionBattleTable } from "../../../global_types";
 import { MonsterType } from "../../enum/types";
 import { ActionCategory } from "../../enum/categories";
 
+/**
+ * Action mechanical information database
+ */
 export const ActionBattleDex : ActionBattleTable = {
     tackle : {
         id          : 0,

@@ -1,7 +1,8 @@
 import { ActionInfoTable } from "../../../global_types";
-import { MonsterType } from "../../enum/types";
-import { ActionCategory } from "../../enum/categories";
 
+/**
+ * Action non-mechanical information database
+ */
 export const ActionInfoDex : ActionInfoTable = {
     tackle : {
         id          : 0,
