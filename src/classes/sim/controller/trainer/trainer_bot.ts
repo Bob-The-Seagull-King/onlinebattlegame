@@ -1,19 +1,32 @@
-import { IDEntry, SelectedAction, SubSelectAction, TurnChoices, TurnSelect } from "../../../../global_types";
+import { IDEntry, SelectedAction, SubSelectAction, TurnSelect } from "../../../../global_types";
 import { ITrainer, TrainerBase } from "./trainer_basic";
 
+/**
+ * Interface of non-human trainers
+ */
 class ITrainerBot extends ITrainer {
-    behaviour: IDEntry[]
+    behaviour: IDEntry[] // Array of IDs for the behaviour a trainer will use to select actions
 }
 
 class TrainerBot extends TrainerBase {
 
-    public Behaviour : IDEntry[]
+    public Behaviour : IDEntry[] // Array of IDs for the behaviour a trainer will use to select actions
 
-    constructor(_team : ITrainerBot) {
-        super(_team)
-        this.Behaviour = _team.behaviour;
+    /**
+     * Simple constructor
+     * @param _trainer The interface representing the trainer
+     */
+    constructor(_trainer : ITrainerBot) {
+        super(_trainer)
+        this.Behaviour = _trainer.behaviour;
     }
     
+    /**
+     * Given an array of possible options for a trainer to take (per active monster)
+     * run behaviour events to determine the options that will be selected and return it.
+     * @param _options The possible options a trainer can take this turn
+     * @returns Returns a SelectedAction object describing what action(s) the trainer takes this turn
+     */
     public async SelectChoice(_options: TurnSelect) {
         try {
             const TypeCount = Object.keys(_options.Choices).length;
