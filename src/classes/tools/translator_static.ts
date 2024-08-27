@@ -3,14 +3,13 @@ import { ItemInfoDex } from "../../data/static/item/item_inf";
 import { ActionAction, ItemAction, SelectedAction, SwitchAction } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
 
-export interface ActionTranslate {
-    // postSearch: (model : ViewCollectionsModel) => void;
-    selectOption: (_switch : SelectedAction, _battle : IBattle) => string;
-    performedOption: (_switch : SelectedAction, _battle : IBattle) => string;
-}
-
-export interface ActionTranslateTable {[moveid: Lowercase<string>]: ActionTranslate}
-
+/**
+ * Given a battle and a position on that battlefield, return
+ * a string naming each target (the monster).
+ * @param _battle the current state of the battle
+ * @param _positions the list of target positions
+ * @returns string naming all targets
+ */
 function GetTargetName(_battle : IBattle, _positions : number[][]) {
     let targets = "";
 
@@ -28,8 +27,17 @@ function GetTargetName(_battle : IBattle, _positions : number[][]) {
     return targets
 }
 
+// ---------------------------------------------- Action Selection / Performance -------------------------------------
+export interface ActionTranslate {
+    selectOption: (_switch : SelectedAction, _battle : IBattle) => string;
+    performedOption: (_switch : SelectedAction, _battle : IBattle) => string;
+}
+
+export interface ActionTranslateTable {[moveid: Lowercase<string>]: ActionTranslate}
+
 export const ActionTranslateDex : ActionTranslateTable = {
     item : {
+        // Using an Item
         selectOption(_switch : ItemAction, _battle : IBattle) {
             return  "Use the item " + ItemInfoDex[_switch.item.Item].name + " on " + GetTargetName(_battle, _switch.target) + ".";
         },
@@ -38,6 +46,7 @@ export const ActionTranslateDex : ActionTranslateTable = {
         }
     },
     action : {
+        // Having a Monster use an Action
         selectOption(_switch : ActionAction, _battle : IBattle) {
             return "Have " + _switch.source.Monster.Nickname + " use the move " + ActionInfoDex[_switch.action.Action].name + " on " + GetTargetName(_battle, _switch.target) + ".";
         },
@@ -46,6 +55,7 @@ export const ActionTranslateDex : ActionTranslateTable = {
         }
     },
     switch : {
+        // Swapping one Monster for another Monster
         selectOption(_switch : SwitchAction, _battle : IBattle) {
             return "Switch out " + _switch.current.Monster.Nickname + " for " + _switch.newmon.Nickname;
         },
@@ -54,6 +64,7 @@ export const ActionTranslateDex : ActionTranslateTable = {
         }
     },
     none : {
+        // Doing nothing for this turn
         selectOption(_switch : SelectedAction, _battle : IBattle) {
             return "Skip your turn.";
         },
@@ -62,3 +73,5 @@ export const ActionTranslateDex : ActionTranslateTable = {
         }
     }
 }
+
+// -------------------------------------------------------------------------------------------------------------------
