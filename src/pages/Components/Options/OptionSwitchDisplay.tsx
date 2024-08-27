@@ -2,6 +2,7 @@ import { Button } from "react-bootstrap";
 import { BattleManager } from "../../../classes/viewmodel/battle_manager";
 import { SelectedAction, SubSelectAction, SwitchAction } from "../../../global_types";
 import { MessageTranslator } from "../../../classes/tools/translator";
+import { ActionTranslateDex } from "../../../classes/tools/translator_static";
 
 const OptionsSwitchDisplay = (props: any) => {
     const Manager : BattleManager = props.manager;
@@ -18,7 +19,7 @@ const OptionsSwitchDisplay = (props: any) => {
                 <div key={"switch" + Choices.indexOf(item)}>
                     {item.options.map(element => (
                         <div key={"switch" + Choices.indexOf(item) + "sub" + item.options.indexOf(element)}>
-                            <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(element, Position)}>{MessageTranslator.TranslateActionSwitch(element)}</Button>
+                            <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(element, Position)}>{ActionTranslateDex['switch'].selectOption(element, Manager.BattleState)}</Button>
                         </div>
                     ))}
                 </div>

@@ -5,6 +5,7 @@ import { MessageTranslator } from "../../../../classes/tools/translator";
 import { useState } from "react";
 import { ItemInfoDex } from "../../../../data/static/item/item_inf";
 import { ActiveItem } from "../../../../classes/sim/models/active_item";
+import { ActionTranslateDex } from "../../../../classes/tools/translator_static";
 
 const ItemChoicesDisplay = (props: any) => {
     const Manager : BattleManager = props.manager;
@@ -30,7 +31,7 @@ const ItemChoicesDisplay = (props: any) => {
                 <div>
                     {Choices.options.map(item => (
                         <div key={"switch" + Choices.options.indexOf(item) + "sub" + Choices.options.indexOf(item)} style={{padding:"1em"}}>
-                            <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(item, Position)}>{MessageTranslator.TranslateActionItem(item)}</Button>
+                            <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(item, Position)}>{ActionTranslateDex['item'].selectOption(item, Manager.BattleState)}</Button>
                         </div>
                     ))}                    
                 </div>

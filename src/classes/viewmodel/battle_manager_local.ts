@@ -66,7 +66,7 @@ class OfflineBattleManager extends BattleManager {
     }
 
     public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) {
-        console.log(_battle)
+        this.BattleState = _battle;
         this.ChoicesLog.push({ action : _options, pos : _position})
         this.funcReceiveOptions();
         return new Promise((resolve) => {

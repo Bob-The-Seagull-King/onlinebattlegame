@@ -11,6 +11,7 @@ class BattleManager {
     public funcReceiveOptions : any;
     public MessageLog : MessageSet[];
     public ChoicesLog : { action : TurnChoices, pos : number}[];
+    public BattleState : IBattle;
 
     constructor() {
         this.MessageLog = [];
@@ -42,7 +43,7 @@ class BattleManager {
     }
 
     public TranslateMessages(_messages : MessageSet) : string[] {
-        return MessageTranslator.TranslateMessages(_messages)
+        return MessageTranslator.TranslateMessages(_messages, this.BattleState)
     }
 
 }
