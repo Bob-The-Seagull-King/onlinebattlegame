@@ -178,6 +178,9 @@ class RoomHold {
         eventEmitter.emit('selectAction'+refID, _option);
     }
     
+    /**
+     * Create and start a battle with the current room members
+     */
     public GenerateBattle() {
         const Trainers : TrainerUser[] = [];
         const newScene : Scene = TerrainFactory.CreateNewTerrain(1,2);
@@ -195,6 +198,9 @@ class RoomHold {
         });
     }
 
+    /**
+     * End a battle, used when a user disconnects
+     */
     public DestroyBattle() {
         if (this.GameRoom) {
             this.GameRoom.Trainers.forEach(element => {
@@ -205,6 +211,10 @@ class RoomHold {
         }
     }
 
+    /**
+     * Emits battle log messages to connected users.
+     * @param _messages the messages to send back to users
+     */
     public ReceiveMessages(_messages : MessageSet) {
         this.MyMembers.forEach(item => {
             item.socket.MySocket.to(this.MyID).emit("receive_battle_message", {message: _messages});
