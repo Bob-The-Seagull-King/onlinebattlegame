@@ -1,3 +1,4 @@
+// String messages to send to users when they attempt to connect and join rooms
 export const ConnectionReports = {
     SUCCESSFUL_CONNECTION: "Connection Successful",
     CONNECTED_TO_ROOM: "Connected to Room",
