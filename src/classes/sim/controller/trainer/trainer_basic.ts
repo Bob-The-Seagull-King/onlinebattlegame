@@ -1,6 +1,7 @@
 import { TurnSelect } from "../../../../global_types";
 import { TeamFactory } from "../../factories/team_factory";
 import { Team, ITeam } from "../../models/team"
+import { Battle } from "../battle";
 
 /**
  * Interface of the TrainerBase class
@@ -30,10 +31,11 @@ class TrainerBase {
      * Given an array of possible options for a trainer to take (per active monster)
      * the trainer must return one of them as its selection.
      * @param _options The possible options a trainer can take this turn
-     * @param _room Option parameter that describes the room the battle takes place in, used for socket emmission
+     * @param _room Optional parameter that describes the room the battle takes place in, used for socket emmission
+     * @param _battle Optional parameter that provides the battle the trainer is a part of
      * @returns Returns a SelectedAction object describing what action(s) the trainer takes this turn
      */
-    public async SelectChoice(_options: TurnSelect, _room? : any) { return null; }
+    public async SelectChoice(_options: TurnSelect, _room? : any, _battle? : Battle) { return null; }
 
     /**
      * Given a TrainerBase object, give us the

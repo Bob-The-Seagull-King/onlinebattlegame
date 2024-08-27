@@ -9,6 +9,7 @@ import { Scene } from "./classes/sim/models/terrain/terrain_scene";
 import { Side } from "./classes/sim/models/terrain/terrain_side";
 import { Plot } from "./classes/sim/models/terrain/terrain_plot";
 import { Battle, IBattle } from "./classes/sim/controller/battle";
+import { TrainerBot } from "./classes/sim/controller/trainer/trainer_bot";
 
 // ----------------------------------- Types ---------------------------------------------
 
@@ -56,6 +57,21 @@ export type TurnSelect = {
 export type TurnChoices = {
     [actiontype : string] : SelectedAction[]
 }
+
+/**
+ * Used to weight different options against each other
+ * when a bot is selection an action.
+ */
+export type BotBehaviourWeight = {
+    action : SelectedAction,  // The action associated with this weighting
+    weight : number             // Weight of the move (higher weight === more likely to select)
+}
+
+/**
+ * Array of weighted options used by bots to select
+ * an action in battle.
+ */
+export type BotOptions = BotBehaviourWeight[]
 
 /**
  * Base interface for possible actions that can be taken.
@@ -203,6 +219,16 @@ export interface CallEvents {
  * to select.
  */
 export interface BehaviourEvents {
+    onGetBaseSWITCHChance? : (this : Battle, trainer : TrainerBot, relay : number) => number,
+    onGetBaseITEMChance? : (this : Battle, trainer : TrainerBot, relay : number) => number,
+    onGetBaseACTIONChance? : (this : Battle, trainer : TrainerBot, relay : number) => number,
+    onModifySWITCHChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
+    onModifyITEMChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
+    onModifyACTIONChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
+    onModifySubSWITCHChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
+    onModifySubITEMChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
+    onModifySubACTIONChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
+    onSelectMoveFromOptions? : (this : Battle, trainer : TrainerBot, options: BotOptions, relay: any) => SelectedAction
 }
 
 // -------------------------------- Databases --------------------------------------------
