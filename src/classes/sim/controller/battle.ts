@@ -14,6 +14,7 @@ import { IScene, Scene } from "../models/terrain/terrain_scene";
 import { Side } from "../models/terrain/terrain_side";
 import { ITrainer, TrainerBase } from "./trainer/trainer_basic";
 import { BattleManager } from "../../viewmodel/battle_manager";
+import { BattleEvents } from "./battle_events";
 
 interface EventHolder {
 	priority: number;
@@ -32,11 +33,13 @@ class Battle {
     public Trainers: TrainerBase[];
     public Scene : Scene;
     public SendMessage : any;
+    public Events : BattleEvents;
 
     constructor(_trainers : TrainerBase[], _scene : Scene, _manager : any) {
         this.Trainers = _trainers;
         this.Scene = _scene
         this.SendMessage = _manager;
+        this.Events = new BattleEvents(this);
 
         this.StartBattle();
     }
@@ -70,15 +73,10 @@ class Battle {
         const Choices : SelectedAction[] = await this.GetTurns()
 
         if (Choices) {
-            const messages : MessageSet = [];
-            Choices.forEach(element => {
-                element.trainer = new TrainerBase({ team : element.trainer.Team.ConvertToInterface(), pos : element.trainer.Position, name: element.trainer.Name })
-                const Message : {[id : IDEntry]: any} = { "choice" : element}
-                messages.push(Message)
-            })
-            this.SendOutMessage(messages);
-            // return true;
-            return this.IsBattleAlive();
+            const KeepGoing = await this.Events.runTurns(Choices);
+            if (KeepGoing) {
+                return KeepGoing
+            }
         }
     }
 
