@@ -9,29 +9,32 @@ import Button from 'react-bootstrap/Button';
 
 const OnlinePage = (props: any) => {
 
+  // Initialize the battle manager
   const battleManager : OnlineBattleManager = new OnlineBattleManager()
 
-  // Functions
+  // Prompt the manager to join a room
   const joinOnlineBattle = () => {
     battleManager.MySocket.JoinRoom();
   };
   
-  // DOM Return
   return (
     <div className="TestWebBody">
       <div className="row">
         <div className="col-12">
+          {/** Battle start button */}
           <Button bsPrefix="TestButton MedText" onClick={joinOnlineBattle} size="lg"> Start Online Battle</Button>
         </div>
       </div>
       <div className="row">
         <div className="col-6">
           <div className="TestWebComponentHolder">
+            {/** Display user choices */}
             <OptionsDisplay manager={battleManager}/> 
           </div>
         </div>
         <div className="col-6">
           <div className="TestWebComponentHolder">
+            {/** Display battle text log */}
             <MessagesDisplay manager={battleManager}/>
           </div>
         </div>

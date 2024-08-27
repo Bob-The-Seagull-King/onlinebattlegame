@@ -9,30 +9,32 @@ import Button from 'react-bootstrap/Button';
 
 const OfflinePage = (props: any) => {
 
-  // Messages States
+  // Initialize the battle manager
   const battleManager : OfflineBattleManager = new OfflineBattleManager();
   
-  // Functions
+  // Prompt the manager to start the battle.
   const joinOfflineBattle = () => {
     battleManager.StartBattle();
   };
   
-  // DOM Return
   return (
     <div className="TestWebBody">
       <div className="row">
         <div className="col-12">
+          {/** Battle start button */}
           <Button bsPrefix="TestButton MedText" onClick={joinOfflineBattle} size="lg"> Start Local Battle</Button>
         </div>
       </div>
       <div className="row">
         <div className="col-6">
           <div className="TestWebComponentHolder">
+            {/** Display user choices */}
             <OptionsDisplay manager={battleManager}/> 
           </div>
         </div>
         <div className="col-6">
           <div className="TestWebComponentHolder">
+            {/** Display battle text log */}
             <MessagesDisplay manager={battleManager}/>
           </div>
         </div>
