@@ -1,7 +1,5 @@
 import * as io from "socket.io-client";
 import { CONNECTION } from "../../../resources/connection-routes";
-import { useEffect, useState } from "react";
-import { AnyARecord } from "dns";
 import { ActivePos, Team } from "../../sim/models/team";
 import { TeamFactory } from "../../sim/factories/team_factory";
 import { OnlineBattleManager } from "../../viewmodel/battle_manager_online";
@@ -10,23 +8,36 @@ import { MonsterFactory } from "../../sim/factories/monster_factory";
 
 class SocketManager {
 
-    ActiveSocket: any;
-    Room: string = "";
-    BattleManager: OnlineBattleManager = null;
+    ActiveSocket    : any; // The socket currently used for connecting to the server
+    Room            : string = ""; // The ID of the room the user is connected to
+    BattleManager   : OnlineBattleManager = null; // The ViewModel object used to communicate between the user and the battle
 
+    /**
+     * Constructor, sets up the connection and establishes
+     * the behaviour for when certain messages are received from
+     * the server.
+     */
     constructor() {
         this.ActiveSocket = io.connect(CONNECTION.SOCKET_CONNECTION)
                 
+        // Used when a generic message is received.
         this.ActiveSocket.on("receive_message", (data : any) => { this.ReceiveMessage(data.message); }); 
-        this.ActiveSocket.on("receive_battle_message", (data : any) => {
-             this.ReceiveMessage(data.message); });
+        
+        // Used when a battle-specific message is received from the server.
+        this.ActiveSocket.on("receive_battle_message", (data : any) => { this.ReceiveMessage(data.message); });
+        
+        // Used when the server sends an alert / high priority message
+        this.ActiveSocket.on("server_message", (data : any) => { alert(data.message) });
+
+        // Used when the battle provides possible actions and awaits a user response
         this.ActiveSocket.on("receive_battle_options", async (data : any) => {
             const newAction : SelectedAction = await this.BattleManager.ReceiveOptions(data.message.Choices, data.message.Position, data.message.Battle);
             if (newAction) {
              this.SendAction(newAction);
             }
         });
-        this.ActiveSocket.on("server_message", (data : any) => { alert(data.message) });
+
+        // Used when the server responds to the socket's connection request
         this.ActiveSocket.on("connection_response", (data : any) => {
             if (data.room > 0) {
                 this.Room = data.room.toString()
@@ -35,14 +46,19 @@ class SocketManager {
         });
     }
 
+    /**
+     * Sets the socket's go-to viewmodel object for handling
+     * output and user input.
+     * @param _manager The manager for this socket to talk with
+     */
     public SetReceiverMethod(_manager : OnlineBattleManager) {
         this.BattleManager = _manager;
     }
 
-    public SetRoom(room : string) {
-        this.Room = room;
-    }
-
+    /**
+     * Has the socket send a request to join a room with
+     * a specified Team.
+     */
     public JoinRoom() {
         const Team : Team = TeamFactory.CreateNewTeam();
         Team.Monsters.push(MonsterFactory.CreateNewMonster("larvin"))
@@ -51,16 +67,28 @@ class SocketManager {
         this.ActiveSocket.emit("join_room", Team.ConvertToInterface());    
     }
 
+    /**
+     * Sends a generic message to the server
+     * @param message the message to send
+     */
     public SendMessage(message: any) {
         const room = this.Room;
         this.ActiveSocket.emit("send_message", { message, room });
     }
 
+    /**
+     * Sends a chosen SelectedAction to the server
+     * @param option the SelectedAction chosen
+     */
     public SendAction(option: SelectedAction) {
         const room = this.Room;
         this.ActiveSocket.emit("send_option", {option, room});
     }
 
+    /**
+     * Passes messages sent by the room to the ViewModel
+     * @param data the messages being received
+     */
     public ReceiveMessage(data : any) {
         this.BattleManager.ReceiveMessages(data)
     }
