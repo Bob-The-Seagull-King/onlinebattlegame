@@ -1,5 +1,8 @@
 import { TypeChartTable } from "../../global_types"
 
+/**
+ * The index number of each type
+ */
 enum MonsterType {
     None = 0,
     Blaze = 1,
@@ -13,11 +16,17 @@ enum MonsterType {
     Enchanted = 9
 }
 
-// Index is attacking type
-// 0 = Neutral
-// 1 = Weak
-// 2 = Resist
-// 3 = Immune
+/**
+ * Chart determining the outcome when type A is used
+ * to target something of type B.
+ * 
+ * The attacking type is used as the index value.
+ * 
+ * 0 = Neutral matchup
+ * 1 = Defending type is weak to Attacking type
+ * 2 = Defending type resists the Attacking type
+ * 3 = Defending type is immune to the Attacking type
+ */
 export const TypeMatchup : TypeChartTable = { 
     0 : { // None
         0 : 0, // None
