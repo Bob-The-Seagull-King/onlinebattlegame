@@ -9,7 +9,7 @@ import { ActionTranslateDex } from "../../../../classes/tools/translator_static"
 const ActionChoicesDisplay = (props: any) => {
     const Manager   : BattleManager = props.manager;    // The viewmodel manager object
     const Choices   : SubSelectAction = props.turns;    // The list of choices being displayed
-    const Position  : number = props.position           // The ID val of this set of choices (used for when multiple pokemon are on the field)
+    const Position  : number = props.position           // The ID val of this set of choices (used for when multiple monsters are on the field)
 
     // Determines if the item shows all possible sub items
     const [open, setOpen]   = useState(false);

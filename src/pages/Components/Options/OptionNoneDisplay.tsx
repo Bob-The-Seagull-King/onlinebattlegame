@@ -3,7 +3,7 @@ import { BattleManager } from "../../../classes/viewmodel/battle_manager";
 import { SelectedAction, SubSelectAction } from "../../../global_types";
 import { ActionTranslateDex } from "../../../classes/tools/translator_static";
 
-const OptionsSwitchDisplay = (props: any) => {
+const OptionsNoneDisplay = (props: any) => {
     const Manager   : BattleManager = props.manager;    // The viewmodel manager object
     const Choices   : SubSelectAction[] = props.turns;  // The list of choices being displayed
     const Position  : number = props.position           // The ID val of this set of choices (used for when multiple monsters are on the field)
@@ -16,10 +16,10 @@ const OptionsSwitchDisplay = (props: any) => {
     return (
         <div>
             {Choices.map(item => (
-                <div key={"switch" + Choices.indexOf(item)}>
+                <div key={"none" + Choices.indexOf(item)}>
                     {item.options.map(element => (
-                        <div key={"switch" + Choices.indexOf(item) + "sub" + item.options.indexOf(element)}>
-                            <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(element, Position)}>{ActionTranslateDex['switch'].selectOption(element, Manager.BattleState)}</Button>
+                        <div key={"none" + Choices.indexOf(item) + "sub" + item.options.indexOf(element)}>
+                            <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(element, Position)}>{ActionTranslateDex['none'].selectOption(element, Manager.BattleState)}</Button>
                         </div>
                     ))}
                 </div>
@@ -29,4 +29,4 @@ const OptionsSwitchDisplay = (props: any) => {
 
 }
 
-export default OptionsSwitchDisplay
+export default OptionsNoneDisplay

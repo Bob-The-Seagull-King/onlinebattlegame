@@ -1,13 +1,11 @@
-import { Button, Collapse } from "react-bootstrap";
 import { BattleManager } from "../../../classes/viewmodel/battle_manager";
-import { SelectedAction, SubSelectAction, SwitchAction } from "../../../global_types";
-import { MessageTranslator } from "../../../classes/tools/translator";
+import { SubSelectAction } from "../../../global_types";
 import ItemChoicesDisplay from "./Choices/ItemChoicesDisplay";
 
 const OptionsItemDisplay = (props: any) => {
-    const Manager : BattleManager = props.manager;
-    const Choices : SubSelectAction[] = props.turns;
-    const Position : number = props.position
+    const Manager   : BattleManager = props.manager;    // The viewmodel manager object
+    const Choices   : SubSelectAction[] = props.turns;  // The list of choices being displayed
+    const Position  : number = props.position           // The ID val of this set of choices (used for when multiple monsters are on the field)
     
     return (
         <div>
