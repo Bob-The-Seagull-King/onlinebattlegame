@@ -2,19 +2,26 @@ import { IDEntry, InfoSetGeneric } from "../../../../global_types"
 import { Plot } from "./terrain_plot";
 import { ISide, Side } from "./terrain_side"
 
+/**
+ * Interface of the Scene object
+ */
 interface IScene {
-    tokens      : IDEntry[],
-    trackers    : InfoSetGeneric,
-    sides       : ISide[]
+    tokens      : IDEntry[],        // Tokens held by the scene
+    trackers    : InfoSetGeneric,   // Misc trackers used by scene tokens
+    sides       : ISide[]           // Array of sides within the scene
 }
 
 class Scene {
 
-    public Tokens: IDEntry[]
-    public Trackers : InfoSetGeneric;
-    public Sides : Side[];
-    public Plots : Plot[];
+    public Tokens   : IDEntry[]         // Tokens held by the scene
+    public Trackers : InfoSetGeneric;   // Misc trackers used by scene tokens
+    public Sides    : Side[];           // Array of sides within the scene
+    public Plots    : Plot[];           // Array of plots within the scene
 
+    /**
+     * Simple constructor
+     * @param _data The interface representing the scene
+     */
     constructor(_data : IScene) {
         this.Tokens = _data.tokens;
         this.Trackers = _data.trackers;
@@ -23,6 +30,11 @@ class Scene {
         this.SideGenerator(_data.sides)
     }
 
+    /**
+     * Takes an array of ISides and produces the relevant
+     * Side and Plot objects for the Scene.
+     * @param _data array of ISides
+     */
     private SideGenerator(_data : ISide[]) {
         let i = 0;
         for (i = 0; i < _data.length; i++) {
@@ -35,6 +47,12 @@ class Scene {
         }
     }
 
+    /**
+     * Given a Scene object, give us the
+     * IScene, with all child objects also converted
+     * into their respective interfaces
+     * @returns the IScene reflecting this battlefield
+     */
     public ConvertToInterface() {
         const _sides : ISide[] = []
         this.Sides.forEach(item => {
@@ -47,7 +65,6 @@ class Scene {
         }
         return _interface;
     }
-
 
 }
 
