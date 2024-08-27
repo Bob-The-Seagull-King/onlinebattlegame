@@ -36,7 +36,7 @@ class SocketHold {
             const Room = this.GetRoom(RoomVal)
             const Action : SelectedAction = data.option;
             if (Room) {
-                Room.SendOptions(Action, this.MyUser.MySocket.MyID);
+                Room.SendOptions(Action, this.MyUser.MySocket.MyID + "position" + data.position);
             }
         });
 

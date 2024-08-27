@@ -33,7 +33,7 @@ class SocketManager {
         this.ActiveSocket.on("receive_battle_options", async (data : any) => {
             const newAction : SelectedAction = await this.BattleManager.ReceiveOptions(data.message.Choices, data.message.Position, data.message.Battle);
             if (newAction) {
-             this.SendAction(newAction);
+             this.SendAction(newAction, data.message.Position);
             }
         });
 
@@ -64,6 +64,9 @@ class SocketManager {
         Team.Monsters.push(MonsterFactory.CreateNewMonster("larvin"))
         Team.Monsters[0].AddFreshAction("tackle");
         Team.Leads.push(new ActivePos(0, 0, Team))
+        Team.Monsters.push(MonsterFactory.CreateNewMonster("larvin"))
+        Team.Monsters[1].AddFreshAction("tackle");
+        Team.Leads.push(new ActivePos(1, 1, Team))
         this.ActiveSocket.emit("join_room", Team.ConvertToInterface());    
     }
 
@@ -80,9 +83,9 @@ class SocketManager {
      * Sends a chosen SelectedAction to the server
      * @param option the SelectedAction chosen
      */
-    public SendAction(option: SelectedAction) {
+    public SendAction(option: SelectedAction, position : number) {
         const room = this.Room;
-        this.ActiveSocket.emit("send_option", {option, room});
+        this.ActiveSocket.emit("send_option", {option, position, room});
     }
 
     /**
