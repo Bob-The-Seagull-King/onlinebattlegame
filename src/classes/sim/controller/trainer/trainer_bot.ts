@@ -50,6 +50,13 @@ class TrainerBot extends TrainerBase {
         return {type : "NONE", trainer : this}
     }
 
+    /**
+     * Given a suite of choices, create an array of options
+     * with the default weights (based on the type of action).
+     * @param _choices the choices for the bot to select from
+     * @param _battle the battle the bot it a part of
+     * @returns array of weighted options (BotOptions)
+     */
     public ConvertToWeightedArray(_choices : TurnChoices, _battle : Battle) {
         const _botoptions : BotOptions = [];
 
@@ -64,6 +71,14 @@ class TrainerBot extends TrainerBase {
         return _botoptions;
     }
 
+    /**
+     * Given a choice representing a SubSelectAction,
+     * create an array of weighted options for each sub option.
+     * @param _choices the sub options to give weights to
+     * @param _base the action these options are a part of
+     * @param _battle the battle the bot is a part of
+     * @returns array of weighted options (BotOptions)
+     */
     public ConvertSubOptionsToWeightedArray(_choices : SelectedAction[], _base : BotBehaviourWeight, _battle : Battle) {
         const _botoptions : BotOptions = [];
 
@@ -77,6 +92,14 @@ class TrainerBot extends TrainerBase {
         return _botoptions;
     }
 
+    /**
+     * Given an array of actions with specific weights,
+     * randomly choose from the array - with higher priority
+     * given to options with higher weight.
+     * @param options the options to choose from
+     * @param _battle the battle this bot is a part of
+     * @returns the final BotOption being selected
+     */
     public SelectedMoveWeighted(options : BotOptions, _battle : Battle) {
         const culledOptions = _battle.runBehaviour('CullOptions', this, options, null, options);
         const totalWeight = culledOptions.reduce((sum, culledOptions) => sum + culledOptions.weight, 0);
