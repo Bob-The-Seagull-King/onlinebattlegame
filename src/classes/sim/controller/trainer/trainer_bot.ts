@@ -35,7 +35,7 @@ class TrainerBot extends TrainerBase {
             item.weight = _battle.runBehaviour("Modify" + item.action.type + "Chance", this, _weightedoptions, item, item.weight)
         })
         
-        const chosenOption = this.SelectedMoveWeighted(_weightedoptions)
+        const chosenOption = this.SelectedMoveWeighted(_weightedoptions, _battle )
 
         if ((chosenOption.action.type === "SWITCH") ||
             (chosenOption.action.type === "ITEM") ||
@@ -43,7 +43,7 @@ class TrainerBot extends TrainerBase {
 
             const _weightedsuboptions = this.ConvertSubOptionsToWeightedArray((chosenOption.action as SubSelectAction).options, chosenOption, _battle)
                         
-            const chosenSubOption = this.SelectedMoveWeighted(_weightedsuboptions);
+            const chosenSubOption = this.SelectedMoveWeighted(_weightedsuboptions, _battle);
             return chosenSubOption.action
         }
 
@@ -77,24 +77,25 @@ class TrainerBot extends TrainerBase {
         return _botoptions;
     }
 
-    public SelectedMoveWeighted(options : BotOptions) {
-        const totalWeight = options.reduce((sum, item) => sum + item.weight, 0);
+    public SelectedMoveWeighted(options : BotOptions, _battle : Battle) {
+        const culledOptions = _battle.runBehaviour('CullOptions', this, options, null, options);
+        const totalWeight = culledOptions.reduce((sum, culledOptions) => sum + culledOptions.weight, 0);
 
-            // Generate a random number between 0 and totalWeight
-            const randomWeight = Math.random() * totalWeight;
+        // Generate a random number between 0 and totalWeight
+        const randomWeight = Math.random() * totalWeight;
 
-            // Iterate over the items to find the one that corresponds to the random weight
-            let cumulativeWeight = 0;
-            for (const item of options) {
-                cumulativeWeight += item.weight;
-                if (randomWeight < cumulativeWeight) {
-                    return item;
-                }
+        // Iterate over the items to find the one that corresponds to the random weight
+        let cumulativeWeight = 0;
+        for (const item of culledOptions) {
+            cumulativeWeight += item.weight;
+            if (randomWeight < cumulativeWeight) {
+                return item;
             }
+        }
 
-            // Emergency return
-            const noneoption : BotBehaviourWeight = {action: {type: "NONE", trainer: this}, weight: 1}
-            return noneoption
+        // Emergency return
+        const noneoption : BotBehaviourWeight = {action: {type: "NONE", trainer: this}, weight: 1}
+        return noneoption
     }
 
 }

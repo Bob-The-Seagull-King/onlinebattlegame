@@ -43,7 +43,7 @@ class OfflineBattleManager extends BattleManager {
         this.Trainer = myTrainer;
 
         const otherTeam : Team = this.TempNewTeam();
-        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam.ConvertToInterface(), pos: 1, behaviour: [], name: "Bot"});
+        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam.ConvertToInterface(), pos: 1, behaviour: ['aggressive'], name: "Bot"});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
 

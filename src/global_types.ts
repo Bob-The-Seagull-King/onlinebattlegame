@@ -229,7 +229,7 @@ export interface BehaviourEvents {
     onModifySubSWITCHChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
     onModifySubITEMChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
     onModifySubACTIONChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
-    onSelectMoveFromOptions? : (this : Battle, trainer : TrainerBot, options: BotOptions, relay: any) => SelectedAction
+    onCullOptions? : (this : Battle, trainer : TrainerBot, options: BotOptions) => BotOptions
 }
 
 // -------------------------------- Databases --------------------------------------------
