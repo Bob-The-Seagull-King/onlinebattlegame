@@ -3,6 +3,7 @@ import { Battle, IBattle } from "../sim/controller/battle";
 import { TrainerBot } from "../sim/controller/trainer/trainer_bot";
 import { TrainerLocal } from "../sim/controller/trainer/trainer_local";
 import { BattleFactory } from "../sim/factories/battle_factory";
+import { MonsterFactory } from "../sim/factories/monster_factory";
 import { TeamFactory } from "../sim/factories/team_factory";
 import { TerrainFactory } from "../sim/factories/terrain_factory";
 import { ActivePos, Team } from "../sim/models/team";
@@ -37,28 +38,56 @@ class OfflineBattleManager extends BattleManager {
      * @returns the newly created battle
      */
     public GenerateBattle() {
-        const myTeam : Team = TeamFactory.CreateNewTeam();
-        myTeam.AddFreshMonster("larvin");
-        myTeam.AddFreshMonster("larvin");
-        myTeam.Monsters[0].AddFreshAction("tackle");
-        myTeam.Monsters[1].AddFreshAction("tackle");
-        myTeam.AddFreshItem("temp");
-        myTeam.Leads.push(new ActivePos( 0, 0, myTeam))
+        const myTeam : Team = this.TempNewTeam();
         const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam.ConvertToInterface(), pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
 
-        const otherTeam : Team = TeamFactory.CreateNewTeam();
-        otherTeam.AddFreshMonster("larvin");
-        otherTeam.AddFreshMonster("larvin");
-        otherTeam.Monsters[0].AddFreshAction("tackle");
-        otherTeam.AddFreshItem("temp");
-        otherTeam.Leads.push(new ActivePos(0, 0,otherTeam))
+        const otherTeam : Team = this.TempNewTeam();
         const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam.ConvertToInterface(), pos: 1, behaviour: [], name: "Bot"});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
 
         const newBattle : Battle = BattleFactory.CreateBattle([myTrainer, otherTrainer], battleScene, this)
         return newBattle;
+    }
+
+    
+    private TempNewTeam() : Team {
+        const _Team : Team = TeamFactory.CreateNewTeam();
+
+        _Team.Monsters.push(MonsterFactory.CreateNewMonster("bruiser"))
+        _Team.Monsters[0].AddFreshAction("slam");
+        _Team.Monsters[0].AddFreshAction("tackle");
+        _Team.Monsters[0].AddFreshAction("getpumped");
+        _Team.Monsters[0].AddFreshAction("harshthenoise");
+        _Team.Monsters[0].Traits.push("harshlife");
+        _Team.Leads.push(new ActivePos(0, 0, _Team))
+
+        _Team.Monsters.push(MonsterFactory.CreateNewMonster("arcana"))
+        _Team.Monsters[1].AddFreshAction("windbreaker");
+        _Team.Monsters[1].AddFreshAction("tackle");
+        _Team.Monsters[1].AddFreshAction("scatter");
+        _Team.Monsters[1].AddFreshAction("harshthenoise");
+        _Team.Monsters[1].Traits.push("vampire");
+
+        _Team.Monsters.push(MonsterFactory.CreateNewMonster("nimble"))
+        _Team.Monsters[2].AddFreshAction("windbreaker");
+        _Team.Monsters[2].AddFreshAction("getpumped");
+        _Team.Monsters[2].AddFreshAction("scatter");
+        _Team.Monsters[2].AddFreshAction("tackle");
+        _Team.Monsters[2].Traits.push("retaliation");
+
+        _Team.Monsters.push(MonsterFactory.CreateNewMonster("cleric"))
+        _Team.Monsters[3].AddFreshAction("harshthenoise");
+        _Team.Monsters[3].AddFreshAction("regrow");
+        _Team.Monsters[3].AddFreshAction("scatter");
+        _Team.Monsters[3].AddFreshAction("slam");
+        _Team.Monsters[3].Traits.push("clearbody");
+
+        _Team.AddFreshItem("herb");
+        _Team.AddFreshItem("sharpstones");
+
+        return _Team;
     }
 
     /**
