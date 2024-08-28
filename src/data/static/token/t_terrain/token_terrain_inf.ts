@@ -4,11 +4,11 @@ import { TokenInfoTable } from "../../../../global_types";
  * Terrain Token non-mechanical information database
  */
 export const TokenTerrainInfoDex : TokenInfoTable = {
-    temp: {
+    pointed: {
         id          : 0,
-        name        : "TempToken",
+        name        : "Pointed",
         description : [
-            {cat: "", text: "This Does Nothing"}
+            {cat: "generic", text: "When a monster switches in, they take 4 Stonework HP of damage."}
         ]
     }
 }

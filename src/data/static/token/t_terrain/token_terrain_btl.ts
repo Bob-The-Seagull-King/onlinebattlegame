@@ -5,8 +5,8 @@ import { TokenCategory } from "../../../enum/categories";
  * Terrain Token mechanical information database
  */
 export const TokenTerrainBattleDex : TokenBattleTable = {
-    temp : {
+    pointed : {
         id          : 0,
-        category    : TokenCategory.None
+        category    : [TokenCategory.Harsh,TokenCategory.Ground]
     }
 }

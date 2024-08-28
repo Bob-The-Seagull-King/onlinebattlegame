@@ -10,5 +10,15 @@ export const BehaviourDex : BehaviourTable = {
         id : 0,
         name : "Random",
         description: [{cat: "generic", text: "Randomly Select Moves"}]
+    },
+    aggressive : {
+        id : 1,
+        name : "Aggresive",
+        description: [{cat: "generic", text: "Much less likely to SWITCH or use an ITEM"}]
+    },
+    predictable : {
+        id : 2,
+        name : "Predictable",
+        description: [{cat: "generic", text: "Will only choose from the best possible options"}]
     }
 }

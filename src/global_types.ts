@@ -134,13 +134,14 @@ export interface ISpeciesInfo {
 
 // Monster Action
 export interface IActionBattle extends CallEvents, ChoiceTarget {
-    id          : number,           // Numerical ID of the action
-    type        : MonsterType,      // The elemental type of the action
-    cost        : number            // The Star Power it takes to add the action to a monster
-    uses        : number,           // How many times the action can be used per battle
-    accuracy    : number,           // Base accuracy of a move
-    damage_mod  : number,           // Modifier the action applies to the user's damage range
-    category    : ActionCategory    // Category of move
+    id          : number,                   // Numerical ID of the action
+    type        : MonsterType,              // The elemental type of the action
+    cost        : number                    // The Star Power it takes to add the action to a monster
+    uses        : number,                   // How many times the action can be used per battle
+    accuracy    : number | true,            // Base accuracy of a move (true === no accuracy check)
+    damage_mod  : number | true | false,    // Modifier the action applies to the user's damage range (true === alternative damage calc) (false === does no damage)
+    priority    : number,                   // The action priority, higher priority moves always go after lower priority moves
+    category    : ActionCategory[]          // Category of move
 }
 
 export interface IActionInfo {
@@ -153,7 +154,7 @@ export interface IActionInfo {
 export interface ITraitBattle extends CallEvents {
     id          : number,       // Numerical ID of the trait
     cost        : number,       // Star Power cost to add the trait to a monster
-    category    : TraitCategory // Category of this trait
+    category    : TraitCategory[] // Category of this trait
 }
 
 export interface ITraitInfo {
@@ -166,7 +167,7 @@ export interface ITraitInfo {
 export interface IItemBattle extends CallEvents, ChoiceTarget {
     id          : number,       // Numerical ID of the item
     cost        : number,       // Star Power cost to add the item to a team
-    category    : ItemCategory  // Category of this item
+    category    : ItemCategory[]  // Category of this item
 }
 
 export interface IItemInfo {
@@ -178,7 +179,7 @@ export interface IItemInfo {
 // Generic Token
 export interface ITokenBattle extends CallEvents {
     id          : number,       // Numerical ID of the token
-    category    : TokenCategory // Category of this token
+    category    : TokenCategory[] // Category of this token
 }
 
 export interface ITokenInfo {

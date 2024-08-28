@@ -6,19 +6,38 @@
 
 enum ActionCategory {
     None = "", // No special category
-    Blunt = "Blunt" // Basic 'hit with mass' Actions
+    Blunt = "Blunt", // Basic 'hit with mass' Actions
+    Restoration = "Restoration", // Recovers HP or removes negative tokens
+    Boost = "Boost", // Improves the user in some way
+    Aggressive = "Aggressive", // Particularly harsh, or dealing with improving damage
+    Tactical = "Tactical", // Modifies monsters by inflicting tokens
+    Debuff = "Debuff", // Lowers the effectiveness of something
+    Terraform = "Terraform" // Changes the field
 }
 
 enum TraitCategory {
-    None = "" // No special category
+    None = "", // No special category
+    Restoration = "Restoration", // Recovers HP or removes negative tokens
+    Armour = "Armour", // Reduces incoming damage or effects
+    Revenge = "Revenge", // Triggers in response to the enemy affecting the monster or their team
+    Drain = "Drain" // Recovers in response to the monster affecting the enemy
 }
 
 enum ItemCategory {
-    None = "" // No special category
+    None = "", // No special category
+    Restoration = "Restoration", // Recovers the HP or removes negative tokens from a monster
+    Terraform = "Terraform" // Changes the field
 }
 
 enum TokenCategory {
-    None = "" // No special category
+    None = "", // No special category
+    Status = "Status", // Status tokens aren't removed upon switching out
+    Condition = "Condition", // Conditions are removed upon switching out
+    Boost = "Boost", // Boosts improve base stats of a monster, and are removed upon switching out
+    Revenge = "Revenge", // Is caused or triggers in response to enemy action
+    Harsh = "Harsh", // Terrain token - Represents a negative/damaging effect
+    Ground = "Ground", // Terrain token - Represents an effect that occurs on the 'ground' of the field
+    Debuff = "Debuff" // Reduces the effectiveness of a monster / their team
 }
 
 export {ActionCategory, TraitCategory, ItemCategory, TokenCategory}
