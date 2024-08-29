@@ -20,7 +20,7 @@ function GetTargetName(_battle : IBattle, _positions : number[][]) {
         if (item.length === 1) {
             targets += " (side) " + _battle.trainers[item[0]].name
         } else if (item.length === 2) {
-            targets += " (monster) " + _battle.trainers[item[0]].team.monsters[_battle.trainers[item[0]].team.active[item[1]].position].nickname
+            targets += " (monster) " + _battle.trainers[item[0]].team.monsters[_battle.trainers[item[0]].team.active[item[1]].teampos].nickname
         }
     })
 

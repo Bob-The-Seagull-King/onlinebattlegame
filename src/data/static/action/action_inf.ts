@@ -53,7 +53,7 @@ export const ActionInfoDex : ActionInfoTable = {
     },
     scatter : {
         id          : 6,
-        name        : "Tackle",
+        name        : "Scatter",
         description : [
             {cat: "generic", text: "The monster scatters"},
             {cat: "tokenbad", text: "Pointed Stones"},

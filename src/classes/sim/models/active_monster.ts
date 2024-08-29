@@ -1,4 +1,7 @@
+import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
 import { BaseStats, IDEntry, InfoSetGeneric } from "../../../global_types"
+import { Battle } from "../controller/battle";
+import { TrainerBase } from "../controller/trainer/trainer_basic";
 import { ActionFactory } from "../factories/action_factory";
 import { IActiveAction, ActiveAction } from "./active_action"
 
@@ -94,6 +97,32 @@ class ActiveMonster {
             actions_cur : _actions
         }
         return _interface;
+    }
+
+    public GetStat(_stat : string) {
+        switch (_stat) {
+            case "hp": { return SpeciesBattleDex[this.Species].stats.hp; }
+            case "dm": { return SpeciesBattleDex[this.Species].stats.dm; }
+            case "ac": { return SpeciesBattleDex[this.Species].stats.ac; }
+            case "pt": { return SpeciesBattleDex[this.Species].stats.pt; }
+            case "rs": { return SpeciesBattleDex[this.Species].stats.rs; }
+            case "sk": { return SpeciesBattleDex[this.Species].stats.sk; }
+            case "sp": { return SpeciesBattleDex[this.Species].stats.sp; }
+            default: { return 0; }
+        }
+    }
+
+    public GetStatBoost(_stat : string) {
+        switch (_stat) {
+            case "hp": { return this.Boosts.hp; }
+            case "dm": { return this.Boosts.dm; }
+            case "ac": { return this.Boosts.ac; }
+            case "pt": { return this.Boosts.pt; }
+            case "rs": { return this.Boosts.rs; }
+            case "sk": { return this.Boosts.sk; }
+            case "sp": { return this.Boosts.sp; }
+            default: { return 0; }
+        }
     }
 
 }

@@ -64,7 +64,8 @@ class Team {
         this.Items = this.ItemGenerator(_data.items);
         this.Monsters = [];
         this.Leads = [];
-        this.MonsterGenerator(_data.monsters, _data.active)
+        this.MonsterGenerator(_data.monsters)
+        this.LeadGenerator(_data.active)
     }
 
     /**
@@ -97,16 +98,11 @@ class Team {
      * @param _monsters List of monsters to recreate
      * @param _leads List of 'in play' monsters, used to decide which monsters are pushed to the teams Leads array
      */
-    private MonsterGenerator(_monsters : IActiveMonster[], _leads : IActivePos[]) {
+    private MonsterGenerator(_monsters : IActiveMonster[]) {
         let i = 0;
         for (i = 0; i < _monsters.length ; i++) {
             const MonGen : ActiveMonster = MonsterFactory.CreateMonster(_monsters[i]);
             this.Monsters.push(MonGen);
-            _leads.forEach(item => {
-                if (item.teampos === i) {
-                    this.Leads.push(new ActivePos(i, item.position, this));
-                }
-            })
         }
     }
 
@@ -117,6 +113,12 @@ class Team {
     public AddFreshMonster(_monster : IDEntry) {
         const NewMonster = MonsterFactory.CreateNewMonster(_monster);
         this.Monsters.push(NewMonster)
+    }
+
+    private LeadGenerator(_leads : IActivePos[]) {
+        _leads.forEach(item =>
+            this.Leads.push(new ActivePos(item.position, item.teampos, this))
+        )
     }
 
     /**

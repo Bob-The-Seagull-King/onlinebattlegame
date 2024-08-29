@@ -14,6 +14,7 @@ import { ITrainer, TrainerBase } from "./trainer/trainer_basic";
 import { BattleEvents } from "./battle_events";
 import { TrainerBot } from "./trainer/trainer_bot";
 import { BehaviourDex } from "../../../data/static/behaviour/behaviours";
+import { ActiveMonster } from "../models/active_monster";
 
 /**
  * Stores information on an event function that needs
@@ -448,9 +449,9 @@ class Battle {
     public runEvent(
         eventid: string,
         trainer: TrainerBase, 
-        targettrainer : TrainerBase,
-        target?: TrainerBase | ActivePos | Plot | Side | Scene | null, 
-        source?: TrainerBase | ActivePos | Plot | Side | Scene | null,
+        targettrainer? : TrainerBase,
+        target?: TrainerBase | ActivePos | ActiveMonster | Plot | Side | Scene | null, 
+        source?: TrainerBase | ActivePos | ActiveMonster | Plot | Side | Scene | null,
         sourceEffect?: ActiveItem | ActiveAction | null, 
         relayVar?: any, 
         trackVal?: any, 
@@ -470,7 +471,9 @@ class Battle {
         // Get events from the battle's current scene, and the relevant trainer's sides
         this.getEvents(eventid, this.Scene, Events, true);
         this.getEvents(eventid, this.Scene.Sides[trainer.Position], Events, true);
-        this.getEvents(eventid, this.Scene.Sides[targettrainer.Position], Events, false);
+        if (targettrainer) {
+            this.getEvents(eventid, this.Scene.Sides[targettrainer.Position], Events, false);
+        }
 
         // If possible, get events from the source and target's plots
         if (source instanceof ActivePos) {
@@ -526,7 +529,29 @@ class Battle {
      * @param events the array of events to add to
      * @param _fromSource if the target is the thing that triggered this event in the first place.
      */
-    public getEvents( eventid: string, target: TrainerBase | ActivePos | ActiveItem | ActiveAction | Plot | Side | Scene, events : EventHolder[], _fromSource : boolean ) {
+    public getEvents( eventid: string, target: TrainerBase | ActivePos | ActiveMonster | ActiveItem | ActiveAction | Plot | Side | Scene, events : EventHolder[], _fromSource : boolean ) {
+        if (target instanceof ActiveMonster) {
+            // Search for Monster events
+            let i = 0;
+            for (i = 0; i < target.Tokens.length; i ++) {
+                // Check the monster itself
+                let temp_condition = TokenMonsterBattleDex[target.Tokens[i]]
+                // @ts-ignore - dynamic lookup
+                const func = temp_condition['on'+eventid];
+                if (func !== undefined) {
+                    events.push( { priority: 0, self: target, source: temp_condition, callback: func, fromsource: _fromSource } )
+                }
+            }
+            for (i = 0; i < target.Traits.length; i ++) {
+                // Check the monster's passive traits
+                let temp_condition = TraitBattleDex[target.Traits[i]]
+                // @ts-ignore - dynamic lookup
+                const func = temp_condition['on'+eventid];
+                if (func !== undefined) {
+                    events.push( { priority: 1, self: target, source: target.Traits[i], callback: func, fromsource: _fromSource } )
+                }
+            }
+        }        
         if (target instanceof ActivePos) {
             // Search for Monster events
             let i = 0;

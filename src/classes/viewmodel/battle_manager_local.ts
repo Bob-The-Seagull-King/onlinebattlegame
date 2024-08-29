@@ -42,7 +42,7 @@ class OfflineBattleManager extends BattleManager {
         const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam.ConvertToInterface(), pos: 0, manager: this, name: "Local"});
         this.Trainer = myTrainer;
 
-        const otherTeam : Team = this.TempNewTeam();
+        const otherTeam : Team = this.TempBotTeam();
         const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam.ConvertToInterface(), pos: 1, behaviour: ['aggressive'], name: "Bot"});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
@@ -61,7 +61,6 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[0].AddFreshAction("getpumped");
         _Team.Monsters[0].AddFreshAction("harshthenoise");
         _Team.Monsters[0].Traits.push("harshlife");
-        _Team.Leads.push(new ActivePos(0, 0, _Team))
 
         _Team.Monsters.push(MonsterFactory.CreateNewMonster("arcana"))
         _Team.Monsters[1].AddFreshAction("windbreaker");
@@ -83,6 +82,47 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[3].AddFreshAction("scatter");
         _Team.Monsters[3].AddFreshAction("slam");
         _Team.Monsters[3].Traits.push("clearbody");
+
+        _Team.Leads.push(new ActivePos(0, 2, _Team))
+
+        _Team.AddFreshItem("herb");
+        _Team.AddFreshItem("sharpstones");
+
+        return _Team;
+    }
+
+    private TempBotTeam() : Team {
+        const _Team : Team = TeamFactory.CreateNewTeam();
+
+        _Team.Monsters.push(MonsterFactory.CreateNewMonster("bruiser"))
+        _Team.Monsters[0].AddFreshAction("slam");
+        _Team.Monsters[0].AddFreshAction("tackle");
+        _Team.Monsters[0].AddFreshAction("getpumped");
+        _Team.Monsters[0].AddFreshAction("harshthenoise");
+        _Team.Monsters[0].Traits.push("harshlife");
+
+        _Team.Monsters.push(MonsterFactory.CreateNewMonster("arcana"))
+        _Team.Monsters[1].AddFreshAction("windbreaker");
+        _Team.Monsters[1].AddFreshAction("tackle");
+        _Team.Monsters[1].AddFreshAction("scatter");
+        _Team.Monsters[1].AddFreshAction("harshthenoise");
+        _Team.Monsters[1].Traits.push("vampire");
+
+        _Team.Monsters.push(MonsterFactory.CreateNewMonster("nimble"))
+        _Team.Monsters[2].AddFreshAction("windbreaker");
+        _Team.Monsters[2].AddFreshAction("getpumped");
+        _Team.Monsters[2].AddFreshAction("scatter");
+        _Team.Monsters[2].AddFreshAction("tackle");
+        _Team.Monsters[2].Traits.push("retaliation");
+
+        _Team.Monsters.push(MonsterFactory.CreateNewMonster("cleric"))
+        _Team.Monsters[3].AddFreshAction("harshthenoise");
+        _Team.Monsters[3].AddFreshAction("regrow");
+        _Team.Monsters[3].AddFreshAction("scatter");
+        _Team.Monsters[3].AddFreshAction("slam");
+        _Team.Monsters[3].Traits.push("clearbody");
+
+        _Team.Leads.push(new ActivePos(0, 0, _Team))
 
         _Team.AddFreshItem("herb");
         _Team.AddFreshItem("sharpstones");
