@@ -28,7 +28,6 @@ const MessagesDisplay = (props: any) => {
             {/** Display each message in human readable format */}
             {messageReceived.map(item => (
               <div key={"messageset"+messageReceived.indexOf(item)}>
-                <p>{"Message Set " + messageReceived.indexOf(item)}</p>
                 {Manager.TranslateMessages(item).map(element => (
                   <p key={"messageofset"+messageReceived.indexOf(item)+(element)}> {element} </p> ))}
               </div> ))}

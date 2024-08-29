@@ -25,14 +25,22 @@ class BattleEvents {
      */
     public runTurns(_choices : SelectedAction[]): boolean {
         const OrderedChoices : SelectedAction[] = this.orderTurns(_choices);
-        const messages : MessageSet = [];
         OrderedChoices.forEach(element => {
-                element.trainer = new TrainerBase({ team : element.trainer.Team.ConvertToInterface(), pos : element.trainer.Position, name: element.trainer.Name })
-                const Message : {[id : IDEntry]: any} = { "choice" : element}
-                messages.push(Message)
+                this.runTurn(element)
             })
-        this.Battle.SendOutMessage(messages);
         return this.Battle.IsBattleAlive();
+    }
+
+    /**
+     * Perform a single action
+     * @param _action The action to run
+     */
+    public runTurn(_action : SelectedAction) {
+        const DuplicateAction : SelectedAction = _action 
+        DuplicateAction.trainer = new TrainerBase({ team : DuplicateAction.trainer.Team.ConvertToInterface(), pos : DuplicateAction.trainer.Position, name: DuplicateAction.trainer.Name })
+        
+        const Message : {[id : IDEntry]: any} = { "choice" : DuplicateAction}
+        this.Battle.SendOutMessage([Message]);
     }
 
     /**
