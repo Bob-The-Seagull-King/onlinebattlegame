@@ -213,6 +213,9 @@ export interface ChoiceTarget {
 export interface CallEvents {
     onCanUseMove? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect: ActiveAction, relayVar: any, fromSource: boolean) => true | false;
     onCanUseItem? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, source : TrainerBase, sourceEffect: ActiveItem, relayVar: any, fromSource: boolean) => true | false;
+    onAttemptSwitch? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster, source : ActivePos, relayVar: boolean, fromSource: boolean) => boolean;
+    onSwitchOut? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, source : ActivePos, fromSource: boolean) => void;
+    onSwitchIn? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, source : ActivePos, fromSource: boolean) => void
 }
 
 /**

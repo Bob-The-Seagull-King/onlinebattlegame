@@ -1,4 +1,4 @@
-import { IDEntry } from "../../../global_types";
+import { IDEntry, SwitchAction } from "../../../global_types";
 import { ItemFactory } from "../factories/item_factory";
 import { MonsterFactory } from "../factories/monster_factory";
 import { ActiveItem, IActiveItem } from "./active_item"
@@ -35,6 +35,11 @@ class ActivePos {
         this.Monster = _team.Monsters[_teampos];
         this.Position = _pos;
         this.TeamPosition = _teampos;
+    }
+
+    public SwapMon(_action : SwitchAction, _team : Team) {
+        this.TeamPosition = _action.trainer.Team.Monsters.indexOf(_action.newmon)
+        this.Monster = _team.Monsters[this.TeamPosition];
     }
 
     /**

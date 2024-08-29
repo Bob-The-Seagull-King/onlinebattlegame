@@ -36,11 +36,41 @@ class BattleEvents {
      * @param _action The action to run
      */
     public runTurn(_action : SelectedAction) {
+        if (_action.type === "SWITCH") {
+            this.performSwitch(_action as SwitchAction);
+        } else {
+            const DuplicateAction : SelectedAction = _action 
+            DuplicateAction.trainer = new TrainerBase({ team : DuplicateAction.trainer.Team.ConvertToInterface(), pos : DuplicateAction.trainer.Position, name: DuplicateAction.trainer.Name })
+            const Message : {[id : IDEntry]: any} = { "choice" : DuplicateAction}
+            this.Battle.SendOutMessage([Message]);
+        }
+    }
+
+    public performSwitch(_action : SwitchAction) {
+        // Prep Messages
+        const Messages : MessageSet = []
+        
+        // Add Choice Message
         const DuplicateAction : SelectedAction = _action 
         DuplicateAction.trainer = new TrainerBase({ team : DuplicateAction.trainer.Team.ConvertToInterface(), pos : DuplicateAction.trainer.Position, name: DuplicateAction.trainer.Name })
-        
-        const Message : {[id : IDEntry]: any} = { "choice" : DuplicateAction}
-        this.Battle.SendOutMessage([Message]);
+        Messages.push({ "choice" : DuplicateAction})
+
+        // Run Switch
+        const CanSwitch = this.Battle.runEvent('AttemptSwitch', _action.trainer, _action.trainer, _action.newmon, _action.current, null, true);
+        if (CanSwitch) {
+            Messages.push({ "generic" : _action.current.Monster.Nickname + " come back!"})
+            this.Battle.runEvent('SwitchOut', _action.trainer, _action.trainer, null, _action.current);
+
+            _action.current.SwapMon(_action, _action.trainer.Team);
+
+            Messages.push({ "generic" : + _action.newmon.Nickname + " it's your turn!"})
+            this.Battle.runEvent('SwitchIn', _action.trainer, _action.trainer, null, _action.current);
+        } else {            
+            Messages.push({ "generic" : "But " + _action.current.Monster.Nickname + " couldn't switch!"})
+        }
+
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
     }
 
     /**
