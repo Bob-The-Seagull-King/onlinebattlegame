@@ -1,3 +1,4 @@
+import { ActionBattleDex } from "../../../data/static/action/action_btl";
 import { ActionAction, IDEntry, ItemAction, MessageSet, SelectedAction, SwitchAction } from "../../../global_types";
 import { ActiveMonster } from "../models/active_monster";
 import { ActivePos } from "../models/team";
@@ -23,9 +24,9 @@ class BattleEvents {
      * @returns boolean value deciding if the battle should continue
      */
     public runTurns(_choices : SelectedAction[]): boolean {
-        console.log(this.orderTurns(_choices))
+        const OrderedChoices : SelectedAction[] = this.orderTurns(_choices);
         const messages : MessageSet = [];
-        _choices.forEach(element => {
+        OrderedChoices.forEach(element => {
                 element.trainer = new TrainerBase({ team : element.trainer.Team.ConvertToInterface(), pos : element.trainer.Position, name: element.trainer.Name })
                 const Message : {[id : IDEntry]: any} = { "choice" : element}
                 messages.push(Message)
@@ -67,11 +68,6 @@ class BattleEvents {
             }
         })
 
-        // Order Arrays
-        const OrderedItemTurnArray : ItemAction[] = [];
-        const OrderedActionTurnArray : ActionAction[] = [];
-        const OrderedOtherTurnArray : SelectedAction[] = [];
-
         // ---------------------------------------- Turn Skip ---------------------------------------------
         const OrderedNoneTurnArray : SelectedAction[] = [];
         NoneTurnArray.forEach(item => {
@@ -98,6 +94,78 @@ class BattleEvents {
         for (let i = (Object.keys(sortedDictionary).length - 1); i >= 0; i--) {
             OrderedSwitchTurnArray.push.apply(OrderedSwitchTurnArray, this.shuffleArray(sortedDictionary[Object.keys(sortedDictionary)[i]]))
         }
+        
+        // ---------------------------------------- Use Item ----------------------------------------------
+        const OrderedItemTurnArray : ItemAction[] = [];
+
+        // Group Item usage by impact on the field
+        // Scene-affecting items go first, then items
+        // for the trainer, then items affecting an
+        // opposing team.
+        const ItemScene : ItemAction[] = [];
+        const ItemSelf : ItemAction[] = [];
+        const ItemOther : ItemAction[] = [];
+
+        ItemTurnArray.forEach(item => {
+            if (item.target.length === 0) {
+                ItemScene.push(item)
+            } else {                
+                if (item.target[0][0] === item.trainer.Position) {
+                    ItemSelf.push(item);
+                } else { ItemOther.push(item) }
+            }
+        })
+        
+        // Shuffle within Item groups and add to turn order
+        OrderedItemTurnArray.push.apply(OrderedItemTurnArray, this.shuffleArray(ItemScene))
+        OrderedItemTurnArray.push.apply(OrderedItemTurnArray, this.shuffleArray(ItemSelf))
+        OrderedItemTurnArray.push.apply(OrderedItemTurnArray, this.shuffleArray(ItemOther))
+
+        // ---------------------------------------- Perform Action ----------------------------------------
+        const OrderedActionTurnArray : ActionAction[] = [];
+
+        // Sort By priority
+        var sorted = {};
+        for( let i = 0, max = ActionTurnArray.length; i < max ; i++ ){
+            if( sorted[ActionBattleDex[ActionTurnArray[i].action.Action].priority] == undefined ){
+                sorted[ActionBattleDex[ActionTurnArray[i].action.Action].priority] = [];
+            }
+            sorted[ActionBattleDex[ActionTurnArray[i].action.Action].priority].push(ActionTurnArray[i]);
+        }
+        
+        // Order the priority tiers
+        const sortedActionEntries = Object.entries(sorted).sort((a, b) => {
+            return parseInt(b[0].toString()) - parseInt(a[0].toString())})
+        const sortedActionDictionary: {} = Object.fromEntries(sortedActionEntries);
+
+        // Iterate through each tier of priority
+        for (let i = (Object.keys(sortedActionDictionary).length - 1); i >= 0; i--) {
+            const ArrayOfActions : ActionAction[] = sortedActionDictionary[Object.keys(sortedActionDictionary)[i]];
+
+            // Organize by speed within priority
+            var sorted = {};
+            for( let i = 0, max = ArrayOfActions.length; i < max ; i++ ){
+                if( sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp")] == undefined ){
+                    sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp")] = [];
+                }
+                sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp")].push(ArrayOfActions[i]);
+            }
+
+            // Order the speed tiers
+            const sortedPriorityActionEntries = Object.entries(sorted).sort((a, b) => { return parseInt(b[0].toString()) - parseInt(a[0].toString())})
+            const sortedPriorityActionDictionary: {} = Object.fromEntries(sortedPriorityActionEntries);
+            // Shuffle within speed tiers and add to turn order
+            for (let i = (Object.keys(sortedPriorityActionDictionary).length - 1); i >= 0; i--) {
+                OrderedActionTurnArray.push.apply(OrderedActionTurnArray, this.shuffleArray(sortedPriorityActionDictionary[Object.keys(sortedPriorityActionDictionary)[i]]))
+            }
+        }
+
+        // ---------------------------------------- Emergency Misc Dump -----------------------------------
+        const OrderedOtherTurnArray : SelectedAction[] = [];
+
+        OtherTurnArray.forEach(item => {
+            OrderedOtherTurnArray.push(item)
+        })
 
         // ---------------------------------------- Combine Arrays ----------------------------------------
 
