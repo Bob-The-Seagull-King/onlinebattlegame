@@ -1,4 +1,4 @@
-import { BotBehaviourWeight, BotOptions, IDEntry, SelectedAction, SubSelectAction, TurnChoices, TurnSelect } from "../../../../global_types";
+import { BotBehaviourWeight, BotOptions, IDEntry, SelectedAction, SubSelectAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
 import { Battle } from "../battle";
 import { ITrainer, TrainerBase } from "./trainer_basic";
 
@@ -29,25 +29,32 @@ class TrainerBot extends TrainerBase {
      * @returns Returns a SelectedAction object describing what action(s) the trainer takes this turn
      */
     public async SelectChoice(_options: TurnSelect, _room : any, _battle : Battle) {
+        let ReturnedAction : TurnSelectReturn = { actiontype: "NONE", itemIndex: 0 }
+
         const _weightedoptions = this.ConvertToWeightedArray(_options.Choices, _battle);
         
         _weightedoptions.forEach(item =>{
             item.weight = _battle.runBehaviour("Modify" + item.action.type + "Chance", this, _weightedoptions, item, item.weight)
         })
         
-        const chosenOption = this.SelectedMoveWeighted(_weightedoptions, _battle )
+        const chosenOption : BotBehaviourWeight = this.SelectedMoveWeighted(_weightedoptions, _battle )
 
         if ((chosenOption.action.type === "SWITCH") ||
             (chosenOption.action.type === "ITEM") ||
             (chosenOption.action.type === "ACTION")) {
 
+            ReturnedAction.actiontype = chosenOption.action.type
+            ReturnedAction.itemIndex = _options.Choices[chosenOption.action.type].indexOf(chosenOption.action)
+
             const _weightedsuboptions = this.ConvertSubOptionsToWeightedArray((chosenOption.action as SubSelectAction).options, chosenOption, _battle)
                         
             const chosenSubOption = this.SelectedMoveWeighted(_weightedsuboptions, _battle);
-            return chosenSubOption.action
+
+            ReturnedAction.subItemIndex = (chosenOption.action as SubSelectAction).options.indexOf(chosenSubOption.action)
+            return ReturnedAction
         }
 
-        return {type : "NONE", trainer : this}
+        return ReturnedAction
     }
 
     /**

@@ -3,7 +3,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { ActionAction, BotBehaviourWeight, BotOptions, ItemAction, MessageSet, SelectedAction, SubSelectAction, SwitchAction, TurnChoices } from "../../../global_types";
+import { ActionAction, BotBehaviourWeight, BotOptions, ItemAction, MessageSet, SelectedAction, SubSelectAction, SwitchAction, TurnChoices, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { ActivePos, Team } from "../models/team";
@@ -156,10 +156,16 @@ class Battle {
             if (item.Team.Leads.length > 0) {
                 const LeadPromise = item.Team.Leads.map( async (element) => {
                     const Options : TurnChoices = this.GetTrainerChoices(item, element)
-                    const Turn : SelectedAction = await (item.SelectChoice({ Choices: Options, Position: element.Position, Battle: this.ConvertToInterface()}, this.SendMessage, this))
+                    const Turn : TurnSelectReturn = await (item.SelectChoice({ Choices: Options, Position: element.Position, Battle: this.ConvertToInterface()}, this.SendMessage, this))
                     if (Turn) {
-                        Turn.trainer = item // When creating options, the trainer is replaced with a simple version for message size reasons, this sets it back to the right trainer object.
-                        Choices.push(Turn)
+                        let ChosenAction : SelectedAction = null;
+                        if (Turn.subItemIndex !== undefined) {
+                            ChosenAction = (Options[Turn.actiontype][Turn.itemIndex] as SubSelectAction).options[Turn.subItemIndex]
+                        } else {
+                            ChosenAction = (Options[Turn.actiontype][Turn.itemIndex])
+                        }
+                        ChosenAction.trainer = item // When creating options, the trainer is replaced with a simple version for message size reasons, this sets it back to the right trainer object.
+                        Choices.push(ChosenAction)
                     }
                 })
 

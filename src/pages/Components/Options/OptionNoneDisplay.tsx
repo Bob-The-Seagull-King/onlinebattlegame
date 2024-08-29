@@ -9,8 +9,8 @@ const OptionsNoneDisplay = (props: any) => {
     const Position  : number = props.position           // The ID val of this set of choices (used for when multiple monsters are on the field)
 
     // Sends a selected objct to the viewmodel manager as the chosen action
-    const SendSingleOption = (_item : SelectedAction, _pos : number) => {
-        Manager.SendOptions(_item, _pos)
+    const SendSingleOption = (_pos : number) => {
+        Manager.SendOptions("NONE", 0, -1, _pos)
     }
 
     return (
@@ -19,7 +19,7 @@ const OptionsNoneDisplay = (props: any) => {
                 <div key={"none" + Choices.indexOf(item)}>
                     {item.options.map(element => (
                         <div key={"none" + Choices.indexOf(item) + "sub" + item.options.indexOf(element)}>
-                            <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(element, Position)}>{ActionTranslateDex['none'].selectOption(element, Manager.BattleState)}</Button>
+                            <Button bsPrefix="OptionButton SmallText" onClick={() => SendSingleOption(Position)}>{ActionTranslateDex['none'].selectOption(element, Manager.BattleState)}</Button>
                         </div>
                     ))}
                 </div>

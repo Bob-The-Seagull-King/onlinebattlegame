@@ -3,7 +3,7 @@ import { CONNECTION } from "../../../resources/connection-routes";
 import { ActivePos, Team } from "../../sim/models/team";
 import { TeamFactory } from "../../sim/factories/team_factory";
 import { OnlineBattleManager } from "../../viewmodel/battle_manager_online";
-import { SelectedAction } from "../../../global_types";
+import { SelectedAction, TurnSelectReturn } from "../../../global_types";
 import { MonsterFactory } from "../../sim/factories/monster_factory";
 
 class SocketManager {
@@ -31,7 +31,7 @@ class SocketManager {
 
         // Used when the battle provides possible actions and awaits a user response
         this.ActiveSocket.on("receive_battle_options", async (data : any) => {
-            const newAction : SelectedAction = await this.BattleManager.ReceiveOptions(data.message.Choices, data.message.Position, data.message.Battle);
+            const newAction : TurnSelectReturn = await this.BattleManager.ReceiveOptions(data.message.Choices, data.message.Position, data.message.Battle);
             if (newAction) {
              this.SendAction(newAction, data.message.Position);
             }
@@ -115,7 +115,7 @@ class SocketManager {
      * Sends a chosen SelectedAction to the server
      * @param option the SelectedAction chosen
      */
-    public SendAction(option: SelectedAction, position : number) {
+    public SendAction(option: TurnSelectReturn, position : number) {
         const room = this.Room;
         this.ActiveSocket.emit("send_option", {option, position, room});
     }

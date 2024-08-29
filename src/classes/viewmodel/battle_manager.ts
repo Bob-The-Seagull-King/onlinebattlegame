@@ -49,7 +49,7 @@ class BattleManager {
      * @param _option the SelectedAction chosen
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      */
-    public SendOptions(_option : SelectedAction, _position : number) {
+    public SendOptions(_type : string, _index : number, _element: number, _position : number) {
         undefined;
     }
 

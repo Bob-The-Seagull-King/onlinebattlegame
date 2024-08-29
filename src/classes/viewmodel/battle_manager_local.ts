@@ -1,4 +1,4 @@
-import { SelectedAction, TurnChoices } from "../../global_types";
+import { SelectedAction, TurnChoices, TurnSelectReturn } from "../../global_types";
 import { Battle, IBattle } from "../sim/controller/battle";
 import { TrainerBot } from "../sim/controller/trainer/trainer_bot";
 import { TrainerLocal } from "../sim/controller/trainer/trainer_local";
@@ -43,7 +43,7 @@ class OfflineBattleManager extends BattleManager {
         this.Trainer = myTrainer;
 
         const otherTeam : Team = this.TempBotTeam();
-        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam.ConvertToInterface(), pos: 1, behaviour: ['aggressive'], name: "Bot"});
+        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam.ConvertToInterface(), pos: 1, behaviour: ['random'], name: "Bot"});
 
         const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
 
@@ -143,7 +143,7 @@ class OfflineBattleManager extends BattleManager {
         this.funcReceiveOptions();
         return new Promise((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {
-              resolve(event.detail);
+              resolve(event.detail.payload);
               document.removeEventListener('selectAction'+_position, handleEvent as EventListener);
             };
         
@@ -157,8 +157,9 @@ class OfflineBattleManager extends BattleManager {
      * @param _option the SelectedAction chosen
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      */
-    public SendOptions(_option : SelectedAction, _position : number) {
-        const event = new CustomEvent<EventAction>('selectAction'+_position, { detail: _option });
+    public SendOptions(_type : string, _index : number, _element: number, _position : number) {
+        const TempMandatory : TurnSelectReturn = {actiontype : _type, itemIndex: _index, subItemIndex: _element}
+        const event = new CustomEvent<EventAction>('selectAction'+_position, { detail: {type : "CHOICE", payload: TempMandatory} });
         document.dispatchEvent(event);
         this.ChoicesLog = this.ChoicesLog.filter(item => item.pos !== _position)
         this.funcReceiveOptions();

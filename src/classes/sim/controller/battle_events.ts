@@ -25,6 +25,7 @@ class BattleEvents {
      */
     public runTurns(_choices : SelectedAction[]): boolean {
         const OrderedChoices : SelectedAction[] = this.orderTurns(_choices);
+        
         OrderedChoices.forEach(element => {
                 this.runTurn(element)
             })
@@ -37,6 +38,7 @@ class BattleEvents {
      */
     public runTurn(_action : SelectedAction) {
         if (_action.type === "SWITCH") {
+            
             this.performSwitch(_action as SwitchAction);
         } else {
             const DuplicateAction : SelectedAction = _action 
@@ -47,13 +49,9 @@ class BattleEvents {
     }
 
     public performSwitch(_action : SwitchAction) {
+        
         // Prep Messages
         const Messages : MessageSet = []
-        
-        // Add Choice Message
-        const DuplicateAction : SelectedAction = _action 
-        DuplicateAction.trainer = new TrainerBase({ team : DuplicateAction.trainer.Team.ConvertToInterface(), pos : DuplicateAction.trainer.Position, name: DuplicateAction.trainer.Name })
-        Messages.push({ "choice" : DuplicateAction})
 
         // Run Switch
         const CanSwitch = this.Battle.runEvent('AttemptSwitch', _action.trainer, _action.trainer, _action.newmon, _action.current, null, true);
@@ -62,8 +60,8 @@ class BattleEvents {
             this.Battle.runEvent('SwitchOut', _action.trainer, _action.trainer, null, _action.current);
 
             _action.current.SwapMon(_action, _action.trainer.Team);
-
-            Messages.push({ "generic" : + _action.newmon.Nickname + " it's your turn!"})
+            
+            Messages.push({ "generic" : (_action.newmon.Nickname) + " it's your turn!"})
             this.Battle.runEvent('SwitchIn', _action.trainer, _action.trainer, null, _action.current);
         } else {            
             Messages.push({ "generic" : "But " + _action.current.Monster.Nickname + " couldn't switch!"})
@@ -81,6 +79,7 @@ class BattleEvents {
      * @returns an organized array of SelectedAction objects
      */
     public orderTurns(_choices : SelectedAction[]): SelectedAction[] {
+
 
         const OrderedTurnArray : SelectedAction[] = [];
 
@@ -105,6 +104,8 @@ class BattleEvents {
                 OtherTurnArray.push(choice)
             }
         })
+
+        
 
         // ---------------------------------------- Turn Skip ---------------------------------------------
         const OrderedNoneTurnArray : SelectedAction[] = [];
@@ -228,6 +229,7 @@ class BattleEvents {
     }
 
     public GetStatValue(_trainer : TrainerBase, _monster : ActivePos | ActiveMonster, _stat : string) {
+        
         const _mon : ActiveMonster = (_monster instanceof ActiveMonster)? _monster : _monster.Monster;
 
         const BaseStat = this.Battle.runEvent(('GetStatBase'+_stat),_trainer, null, null, _mon, null, _mon.GetStat(_stat))

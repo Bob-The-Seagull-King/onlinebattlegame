@@ -59,6 +59,16 @@ export type TurnChoices = {
 }
 
 /**
+ * Returned to the battle to determine the
+ * user's inteded action.
+ */
+export type TurnSelectReturn = {
+    actiontype : string,
+    itemIndex : number,
+    subItemIndex? : number
+}
+
+/**
  * Used to weight different options against each other
  * when a bot is selection an action.
  */
@@ -87,7 +97,7 @@ export interface SelectedAction {
  */
 export interface SubSelectAction extends SelectedAction {
     choice  : ActiveMonster | ActiveItem | ActiveAction | ActivePos,    // The basic component the actions are derived from
-    options : ItemAction[] | ActionAction[] | SwitchAction[]    // Collection of possible actions to take
+    options : SelectedAction[]    // Collection of possible actions to take
 }
 
 /**

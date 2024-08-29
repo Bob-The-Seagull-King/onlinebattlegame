@@ -2,7 +2,7 @@ import { SocketHold } from "../socket/SocketHold";
 import { UserHold } from "../user/UserHold";
 import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { RoomStore } from "./RoomStore";
-import { MessageSet, SelectedAction, TurnSelect } from "../../../global_types";
+import { MessageSet, SelectedAction, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ITeam } from "../../sim/models/team";
 import { Battle } from "../../sim/controller/battle";
 import { TerrainFactory } from "../../sim/factories/terrain_factory";
@@ -161,8 +161,8 @@ class RoomHold {
      */
     public async GetUserTurn(_user : TrainerUser, _options : TurnSelect) {
         _user.User.socket.MySocket.to(this.MyID).emit("receive_battle_options", {message: _options, username: _user.User.user.MySocket.MyID});
-        return new Promise<SelectedAction>((resolve) => {
-            eventEmitter.once('selectAction'+_user.User.user.MySocket.MyID + "position" + _options.Position, (action: SelectedAction) => {
+        return new Promise<TurnSelectReturn>((resolve) => {
+            eventEmitter.once('selectAction'+_user.User.user.MySocket.MyID + "position" + _options.Position, (action: TurnSelectReturn) => {
                 resolve(action);
             });
         });
@@ -174,7 +174,7 @@ class RoomHold {
      * @param _option the option chosen
      * @param refID the 
      */
-    public SendOptions(_option : SelectedAction, refID : string) {
+    public SendOptions(_option : TurnSelectReturn, refID : string) {
         eventEmitter.emit('selectAction'+refID, _option);
     }
     

@@ -1,4 +1,4 @@
-import { SelectedAction, TurnChoices } from "../../global_types";
+import { SelectedAction, TurnChoices, TurnSelectReturn } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
 import { SocketManager } from "../structure/connection/SocketManager";
 import { BattleManager } from "./battle_manager";
@@ -29,13 +29,13 @@ class OnlineBattleManager extends BattleManager {
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      * @param _battle current state of the battle
      */
-    public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) : Promise<SelectedAction> {   
+    public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) : Promise<TurnSelectReturn> {   
         this.BattleState = _battle;  
         this.ChoicesLog.push({ action : _options, pos : _position})
         this.funcReceiveOptions();
-        return new Promise<SelectedAction>((resolve) => {
+        return new Promise<TurnSelectReturn>((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {
-              resolve(event.detail as SelectedAction);
+              resolve(event.detail.payload);
               document.removeEventListener('selectAction'+_position, handleEvent as EventListener);
             };
         
@@ -49,8 +49,9 @@ class OnlineBattleManager extends BattleManager {
      * @param _option the SelectedAction chosen
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      */
-    public SendOptions(_option : SelectedAction, _position : number) {
-        const event = new CustomEvent<EventAction>('selectAction'+_position, { detail: _option });
+    public SendOptions(_type : string, _index : number, _element: number, _position : number) {
+      const TempMandatory : TurnSelectReturn = {actiontype : _type, itemIndex: _index, subItemIndex: _element}
+      const event = new CustomEvent<EventAction>('selectAction'+_position, { detail: {type : "CHOICE", payload: TempMandatory} });
         document.dispatchEvent(event);
         this.ChoicesLog = this.ChoicesLog.filter(item => item.pos !== _position)
         this.funcReceiveOptions();

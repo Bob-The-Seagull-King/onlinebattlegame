@@ -11,7 +11,7 @@ const OptionsActionDisplay = (props: any) => {
         <div>
             {Choices.map(item => (
                 <div key={"action" + Choices.indexOf(item)}>
-                    <ActionChoicesDisplay manager={Manager} turns={item} position={Position}/>
+                    <ActionChoicesDisplay manager={Manager} turns={item} indexval={Choices.indexOf(item)} position={Position}/>
                 </div>
             ))}            
         </div>
