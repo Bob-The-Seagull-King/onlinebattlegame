@@ -298,14 +298,16 @@ class Battle {
 
         // Item Options
         _trainer.Team.Items.forEach(item => {
-            const ItemOptions : ItemAction[] = []
-            this.GetTrainerItemChoices(item, _trainer, ItemOptions)
-            ItemChoices.push({
-                type    : "ITEM",
-                trainer : baseTrainer,
-                choice  : item,
-                options : ItemOptions
-            })
+            if (item.Used === false) {
+                const ItemOptions : ItemAction[] = []
+                this.GetTrainerItemChoices(item, _trainer, ItemOptions)
+                ItemChoices.push({
+                    type    : "ITEM",
+                    trainer : baseTrainer,
+                    choice  : item,
+                    options : ItemOptions
+                })
+            }
         })
 
         // Action Options

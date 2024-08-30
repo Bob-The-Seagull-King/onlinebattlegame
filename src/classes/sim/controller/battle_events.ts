@@ -71,13 +71,14 @@ class BattleEvents {
         const TargetList : TargetSet = this.GetTargets(_action.target, ItemBattleDex[_action.item.Item].type_target)
        
         // Check if the item can be used at all
-        let CanUseItem = true;
+        let CanUseItem = !(_action.item.Used);
         TargetList.forEach(target => {
             let Trainer : TrainerBase | null = this.GetTrainer(target);
             CanUseItem = this.Battle.runEvent('AttemptItemAtAll', _action.trainer, Trainer, target, _action.trainer, _action.item, true, null, Messages);
         })
 
         if (CanUseItem) {
+            _action.item.Used = true;
             TargetList.forEach(target => {
                 let Trainer : TrainerBase | null = this.GetTrainer(target);
                 const IsTargetAlive = (target instanceof ActivePos)? (target.Monster.HP_Current > 0) : true
