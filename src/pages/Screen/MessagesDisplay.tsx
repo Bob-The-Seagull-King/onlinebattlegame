@@ -12,7 +12,7 @@ const MessagesDisplay = (props: any) => {
   
   // Update the state of messages to match the manager
   const receiveMessage = () => {
-    const CurrentMessages =  Object.assign([], Manager.MessageLog);
+    const CurrentMessages =  Object.assign([], Manager.TranslatedLog);
     setMessageReceived(CurrentMessages);
   }
   
@@ -27,10 +27,7 @@ const MessagesDisplay = (props: any) => {
         <div className="ForceHeight50">
             {/** Display each message in human readable format */}
             {messageReceived.map(item => (
-              <div key={"messageset"+messageReceived.indexOf(item)}>
-                {Manager.TranslateMessages(item).map(element => (
-                  <p key={"messageofset"+messageReceived.indexOf(item)+(element)}> {element} </p> ))}
-              </div> ))}
+              <p key={"messageofset"+messageReceived.indexOf(item)}> {item} </p>))}
           </div>
       </div>
     </div>

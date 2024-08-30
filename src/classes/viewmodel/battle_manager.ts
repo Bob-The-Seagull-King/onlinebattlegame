@@ -16,6 +16,7 @@ class BattleManager {
     
     public MessageLog   : MessageSet[]; // Collection of all messages sent by the battle
     public ChoicesLog   : { action : TurnChoices, pos : number}[]; // Collection of choices to be made
+    public TranslatedLog : string[];
 
     public BattleState  : IBattle;  // The most recent evaluation of the battle's state sent from the battle
 
@@ -25,6 +26,7 @@ class BattleManager {
     constructor() {
         this.MessageLog = [];
         this.ChoicesLog = [];
+        this.TranslatedLog = [];
     }
 
     /**
@@ -78,6 +80,8 @@ class BattleManager {
      */
     public ReceiveMessages(_messages : MessageSet) {
         this.MessageLog.push(_messages);
+        
+        this.TranslatedLog.push.apply(this.TranslatedLog, this.TranslateMessages(_messages));
         this.funcReceiveResults();   
     }
 
