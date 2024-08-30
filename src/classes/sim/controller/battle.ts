@@ -106,7 +106,21 @@ class Battle {
 
         if (Choices) {
             const KeepGoing = await this.Events.runTurns(Choices);
-            if (KeepGoing) { return KeepGoing }
+            if (KeepGoing) { 
+                let DeadSwapNeeded = this.CountTheDead() > 0
+
+                while (DeadSwapNeeded === true) {
+                    const DeadChoices : SelectedAction[] = await this.GetDeadSwap()
+                    const DeadSwap = await this.Events.runTurns(DeadChoices);
+                        
+                    if (DeadSwap) { }
+                    if (DeadChoices.length === 0) {
+                        DeadSwapNeeded = false;
+                    }
+                }
+                // Next Round
+                return this.IsBattleAlive();;
+            }
         }
     }
 
@@ -126,6 +140,27 @@ class Battle {
     }
 
     /**
+     * Counts the number of teams which require a
+     * swap to occur.
+     * @returns number of teams that have some living monster, but some leads are dead
+     */
+    public CountTheDead() {
+        let DeadCount = 0
+
+        this.Trainers.forEach(trainer => {            
+            if (this.IsAlive(trainer.Team)) {
+                trainer.Team.Leads.forEach(lead => {
+                    if (lead.Monster.HP_Current <= 0) {
+                        DeadCount += 1;
+                    }
+                })
+            }
+        })
+
+        return DeadCount
+    }
+
+    /**
      * Checks if a team has enough living monsters to continue fighting.
      * @param _team The team being checked for living monsters
      * @returns If there are any monsters with non-zero hit points
@@ -138,6 +173,42 @@ class Battle {
             }
         })
         return (LivingCount > 0);
+    }
+
+    /**
+     * Gets SWITCH actions for when a monster is dead
+     * at the end of a round.
+     * @returns actions selected
+     */
+    public async GetDeadSwap() {
+        const Choices : SelectedAction[] = [];
+
+        const TurnPromise = this.Trainers.map(async (item) => {
+            if (item.Team.Leads.length > 0) {
+                const LeadPromise = item.Team.Leads.map( async (element) => {
+                    if (element.Monster.HP_Current <= 0) {
+                        const Options : TurnChoices = this.GetDeadSwitchChoices(item, element)
+                        if (Options["SWITCH"]) {
+                            const Turn : TurnSelectReturn = await (item.SelectChoice({ Choices: Options, Position: element.Position, Battle: this.ConvertToInterface()}, this.SendMessage, this))
+                            if (Turn) {
+                                let ChosenAction : SelectedAction = null;
+                                if (Turn.subItemIndex !== undefined) {
+                                    ChosenAction = (Options[Turn.actiontype][Turn.itemIndex] as SubSelectAction).options[Turn.subItemIndex]
+                                } else {
+                                    ChosenAction = (Options[Turn.actiontype][Turn.itemIndex])
+                                }
+                                ChosenAction.trainer = item // When creating options, the trainer is replaced with a simple version for message size reasons, this sets it back to the right trainer object.
+                                Choices.push(ChosenAction)
+                            }
+                        }
+                    }                    
+                })
+                await Promise.all(LeadPromise);
+            }
+        });
+
+        await Promise.all(TurnPromise);
+        if (TurnPromise) { return Choices; }
     }
 
     /**
@@ -263,6 +334,40 @@ class Battle {
             _activeChoices["NONE"] = NoneActions;
         }
 
+        return _activeChoices
+    }
+
+    /**
+     * Just return a selection of Switch options, used
+     * when a monster is dead at the end of a turn.
+     * @param _trainer the trainer of the monster
+     * @param _monster the monster to swap out
+     * @returns set of available choices to swap in.
+     */
+    public GetDeadSwitchChoices(_trainer : TrainerBase, _monster : ActivePos) {        
+        // Simplified Trainer Info for Socket-Safe message size
+        const baseTrainer = new TrainerBase({ team : _trainer.Team.ConvertToInterface(), pos : _trainer.Position, name: _trainer.Name })
+
+        const SwitchOptions : SwitchAction[] = []
+        const SwitchChoices : SubSelectAction[] = []
+        const _activeChoices : TurnChoices = {}
+
+        _trainer.Team.Monsters.forEach(item => {
+            let IsOut = (item.HP_Current > 0)? false : true;
+            for (let i = 0; i < _trainer.Team.Leads.length; i++) {
+                if (_trainer.Team.Leads[i].Monster === item) {
+                    IsOut = true;
+                    break;
+                }
+            }
+            if (IsOut === false) { SwitchOptions.push( { type: "SWITCH", trainer: baseTrainer, current: _monster, newmon: item }) }
+        })
+        
+        if (SwitchOptions.length > 0) {
+            SwitchChoices.push({ type : "SWITCH", trainer : baseTrainer, choice : _monster, options : SwitchOptions })
+        }
+        
+        if (SwitchChoices.length > 0) { _activeChoices["SWITCH"] = SwitchChoices; }
         return _activeChoices
     }
 

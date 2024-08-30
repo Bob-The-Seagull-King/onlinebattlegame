@@ -80,7 +80,8 @@ class BattleEvents {
         if (CanUseItem) {
             TargetList.forEach(target => {
                 let Trainer : TrainerBase | null = this.GetTrainer(target);
-                const UseOnTarget = this.Battle.runEvent('AttemptItem', _action.trainer, Trainer, target, _action.trainer, _action.item, true, null, Messages);
+                const IsTargetAlive = (target instanceof ActivePos)? (target.Monster.HP_Current > 0) : true
+                const UseOnTarget = this.Battle.runEvent('AttemptItem', _action.trainer, Trainer, target, _action.trainer, _action.item, IsTargetAlive, null, Messages);
 
                 if (UseOnTarget) {
                     this.Battle.runEvent('ItemOnApply', _action.trainer, Trainer, target, _action.trainer, _action.item, true, null, Messages);
@@ -320,7 +321,6 @@ class BattleEvents {
      */
     public orderTurns(_choices : SelectedAction[]): SelectedAction[] {
 
-
         const OrderedTurnArray : SelectedAction[] = [];
 
         // ---------------------------------------- Populate Arrays ---------------------------------------
@@ -343,9 +343,7 @@ class BattleEvents {
             } else {
                 OtherTurnArray.push(choice)
             }
-        })
-
-        
+        })        
 
         // ---------------------------------------- Turn Skip ---------------------------------------------
         const OrderedNoneTurnArray : SelectedAction[] = [];
@@ -457,6 +455,11 @@ class BattleEvents {
         return OrderedTurnArray;
     }
 
+    /**
+     * Given an array of objects, randomise their order
+     * @param array the array to shuffle
+     * @returns the array, with objects randomly swapped around
+     */
     public shuffleArray(array: any[]): any[] {
         const newArray = array.slice();
     
