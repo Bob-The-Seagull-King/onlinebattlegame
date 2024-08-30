@@ -17,6 +17,7 @@ export type IDEntry = Lowercase<string>; // Used for mapping to entries on table
 export type InfoSetNumber = {[type : number]: number}; // Used for type chart matchups
 export type InfoSetGeneric = {[id : IDEntry]: any}; // Generic dictionary type used for most putposes
 export type MessageSet = InfoSetGeneric[]; // Collection of generically typed dictionaries
+export type TargetSet = (ActivePos | Scene | Side | Plot)[]; // Array of potential targets (of various types) for an item/move
 
 /**
  * Used in object descriptions, allows for text formatting.
@@ -221,11 +222,19 @@ export interface ChoiceTarget {
  * all options components of the interfaces that ineherit them.
  */
 export interface CallEvents {
-    onCanUseMove? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect: ActiveAction, relayVar: any, fromSource: boolean) => true | false;
-    onCanUseItem? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, source : TrainerBase, sourceEffect: ActiveItem, relayVar: any, fromSource: boolean) => true | false;
-    onAttemptSwitch? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster, source : ActivePos, relayVar: boolean, fromSource: boolean) => boolean;
-    onSwitchOut? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, source : ActivePos, fromSource: boolean) => void;
-    onSwitchIn? : (this: Battle, trainer : TrainerBase, trainerTarget : TrainerBase, source : ActivePos, fromSource: boolean) => void
+    onCanUseMove? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect: ActiveAction, relayVar: any, messageList: MessageSet, fromSource: boolean) => true | false; // If a monster is able to use a move
+    onCanUseItem? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, source : TrainerBase, sourceEffect: ActiveItem, relayVar: any, messageList: MessageSet, fromSource: boolean) => true | false; // If a trainer is able to use an item
+    onAttemptSwitch? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster, source : ActivePos, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the monster is prevented from switching for any reason
+    onAttemptItemAtAll? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item cannot be used at all, because of any one target
+    onAttemptItem? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item can be used generally, but not on the specific target
+    onItemOnApply? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => void; // Starts the item by applying it to one of the targets
+    onGetProtectionModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's protection
+    onGetDamageTakenModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's incoming damage
+    onGetFinalDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final damage taken
+    onGetDamageRecoveredModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the recovering monster's incoming hp
+    onGetFinalRecovery? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final hp recovered
+    onSwitchOut? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void;
+    onSwitchIn? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void
 }
 
 /**

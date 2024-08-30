@@ -447,6 +447,7 @@ class Battle {
      * @param sourceEffect  The specific action that is causing this event
      * @param relayVar      A variable which, if included, is passed through the event functions to be modifier and returned
      * @param trackVal      A variable which is set once, and used to modify the way event functions run
+     * @param messageList   Holds a list of messages to be added to
      * @param onEffect      ------------------------ Unused currently ------------------------    
      * @param fastExit      ------------------------ Unused currently ------------------------    
      * @param eventdepth    ------------------------ Unused currently ------------------------    
@@ -457,10 +458,11 @@ class Battle {
         trainer: TrainerBase, 
         targettrainer? : TrainerBase,
         target?: TrainerBase | ActivePos | ActiveMonster | Plot | Side | Scene | null, 
-        source?: TrainerBase | ActivePos | ActiveMonster | Plot | Side | Scene | null,
+        source?: TrainerBase | ActivePos | ActiveMonster | Plot | Side | Scene | ActiveItem | null,
         sourceEffect?: ActiveItem | ActiveAction | null, 
         relayVar?: any, 
-        trackVal?: any, 
+        trackVal?: any,
+        messageList? : MessageSet,
         onEffect?: boolean, 
         fastExit?: boolean,
         eventdepth?: number
@@ -485,8 +487,8 @@ class Battle {
         if (source instanceof ActivePos) {
             this.getEvents(eventid, this.Scene.Sides[trainer.Position].Plots[source.Position], Events, true);
         }
-        if (target instanceof ActivePos) {
-            this.getEvents(eventid, this.Scene.Sides[trainer.Position].Plots[target.Position], Events, false);
+        if ((target instanceof ActivePos) && (targettrainer)) {
+            this.getEvents(eventid, this.Scene.Sides[targettrainer.Position].Plots[target.Position], Events, false);
         }
 
         // Initialize the return value
@@ -503,6 +505,7 @@ class Battle {
             const args = [];
 
             let i = 0;
+            if ((_event.self !== undefined) && (_event.self !== null)) { args[i] = _event.self; i += 1;}
             if ((trainer !== undefined) && (trainer !== null)) { args[i] = trainer; i += 1; }
             if ((targettrainer !== undefined) && (targettrainer !== null)) { args[i] = targettrainer; i += 1; }
             if ((target !== undefined) && (target !== null)) { args[i] = target; i += 1; }
@@ -510,6 +513,7 @@ class Battle {
             if ((sourceEffect !== undefined) && (sourceEffect !== null)) { args[i] = sourceEffect; i += 1; }
             if ((relay_variable !== undefined) && (relay_variable !== null)) { args[i] = relay_variable; i += 1; }
             if ((trackVal !== undefined) && (trackVal !== null)) { args[i] = trackVal; i += 1; }
+            if ((messageList !== undefined) && (messageList !== null)) { args[i] = messageList; i += 1; }
             if ((onEffect !== undefined) && (onEffect !== null)) { args[i] = onEffect; i += 1; }
             if ((fastExit !== undefined) && (fastExit !== null)) { args[i] = fastExit; i += 1; }
             if ((_event.fromsource !== undefined) && (_event.fromsource !== null)) { args[i] = _event.fromsource; i += 1; }

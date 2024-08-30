@@ -1,7 +1,15 @@
+import { TypeMatchup } from "../../../data/enum/types";
 import { ActionBattleDex } from "../../../data/static/action/action_btl";
-import { ActionAction, IDEntry, ItemAction, MessageSet, SelectedAction, SwitchAction } from "../../../global_types";
+import { ItemBattleDex } from "../../../data/static/item/item_btl";
+import { ItemInfoDex } from "../../../data/static/item/item_inf";
+import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
+import { ActionAction, IDEntry, ItemAction, MessageSet, SelectedAction, SwitchAction, TargetSet } from "../../../global_types";
+import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
 import { ActivePos } from "../models/team";
+import { Plot } from "../models/terrain/terrain_plot";
+import { Scene } from "../models/terrain/terrain_scene";
+import { Side } from "../models/terrain/terrain_side";
 import { Battle } from "./battle"
 import { TrainerBase } from "./trainer/trainer_basic";
 
@@ -37,9 +45,10 @@ class BattleEvents {
      * @param _action The action to run
      */
     public runTurn(_action : SelectedAction) {
-        if (_action.type === "SWITCH") {
-            
+        if (_action.type === "SWITCH") {            
             this.performSwitch(_action as SwitchAction);
+        } else if (_action.type === "ITEM") {
+            this.performItem(_action as ItemAction);
         } else {
             const DuplicateAction : SelectedAction = _action 
             DuplicateAction.trainer = new TrainerBase({ team : DuplicateAction.trainer.Team.ConvertToInterface(), pos : DuplicateAction.trainer.Position, name: DuplicateAction.trainer.Name })
@@ -48,21 +57,252 @@ class BattleEvents {
         }
     }
 
+    /**
+     * Use an item on one or multiple monsters
+     * and/or terrain pieces.
+     * @param _action 
+     */
+    public performItem(_action : ItemAction) {
+        // Prep Messages
+        const Messages : MessageSet = []
+        Messages.push({ "generic" : _action.trainer.Name + " used " + ItemInfoDex[_action.item.Item].name})
+
+        // Find All Targets
+        const TargetList : TargetSet = this.GetTargets(_action.target, ItemBattleDex[_action.item.Item].type_target)
+       
+        // Check if the item can be used at all
+        let CanUseItem = true;
+        TargetList.forEach(target => {
+            let Trainer : TrainerBase | null = this.GetTrainer(target);
+            CanUseItem = this.Battle.runEvent('AttemptItemAtAll', _action.trainer, Trainer, target, _action.trainer, _action.item, true, null, Messages);
+        })
+
+        if (CanUseItem) {
+            TargetList.forEach(target => {
+                let Trainer : TrainerBase | null = this.GetTrainer(target);
+                const UseOnTarget = this.Battle.runEvent('AttemptItem', _action.trainer, Trainer, target, _action.trainer, _action.item, true, null, Messages);
+
+                if (UseOnTarget) {
+                    this.Battle.runEvent('ItemOnApply', _action.trainer, Trainer, target, _action.trainer, _action.item, true, null, Messages);
+                }
+            })
+        } else {
+            Messages.push({ "generic" : "But the item couldn't be used!"})
+        }
+
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
+    }
+
+    /**
+     * Given an amount of incoming damage, calculate the final
+     * damage dealt and apply that to the monster.
+     * @param _val the incoming damage number
+     * @param _type the type of the damage
+     * @param _source the source of the damage
+     * @param _target monster the damage is being applied to
+     * @param _trainer trainer associated with the source
+     * @param _targetTrainer trainer associated with the target
+     * @param _messageList list of messages to add to
+     * @param _skipProt if protection will be ignored
+     * @param _skipMod if % based modifiers will be ignored
+     * @param _skipAll if all adjustments to the damage will be ignores
+     */
+    public DealDamage(
+        _val : number, 
+        _type : number,
+        _source : ActivePos | ActiveMonster | ActiveItem | Scene | Side | Plot, 
+        _target: ActiveMonster, 
+        _trainer : TrainerBase | null, 
+        _targetTrainer : TrainerBase | null,
+        _messageList : MessageSet,
+        _skipProt : boolean,
+        _skipMod : boolean,
+        _skipAll : boolean) {
+            let Protection = 0;
+            let ProtectionModifier = 0;
+            let DamageTakenModifier = 0;
+            // This means the protection of the monster will be considered
+            if (!_skipProt) {
+                Protection = this.GetStatValue(_targetTrainer, _target, "pt")
+                let TypeModifier = 1;            
+                for (const type in SpeciesBattleDex[_target.Species].type) {
+                    const Matchup = TypeMatchup[_type][type];
+                    if (Matchup === 1) { TypeModifier -= 0.25;
+                    } else if (Matchup === 2) { TypeModifier += 0.25;
+                    } else if (Matchup === 3) { TypeModifier = 0; break; }
+                }
+                ProtectionModifier = this.Battle.runEvent('GetProtectionModifiers', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, 1, null, _messageList )
+            }
+            // This means additional % based modifiers will be considered
+            if (!_skipMod) {
+                DamageTakenModifier = this.Battle.runEvent('GetDamageTakenModifiers', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, 1, null, _messageList )
+            }
+
+            const FinalProtection = Math.floor( Protection * ProtectionModifier )
+            const ModifiedDamage = Math.floor( _val - (_val * ((FinalProtection * DamageTakenModifier)/100)))
+            
+            if (_skipAll) {
+                _target.TakeDamage(ModifiedDamage, _messageList);
+            } else {
+                const FinalDamage = this.Battle.runEvent('GetFinalDamage', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, ModifiedDamage, null, _messageList )
+                _target.TakeDamage(FinalDamage, _messageList);
+            }
+    }
+
+    /**
+     * Given an amount of HP to recover, determine the final
+     * recovery amount and apply it to a monster
+     * @param _val the base amount of HP to recover
+     * @param _type the type of recovery
+     * @param _source the reason for this recovery to happen
+     * @param _target the monster being healed
+     * @param _trainer the trainer associated with the source
+     * @param _targetTrainer the trainer associated with the target
+     * @param _messageList list of messages to add to
+     * @param _skipMod if % based modifiers should be ignored
+     * @param _skipAll if final modifiers should be ignored
+     */
+    public HealDamage(
+        _val : number, 
+        _type : number,
+        _source : ActivePos | ActiveMonster | ActiveItem | Scene | Side | Plot, 
+        _target: ActiveMonster, 
+        _trainer : TrainerBase | null, 
+        _targetTrainer : TrainerBase | null,
+        _messageList : MessageSet,
+        _skipMod : boolean,
+        _skipAll : boolean) {
+            
+            let DamageRecoveredModifier = 0;
+            
+            // This means additional % based modifiers will be considered
+            if (!_skipMod) {
+                DamageRecoveredModifier = this.Battle.runEvent('GetDamageRecoveredModifiers', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, 1, null, _messageList )
+            }
+            const ModifiedRecovery = Math.floor( _val + (_val * ((DamageRecoveredModifier)/100)))
+            
+            if (_skipAll) {
+                _target.HealDamage(ModifiedRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp'));
+            } else {
+                const FinalRecovery = this.Battle.runEvent('GetFinalRecovery', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, ModifiedRecovery, null, _messageList )
+                _target.HealDamage(FinalRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp'));
+            }
+    }
+
+    /**
+     * For a given object, attempt to find the right
+     * trainer associated with it.
+     * @param _obj the object to check
+     * @returns the trainer, if one can be found, or null otherwise
+     */
+    public GetTrainer(_obj : any) {
+        if (_obj instanceof Side) {
+            return this.Battle.Trainers[_obj.Position]
+        } else if (_obj instanceof Plot) {
+            return this.Battle.Trainers[_obj.ScenePos]
+        } else if (_obj instanceof ActivePos) {
+            for (let i = 0; i < this.Battle.Trainers.length; i++) {
+                for (let j = 0; j < this.Battle.Trainers[i].Team.Monsters.length; j++) {
+                    if (this.Battle.Trainers[i].Team.Monsters[j] === _obj.Monster) { 
+                        return this.Battle.Trainers[i]; }
+                }
+            }        
+        } else if (_obj instanceof ActiveMonster) {
+            for (let i = 0; i < this.Battle.Trainers.length; i++) {
+                for (let j = 0; j < this.Battle.Trainers[i].Team.Monsters.length; j++) {
+                    if (this.Battle.Trainers[i].Team.Monsters[j] === _obj) { 
+                        return this.Battle.Trainers[i]; }
+                }
+            }                  
+        } else if (_obj instanceof ActiveItem) {
+            for (let i = 0; i < this.Battle.Trainers.length; i++) {
+                for (let j = 0; j < this.Battle.Trainers[i].Team.Items.length; j++) {
+                    if (this.Battle.Trainers[i].Team.Items[j] === _obj) { 
+                        return this.Battle.Trainers[i]; }
+                }
+            }           
+        }
+
+        return null;
+    } 
+
+    /**
+     * Given a list of targets, and the type of targets,
+     * return an array listing every object affected.
+     * @param _targets The coordinates of each target
+     * @param _targettype the type of target (Monster, Terrain, or Both)
+     * @returns Array of Scene, Plot, Side, and ActivePos objects
+     */
+    public GetTargets(_targets : number[][], _targettype : string): TargetSet {
+        const Targets : TargetSet = []
+
+        // If empty, return the scene
+        if (_targets.length <= 0) {
+            if ((_targettype === "ALL") || (_targettype === "MONSTER")) {
+                this.Battle.Trainers.forEach(trainer => {
+                    trainer.Team.Leads.forEach(lead => { Targets.push(lead); })
+                })
+            }
+            if ((_targettype === "ALL") || (_targettype === "TERRAIN")) {
+                Targets.push(this.Battle.Scene);
+            }
+        } else { // Otherwise locate the relevant side/plot/monster
+            _targets.forEach(target => {
+                if (target.length === 2) { 
+                    // If plot coordinates are given
+                    if ((_targettype === "ALL") || (_targettype === "MONSTER")) {
+                        this.Battle.Trainers[target[0]].Team.Leads.forEach(lead => {
+                            if (lead.Position === target[1]) {
+                                Targets.push(lead);
+                            }
+                        })
+                    }
+                    if ((_targettype === "ALL") || (_targettype === "TERRAIN")) {
+                        Targets.push(this.Battle.Scene.Sides[target[0]].Plots[target[1]])
+                    }
+                } else if (target.length === 1) {
+                    // If side coordinates are given
+                    if ((_targettype === "ALL") || (_targettype === "MONSTER")) {
+                        this.Battle.Trainers[target[0]].Team.Leads.forEach(lead => {
+                            Targets.push(lead);
+                        })
+                    }
+                    if ((_targettype === "ALL") || (_targettype === "TERRAIN")) {
+                        Targets.push(this.Battle.Scene.Sides[target[0]])
+                    }
+                }
+            })
+        }
+
+        return Targets;
+    }
+
+    /**
+     * Switch out one monster for another
+     * @param _action the SwitchAction containing information on who to swap into who
+     */
     public performSwitch(_action : SwitchAction) {
         
         // Prep Messages
         const Messages : MessageSet = []
 
         // Run Switch
-        const CanSwitch = this.Battle.runEvent('AttemptSwitch', _action.trainer, _action.trainer, _action.newmon, _action.current, null, true);
+        let CanSwitch = this.Battle.runEvent('AttemptSwitch', _action.trainer, _action.trainer, _action.newmon, _action.current, null, true, null, Messages);
+        _action.trainer.Team.Leads.forEach(item => {
+            if (item.Monster === _action.newmon) {
+                CanSwitch = false;
+            }
+        })
+        
         if (CanSwitch) {
             Messages.push({ "generic" : _action.current.Monster.Nickname + " come back!"})
-            this.Battle.runEvent('SwitchOut', _action.trainer, _action.trainer, null, _action.current);
+            this.Battle.runEvent('SwitchOut', _action.trainer, null, null, _action.current, null, null, null, Messages);
 
             _action.current.SwapMon(_action, _action.trainer.Team);
             
             Messages.push({ "generic" : (_action.newmon.Nickname) + " it's your turn!"})
-            this.Battle.runEvent('SwitchIn', _action.trainer, _action.trainer, null, _action.current);
+            this.Battle.runEvent('SwitchIn', _action.trainer, null, null, _action.current, null, null, null, Messages);
         } else {            
             Messages.push({ "generic" : "But " + _action.current.Monster.Nickname + " couldn't switch!"})
         }
@@ -228,6 +468,13 @@ class BattleEvents {
         return newArray;
     }
 
+    /**
+     * Given a particular stat, get the base value of that stat
+     * @param _trainer the trainer of the relevant monster
+     * @param _monster the monster to get the stat from
+     * @param _stat the stat to find
+     * @returns returns a number or number[], based on the stat
+     */
     public GetStatValue(_trainer : TrainerBase, _monster : ActivePos | ActiveMonster, _stat : string) {
         
         const _mon : ActiveMonster = (_monster instanceof ActiveMonster)? _monster : _monster.Monster;

@@ -1,5 +1,5 @@
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
-import { BaseStats, IDEntry, InfoSetGeneric } from "../../../global_types"
+import { BaseStats, IDEntry, InfoSetGeneric, MessageSet } from "../../../global_types"
 import { Battle } from "../controller/battle";
 import { TrainerBase } from "../controller/trainer/trainer_basic";
 import { ActionFactory } from "../factories/action_factory";
@@ -99,6 +99,12 @@ class ActiveMonster {
         return _interface;
     }
 
+    /**
+     * Return the base stat value by species
+     * @param _stat the stat to get
+     * @returns number reflecting the stat, defaults to 0
+     * if the stat parameter isn't valid.
+     */
     public GetStat(_stat : string) {
         switch (_stat) {
             case "hp": { return SpeciesBattleDex[this.Species].stats.hp; }
@@ -112,6 +118,12 @@ class ActiveMonster {
         }
     }
 
+    /**
+     * Return the number of boosts applied to a monster's stat
+     * @param _stat the stat to check
+     * @returns number reflecting the stat boost, defaults to 0
+     * if the stat parameter isn't valid.
+     */
     public GetStatBoost(_stat : string) {
         switch (_stat) {
             case "hp": { return this.Boosts.hp; }
@@ -123,6 +135,39 @@ class ActiveMonster {
             case "sp": { return this.Boosts.sp; }
             default: { return 0; }
         }
+    }
+
+    /**
+     * Deal damage to a monster's HP, and check if the monster
+     * is still alive.
+     * @param _dmg the amount of damage to apply
+     * @param _messageList message list to apply messages to
+     */
+    public TakeDamage(_dmg : number, _messageList : MessageSet) {
+        let DmgTrack = _dmg;
+        if (_dmg > this.HP_Current) { DmgTrack = this.HP_Current }
+        _messageList.push({ "generic" : this.Nickname + " took " + DmgTrack + " damage!"})
+
+        this.HP_Current -= _dmg;
+        if (this.HP_Current < 0) { this.HP_Current = 0}
+        if (this.HP_Current <= 0) {
+            _messageList.push({ "generic" : this.Nickname + " was Knocked Out!"})
+        }
+    }
+
+    /**
+     * Restore a monster's HP, not going over the maximum
+     * @param _hp the amount of HP to recover
+     * @param _messageList message list to apply messages to
+     * @param _limit the monster's calculated max HP
+     */
+    public HealDamage(_hp : number, _messageList : MessageSet, _limit : number) {
+        let HPTrack = _hp;
+        if (HPTrack + this.HP_Current > _limit) { HPTrack = _limit - this.HP_Current }
+        _messageList.push({ "generic" : this.Nickname + " recovered " + HPTrack + " HP!"})
+        
+        this.HP_Current += _hp;
+        if (this.HP_Current > _limit) { this.HP_Current = _limit}
     }
 
 }
