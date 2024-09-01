@@ -21,6 +21,7 @@ export const ItemBattleDex : ItemBattleTable = {
         team_target : "TEAM",
         pos_target  : "SINGLE",
         type_target : "MONSTER",
+        events      : {},
         onItemOnApply(this: Battle, eventSource : ActiveItem,  trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) {
             messageList.push({ "generic" : trainer.Name + " healed up " + target.Monster.Nickname })
             const RecoveryVal = Math.floor(this.Events.GetStatValue(trainer, target, 'hp') * 0.25)
@@ -34,6 +35,7 @@ export const ItemBattleDex : ItemBattleTable = {
         team_target : "ENEMY",
         pos_target  : "SIDE",
         type_target : "TERRAIN",
+        events      : {},
         onItemOnApply(this: Battle, eventSource : ActiveItem,  trainer : TrainerBase, trainerTarget : TrainerBase, target : Side, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) {
             messageList.push({ "generic" : "Pointed Stone filled " + trainerTarget.Name + "'s side of the battle!"})
             if (!target.Tokens.includes('pointed')) {

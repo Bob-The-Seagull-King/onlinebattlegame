@@ -14,12 +14,14 @@ export const TraitBattleDex : TraitBattleTable = {
     clearbody : {
         id          : 0,
         cost        : 10,
-        category    : [TraitCategory.Restoration]
+        category    : [TraitCategory.Restoration],
+        events      : {}
     },
     harshlife : {
         id          : 1,
         cost        : 10,
         category    : [TraitCategory.Armour],
+        events      : {},
         onGetFinalDamage(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) {
             if (relayVar === 1) {
                 messageList.push({ "generic" : target.Nickname + " shrugged off the damage!"})
@@ -32,11 +34,13 @@ export const TraitBattleDex : TraitBattleTable = {
     retaliation : {
         id          : 2,
         cost        : 15,
-        category    : [TraitCategory.Revenge]
+        category    : [TraitCategory.Revenge],
+        events      : {}
     },
     vampire : {
         id          : 3,
         cost        : 20,
-        category    : [TraitCategory.Drain]
+        category    : [TraitCategory.Drain],
+        events      : {}
     }
 }

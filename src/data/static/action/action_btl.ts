@@ -17,7 +17,8 @@ export const ActionBattleDex : ActionBattleTable = {
         category    : [ActionCategory.Blunt],
         team_target : "ENEMY",
         pos_target  : "SINGLE",
-        type_target : "MONSTER"
+        type_target : "MONSTER",
+        events      : {}
     },    
     slam : {
         id          : 1,
@@ -30,7 +31,8 @@ export const ActionBattleDex : ActionBattleTable = {
         category    : [ActionCategory.Blunt, ActionCategory.Aggressive],
         team_target : "ENEMY",
         pos_target  : "SINGLE",
-        type_target : "MONSTER"
+        type_target : "MONSTER",
+        events      : {}
     },    
     regrow : {
         id          : 2,
@@ -43,7 +45,8 @@ export const ActionBattleDex : ActionBattleTable = {
         category    : [ActionCategory.Restoration],
         team_target : "SELF",
         pos_target  : "SINGLE",
-        type_target : "MONSTER"
+        type_target : "MONSTER",
+        events      : {}
     },    
     getpumped : {
         id          : 3,
@@ -56,7 +59,8 @@ export const ActionBattleDex : ActionBattleTable = {
         category    : [ActionCategory.Boost, ActionCategory.Aggressive],
         team_target : "SELF",
         pos_target  : "SINGLE",
-        type_target : "MONSTER"
+        type_target : "MONSTER",
+        events      : {}
     },    
     windbreaker : {
         id          : 4,
@@ -69,7 +73,8 @@ export const ActionBattleDex : ActionBattleTable = {
         category    : [ActionCategory.Tactical, ActionCategory.Debuff],
         team_target : "ENEMY",
         pos_target  : "SINGLE",
-        type_target : "MONSTER"
+        type_target : "MONSTER",
+        events      : {}
     },    
     harshthenoise : {
         id          : 5,
@@ -82,7 +87,8 @@ export const ActionBattleDex : ActionBattleTable = {
         category    : [ActionCategory.Tactical, ActionCategory.Debuff],
         team_target : "ENEMY",
         pos_target  : "SIDE",
-        type_target : "MONSTER"
+        type_target : "MONSTER",
+        events      : {}
     },    
     scatter : {
         id          : 6,
@@ -95,6 +101,7 @@ export const ActionBattleDex : ActionBattleTable = {
         category    : [ActionCategory.Terraform],
         team_target : "ENEMY",
         pos_target  : "SIDE",
-        type_target : "TERRAIN"
+        type_target : "TERRAIN",
+        events      : {}
     }
 }

@@ -1,5 +1,6 @@
 import { TypeMatchup } from "../../../data/enum/types";
 import { ActionBattleDex } from "../../../data/static/action/action_btl";
+import { ActionInfoDex } from "../../../data/static/action/action_inf";
 import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { ItemInfoDex } from "../../../data/static/item/item_inf";
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
@@ -49,12 +50,108 @@ class BattleEvents {
             this.performSwitch(_action as SwitchAction);
         } else if (_action.type === "ITEM") {
             this.performItem(_action as ItemAction);
+        } else if (_action.type === "ACTION") {
+            this.performAction(_action as ActionAction);
         } else {
             const DuplicateAction : SelectedAction = _action 
             DuplicateAction.trainer = new TrainerBase({ team : DuplicateAction.trainer.Team.ConvertToInterface(), pos : DuplicateAction.trainer.Position, name: DuplicateAction.trainer.Name })
             const Message : {[id : IDEntry]: any} = { "choice" : DuplicateAction}
             this.Battle.SendOutMessage([Message]);
         }
+    }
+
+    /**
+     * Given a trainer selects to have a monster act, perform
+     * this action.
+     * @param _action The Action to have a monster use
+     */
+    public performAction(_action : ActionAction) {
+        // Prep Messages
+        const Messages : MessageSet = []
+        Messages.push({ "generic" : _action.source.Monster.Nickname + " used " + ActionInfoDex[_action.action.Action].name})
+
+        // Find All Targets
+        const TargetList : TargetSet = this.GetTargets(_action.target, ActionBattleDex[_action.action.Action].type_target)
+
+        // Check if the action can be used at all
+        let CanUseAction = (_action.action.HasUsesRemaining());
+        TargetList.forEach(target => {
+            let Trainer : TrainerBase | null = this.GetTrainer(target);
+            CanUseAction = this.Battle.runEvent('AttemptActionAtAll', _action.trainer, Trainer, target, _action.source, _action.action, CanUseAction, null, Messages);
+        })
+
+        if (CanUseAction) {
+            if (this.Battle.runEvent('AttemptActionAtAll', _action.trainer, null, null, _action.source, _action.action, true, null, Messages)) {
+                _action.action.UseActionUp()                
+            }
+            TargetList.forEach(target => {
+                let Trainer : TrainerBase | null = this.GetTrainer(target);
+                let ContinueMove = true;
+
+                // Get Number Of Hits
+                const MaxHits = this.GetNumberOfHits(_action, target, Trainer, Messages )
+                let CurrentHits = 0;
+
+                // Continue Hitting
+                while (ContinueMove) {
+                    CurrentHits += 1;
+                    
+                    const IsTargetAlive = (target instanceof ActivePos)? (target.Monster.HP_Current > 0) : true
+                    const UseOnTarget = this.Battle.runEvent('AttemptAction', _action.trainer, Trainer, target, _action.source, _action.action, IsTargetAlive, null, Messages);
+    
+                    if ((UseOnTarget)) {
+                        ContinueMove = this.RunActionOnTarget(_action, target, Trainer, Messages);
+                    } else { ContinueMove = false; }
+
+                    if (CurrentHits >= MaxHits) { ContinueMove = false; }
+                }
+
+                // If the user is dead, stop using the Action
+                if (_action.source.Monster.HP_Current <= 0) {
+                    return false;
+                }
+                
+            })
+        } else {
+            Messages.push({ "generic" : "But the action couldn't be used!"})
+        }
+
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
+    }
+
+    /**
+     * Find the number of times for a move to hit a target.
+     * @param _action The action being checked
+     * @param _target The current target of the action
+     * @param _trainer The target's associated trainer, if any
+     * @param _messages List of messages to add to.
+     * @returns The number of times to perform the move against a target (multihit moves)
+     */
+    public GetNumberOfHits(_action : ActionAction, _target : ActivePos | Scene | Side | Plot, _trainer : TrainerBase | null, _messages : MessageSet) {
+        if (ActionBattleDex[_action.action.Action].events["multihit"]) {
+            const MinimumCount = this.Battle.runEvent('GetHitMinimum', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleDex[_action.action.Action].events["multihit"][0], null, _messages);
+            const MaximumCount = this.Battle.runEvent('GetHitMaximum', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleDex[_action.action.Action].events["multihit"][1], null, _messages);
+
+            const Range = ((MaximumCount - MinimumCount) < 0)? 0 : (MaximumCount - MinimumCount)
+
+            const randomValue = Math.random() * (1+(Range));
+            return randomValue;
+        }
+        return 1;
+    }
+
+    /**
+     * Actually perform the Action on a target.
+     * @param _action The action being run
+     * @param _target The current target of the action
+     * @param _trainer The target's associated trainer, if any
+     * @param _messages List of messages to add to.
+     * @returns if the move should continue to be run against the target
+     */
+    public RunActionOnTarget(_action : ActionAction, _target : ActivePos | Scene | Side | Plot, _trainer : TrainerBase | null, _messages : MessageSet) {
+        _messages.push({ "generic" : "They used the move"})        
+        return true;
     }
 
     /**
@@ -74,7 +171,7 @@ class BattleEvents {
         let CanUseItem = !(_action.item.Used);
         TargetList.forEach(target => {
             let Trainer : TrainerBase | null = this.GetTrainer(target);
-            CanUseItem = this.Battle.runEvent('AttemptItemAtAll', _action.trainer, Trainer, target, _action.trainer, _action.item, true, null, Messages);
+            CanUseItem = this.Battle.runEvent('AttemptItemAtAll', _action.trainer, Trainer, target, _action.trainer, _action.item, CanUseItem, null, Messages);
         })
 
         if (CanUseItem) {

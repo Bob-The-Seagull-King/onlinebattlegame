@@ -152,7 +152,8 @@ export interface IActionBattle extends CallEvents, ChoiceTarget {
     accuracy    : number | true,            // Base accuracy of a move (true === no accuracy check)
     damage_mod  : number | true | false,    // Modifier the action applies to the user's damage range (true === alternative damage calc) (false === does no damage)
     priority    : number,                   // The action priority, higher priority moves always go after lower priority moves
-    category    : ActionCategory[]          // Category of move
+    category    : ActionCategory[],         // Category of move
+    events      : InfoSetGeneric            // Tags for move use
 }
 
 export interface IActionInfo {
@@ -163,9 +164,10 @@ export interface IActionInfo {
 
 // Monster Trait
 export interface ITraitBattle extends CallEvents {
-    id          : number,       // Numerical ID of the trait
-    cost        : number,       // Star Power cost to add the trait to a monster
-    category    : TraitCategory[] // Category of this trait
+    id          : number,           // Numerical ID of the trait
+    cost        : number,           // Star Power cost to add the trait to a monster
+    category    : TraitCategory[],  // Category of this trait
+    events      : InfoSetGeneric    // Tags for move use
 }
 
 export interface ITraitInfo {
@@ -176,9 +178,10 @@ export interface ITraitInfo {
 
 // Battle Item
 export interface IItemBattle extends CallEvents, ChoiceTarget {
-    id          : number,       // Numerical ID of the item
-    cost        : number,       // Star Power cost to add the item to a team
-    category    : ItemCategory[]  // Category of this item
+    id          : number,           // Numerical ID of the item
+    cost        : number,           // Star Power cost to add the item to a team
+    category    : ItemCategory[],   // Category of this item
+    events      : InfoSetGeneric    // Tags for move use
 }
 
 export interface IItemInfo {
@@ -227,7 +230,12 @@ export interface CallEvents {
     onAttemptSwitch? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster, source : ActivePos, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the monster is prevented from switching for any reason
     onAttemptItemAtAll? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item cannot be used at all, because of any one target
     onAttemptItem? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item can be used generally, but not on the specific target
-    onItemOnApply? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => void; // Starts the item by applying it to one of the targets
+    onAttemptActionAtAll? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item cannot be used at all, because of any one target
+    onAttemptAction? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the action can be used generally, but not on the specific target
+    onGetHitMaximum? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Modify the highest number of times a move can hit
+    onGetHitMinimum? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Modify the lowest number of times a move can hit    
+    onConsumeActionUses? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the action can be used generally, but not on the specific target
+    onItemOnApply? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => void; // Starts the action by applying it to one of the targets
     onGetProtectionModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's protection
     onGetDamageTakenModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's incoming damage
     onGetFinalDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final damage taken

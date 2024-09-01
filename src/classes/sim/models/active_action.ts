@@ -1,3 +1,4 @@
+import { ActionBattleDex } from "../../../data/static/action/action_btl";
 import { IDEntry, InfoSetGeneric } from "../../../global_types"
 import { ActiveMonster } from "./active_monster";
 
@@ -38,6 +39,22 @@ class ActiveAction {
             trackers: this.Trackers
         }
         return _interface;
+    }
+
+    /**
+     * Checks if the move has been used less times than
+     * the action can be used in one battle.
+     * @returns true if there are uses remaining
+     */
+    public HasUsesRemaining() {
+        return (this.Used < ActionBattleDex[this.Action].uses)
+    }
+
+    /**
+     * Increases the number of uses for an action
+     */
+    public UseActionUp() {
+        this.Used += 1;
     }
 
 }
