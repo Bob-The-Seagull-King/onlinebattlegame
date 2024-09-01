@@ -213,6 +213,7 @@ class BattleEvents {
             }            
 
             // Effects
+            this.Battle.runEvent('RunActionEvents', _action.trainer, _trainer, _target, _action.source, _action.action, null, null, _messages )
 
             // Misc
      

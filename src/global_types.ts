@@ -257,6 +257,7 @@ export interface CallEvents {
     onGetFinalDamageDealt? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final damage outputted
     onGetDamageRecoveredModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the recovering monster's incoming hp
     onGetFinalRecovery? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final hp recovered
+    onRunActionEvents? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase | ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) => void; // Run any Effects that an action has
     onSwitchOut? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void;
     onSwitchIn? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void
 }

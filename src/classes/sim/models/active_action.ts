@@ -22,10 +22,11 @@ class ActiveAction {
      * Simple constructor
      * @param _data The interface representing the action
      */
-    constructor(_data : IActiveAction) {
+    constructor(_data : IActiveAction, _monster : ActiveMonster) {
         this.Action = _data.action;
         this.Used = _data.used;
         this.Trackers = _data.trackers;
+        this.Owner = _monster;
     }
 
     /**

@@ -1,6 +1,14 @@
-import { ActionBattleTable } from "../../../global_types";
+import { ActionBattleTable, MessageSet } from "../../../global_types";
 import { MonsterType } from "../../enum/types";
 import { ActionCategory } from "../../enum/categories";
+import { Battle } from "../../../classes/sim/controller/battle";
+import { TrainerBase } from "../../../classes/sim/controller/trainer/trainer_basic";
+import { ActiveAction } from "../../../classes/sim/models/active_action";
+import { ActiveMonster } from "../../../classes/sim/models/active_monster";
+import { ActivePos } from "../../../classes/sim/models/team";
+import { Plot } from "../../../classes/sim/models/terrain/terrain_plot";
+import { Scene } from "../../../classes/sim/models/terrain/terrain_scene";
+import { Side } from "../../../classes/sim/models/terrain/terrain_side";
 
 /**
  * Action mechanical information database
@@ -102,6 +110,12 @@ export const ActionBattleDex : ActionBattleTable = {
         team_target : "ENEMY",
         pos_target  : "SIDE",
         type_target : "TERRAIN",
-        events      : {}
+        events      : {},
+        onRunActionEvents(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : Side, source : TrainerBase | ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) {
+            messageList.push({ "generic" : "Pointed Stone filled " + trainerTarget.Name + "'s side of the battle!"})
+            if (!target.Tokens.includes('pointed')) {
+                target.Tokens.push('pointed')
+            }
+        }
     }
 }
