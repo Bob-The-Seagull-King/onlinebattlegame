@@ -14,7 +14,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     bruiser : {
         id      : 1,
         type    : [MonsterType.Skirmish, MonsterType.Blaze],
-        stats   : { hp : 40, dm : [5,10], ac: 0, pt: 15, sk : 15, rs : 15, sp: 2 },
+        stats   : { hp : 40, dm : [5,10], ac: -10, pt: 20, sk : 15, rs : 15, sp: 2 },
         cost    : 50
     },
     nimble : {

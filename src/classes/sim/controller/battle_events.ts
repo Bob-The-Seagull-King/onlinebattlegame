@@ -150,8 +150,36 @@ class BattleEvents {
      * @returns if the move should continue to be run against the target
      */
     public RunActionOnTarget(_action : ActionAction, _target : ActivePos | Scene | Side | Plot, _trainer : TrainerBase | null, _messages : MessageSet) {
-        _messages.push({ "generic" : "They used the move"})        
-        return true;
+        const ActionBattleData = ActionBattleDex[_action.action.Action];
+        const ActionInfoData = ActionInfoDex[_action.action.Action];
+
+        // Get Accuracy
+        let IsHit : boolean;
+
+        if (ActionBattleData.accuracy === true) {
+            IsHit = true;
+        } else {
+            // Get relevant numbers to determine accuracy
+            const UserAccuracy = this.GetStatValue(_action.trainer, _action.source, "ac")
+            const ActionAccuracy = this.Battle.runEvent('GetActionAccuracy', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleData.accuracy, null, _messages);
+            const AccuracyMultiplier = this.Battle.runEvent('GetAccuracyModifier', _action.trainer, _trainer, _target, _action.source, _action.action, 1, null, _messages);
+
+            // Calculate final accuracy (floor of 5%)
+            let FinalAccuracy = Math.floor((UserAccuracy + ActionAccuracy) * AccuracyMultiplier);
+            if (FinalAccuracy < 5) {FinalAccuracy = 5}
+
+            // Determine if the move hits
+            const randomValue = Math.random() * (100);
+            IsHit = (randomValue <= FinalAccuracy)            
+        }
+
+        if (IsHit) {
+            _messages.push({ "generic" : "They used " + ActionInfoData.name})        
+            return true;
+        } else {
+            _messages.push({ "generic" : "But " + ActionInfoData.name + " missed!"})        
+            return false;
+        }        
     }
 
     /**
