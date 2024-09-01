@@ -54,7 +54,11 @@ export const ActionBattleDex : ActionBattleTable = {
         team_target : "SELF",
         pos_target  : "SINGLE",
         type_target : "MONSTER",
-        events      : {}
+        events      : {'heal': true},
+        onReturnHealVal(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+            messageList.push({ "generic" : target.Monster.Nickname + " regrew some damaged parts!"})
+            return (Math.floor(target.Monster.HP_Current * 0.5));
+        }
     },    
     getpumped : {
         id          : 3,

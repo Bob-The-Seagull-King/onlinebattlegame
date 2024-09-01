@@ -187,15 +187,15 @@ class BattleEvents {
                     } else if (typeof ActionBattleData.damage_mod === 'number') {                    
                         // Determine any skipped parts of the damage getting process
                         const SkipMods = this.Battle.runEvent('SkipDamageMods', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipmods'])? ActionBattleData.events['skipmods'] : false, null, _messages);
-                        const SkipAll = this.Battle.runEvent('SkipDamageChanges', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipall'])? ActionBattleData.events['skipmods'] : false, null, _messages);
+                        const SkipAll = this.Battle.runEvent('SkipDamageChanges', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipall'])? ActionBattleData.events['skipall'] : false, null, _messages);
 
                         DamageDealt = this.GetDamage(_action, _target, _trainer, SkipMods, SkipAll, _messages)
                     }
                     
                     // Determine any skipped parts of the damage process
-                    const SkipProt = this.Battle.runEvent('SkipDamageDealProtection', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtprotection'])? ActionBattleData.events['skipmods'] : false, null, _messages);
-                    const SkipMod = this.Battle.runEvent('SkipDamageDealModifiers', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtmods'])? ActionBattleData.events['skipmods'] : false, null, _messages);
-                    const SkipAll = this.Battle.runEvent('SkipDamageDealAll', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtall'])? ActionBattleData.events['skipmods'] : false, null, _messages);
+                    const SkipProt = this.Battle.runEvent('SkipDamageDealProtection', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtprotection'])? ActionBattleData.events['skipdealtprotection'] : false, null, _messages);
+                    const SkipMod = this.Battle.runEvent('SkipDamageDealModifiers', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtmods'])? ActionBattleData.events['skipdealtmods'] : false, null, _messages);
+                    const SkipAll = this.Battle.runEvent('SkipDamageDealAll', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtall'])? ActionBattleData.events['skipdealtall'] : false, null, _messages);
 
                     // Deal that damage
                     const DamageSuffered = this.DealDamage(DamageDealt, ActionBattleData.type, _action.source, _target.Monster, _action.trainer, this.GetTrainer(_target), _messages, SkipProt, SkipMod, SkipAll)
@@ -216,6 +216,14 @@ class BattleEvents {
             this.Battle.runEvent('RunActionEvents', _action.trainer, _trainer, _target, _action.source, _action.action, null, null, _messages )
 
             // Misc
+            if ((ActionBattleData.events['heal'])) {
+                const SkipHealMod = this.Battle.runEvent('SkipHealModifiers', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skihealmods'])? ActionBattleData.events['skihealmods'] : false, null, _messages);
+                const SkipHealAll = this.Battle.runEvent('SkipHealAll', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skiphealall'])? ActionBattleData.events['skiphealall'] : false, null, _messages);
+
+                const AmountToHeal = this.Battle.runEvent('ReturnHealVal', _action.trainer, _trainer, _target, _action.source, _action.action, 0, null, _messages);
+                const HealedAmount = this.HealDamage(AmountToHeal, ActionBattleData.type, _action.source, _action.source.Monster, _action.trainer, _action.trainer, _messages, SkipHealMod, SkipHealAll);
+                this.Battle.runEvent('AfterHealingDamage', _action.trainer, _trainer, _target, _action.source, _action.action, null, HealedAmount, _messages);
+            }
      
             return true;
         } else {

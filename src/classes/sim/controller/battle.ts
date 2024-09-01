@@ -313,14 +313,16 @@ class Battle {
         // Action Options
         if (_monster.Monster.HP_Current > 0) {
             _monster.Monster.Actions_Current.forEach(item => {
-                const ActionOptions : ActionAction[] = []
-                this.GetMonsterActionChoices(item, _trainer, _monster, ActionOptions)
-                ActionChoices.push({
-                    type    : "ACTION",
-                    trainer : baseTrainer,
-                    choice  : item,
-                    options : ActionOptions
-                })
+                if (item.HasUsesRemaining()) {
+                    const ActionOptions : ActionAction[] = []
+                    this.GetMonsterActionChoices(item, _trainer, _monster, ActionOptions)
+                    ActionChoices.push({
+                        type    : "ACTION",
+                        trainer : baseTrainer,
+                        choice  : item,
+                        options : ActionOptions
+                    })
+                }
             })
         }
 
