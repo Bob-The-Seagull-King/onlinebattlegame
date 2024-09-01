@@ -68,7 +68,20 @@ export const ActionBattleDex : ActionBattleTable = {
         team_target : "SELF",
         pos_target  : "SINGLE",
         type_target : "MONSTER",
-        events      : {}
+        events      : {},
+        onRunActionEvents(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : TrainerBase | ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                messageList.push({ "generic" : target.Monster.Nickname + " got pumped up!"})
+                if (!target.Monster.Tokens.includes("boostdamage")) {
+                    target.Monster.Tokens.push("boostdamage")
+                }
+                if (target.Monster.Trackers["boostdamage"]) {
+                    target.Monster.Trackers["boostdamage"] += 1;
+                } else {
+                    target.Monster.Trackers["boostdamage"] = 1;
+                }
+            }
+        }
     },    
     windbreaker : {
         id          : 4,

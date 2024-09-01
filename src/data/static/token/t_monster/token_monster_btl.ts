@@ -23,11 +23,37 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
     },
     boostdamage : {
         id          : 2,
-        category    : [TokenCategory.Boost]
+        category    : [TokenCategory.Boost],
+        onSwitchOut(this: Battle, eventSource : Scene | Side | Plot, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource){
+                source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "boostdamage"))
+                delete source.Monster.Trackers["boostdamage"];                
+            }
+        },
+        onGetDamageRangeModifiers(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                if (source.Monster.Tokens.includes("boostdamage")) {
+                    if (source.Monster.Trackers["boostdamage"]) {
+                        return relayVar + (0.25 * source.Monster.Trackers["boostdamage"]);
+                    } else {
+                        source.Monster.Trackers["boostdamage"] = 1;
+                        return relayVar + 0.25;                      
+                    }
+                    
+                }
+            }
+            return relayVar;
+        }
     },
     retaliation : {
         id          : 3,
         category    : [TokenCategory.Boost, TokenCategory.Revenge],
+        onSwitchOut(this: Battle, eventSource : Scene | Side | Plot, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource){
+                source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "retaliation"))
+                delete source.Monster.Trackers["retaliation"];                
+            }
+        },
         onGetDamageRangeModifiers(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) {
             if (fromSource) {
                 if (source.Monster.Tokens.includes("retaliation")) {
@@ -38,7 +64,7 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
                             delete source.Monster.Trackers["retaliation"];
                         }
                     } else {
-                        source.Monster.Tokens.filter(item => item != "retaliation")                        
+                        source.Monster.Tokens = source.Monster.Tokens.filter(item => item != "retaliation")                        
                     }
                     messageList.push({ "generic" : source.Monster.Nickname + " took revenge!"})
                     return relayVar + 0.25;
