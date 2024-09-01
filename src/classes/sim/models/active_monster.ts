@@ -108,7 +108,8 @@ class ActiveMonster {
     public GetStat(_stat : string) {
         switch (_stat) {
             case "hp": { return SpeciesBattleDex[this.Species].stats.hp; }
-            case "dm": { return SpeciesBattleDex[this.Species].stats.dm; }
+            case "dl": { return SpeciesBattleDex[this.Species].stats.dl; }
+            case "dh": { return SpeciesBattleDex[this.Species].stats.dh; }
             case "ac": { return SpeciesBattleDex[this.Species].stats.ac; }
             case "pt": { return SpeciesBattleDex[this.Species].stats.pt; }
             case "rs": { return SpeciesBattleDex[this.Species].stats.rs; }
@@ -127,7 +128,8 @@ class ActiveMonster {
     public GetStatBoost(_stat : string) {
         switch (_stat) {
             case "hp": { return this.Boosts.hp; }
-            case "dm": { return this.Boosts.dm; }
+            case "dl": { return this.Boosts.dl; }
+            case "dh": { return this.Boosts.dh; }
             case "ac": { return this.Boosts.ac; }
             case "pt": { return this.Boosts.pt; }
             case "rs": { return this.Boosts.rs; }
@@ -153,6 +155,8 @@ class ActiveMonster {
         if (this.HP_Current <= 0) {
             _messageList.push({ "generic" : this.Nickname + " was Knocked Out!"})
         }
+
+        return DmgTrack;
     }
 
     /**
@@ -168,6 +172,8 @@ class ActiveMonster {
         
         this.HP_Current += _hp;
         if (this.HP_Current > _limit) { this.HP_Current = _limit}
+
+        return HPTrack;
     }
 
 }

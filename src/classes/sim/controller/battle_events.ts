@@ -1,4 +1,4 @@
-import { TypeMatchup } from "../../../data/enum/types";
+import { MonsterType, TypeMatchup } from "../../../data/enum/types";
 import { ActionBattleDex } from "../../../data/static/action/action_btl";
 import { ActionInfoDex } from "../../../data/static/action/action_inf";
 import { ItemBattleDex } from "../../../data/static/item/item_btl";
@@ -174,9 +174,51 @@ class BattleEvents {
         }
 
         if (IsHit) {
-            _messages.push({ "generic" : "They used " + ActionInfoData.name})        
+
+            // Only do damage if the move targets a monster
+            if ((_target instanceof ActivePos)) {
+                // If relevant, have the move do damage
+                if (ActionBattleData.damage_mod !== false) {
+                    // Determine total damage to deal
+                    let DamageDealt = 0;
+                    if (ActionBattleData.damage_mod === true) {
+                        // If the action uses some alternative method to determine damage dealt
+                        DamageDealt = this.Battle.runEvent('onDealCustomDamage', _action.trainer, _trainer, _target, _action.source, _action.action, 0, null, _messages);
+                    } else if (typeof ActionBattleData.damage_mod === 'number') {                    
+                        // Determine any skipped parts of the damage getting process
+                        const SkipMods = this.Battle.runEvent('SkipDamageMods', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipmods'])? ActionBattleData.events['skipmods'] : false, null, _messages);
+                        const SkipAll = this.Battle.runEvent('SkipDamageChanges', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipall'])? ActionBattleData.events['skipmods'] : false, null, _messages);
+
+                        DamageDealt = this.GetDamage(_action, _target, _trainer, SkipMods, SkipAll, _messages)
+                    }
+                    
+                    // Determine any skipped parts of the damage process
+                    const SkipProt = this.Battle.runEvent('SkipDamageDealProtection', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtprotection'])? ActionBattleData.events['skipmods'] : false, null, _messages);
+                    const SkipMod = this.Battle.runEvent('SkipDamageDealModifiers', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtmods'])? ActionBattleData.events['skipmods'] : false, null, _messages);
+                    const SkipAll = this.Battle.runEvent('SkipDamageDealAll', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtall'])? ActionBattleData.events['skipmods'] : false, null, _messages);
+
+                    // Deal that damage
+                    const DamageSuffered = this.DealDamage(DamageDealt, ActionBattleData.type, _action.source, _target.Monster, _action.trainer, this.GetTrainer(_target), _messages, SkipProt, SkipMod, SkipAll)
+
+                    // After dealing damage
+                    this.Battle.runEvent('AfterDealingDamage', _action.trainer, _trainer, _target, _action.source, _action.action, null, DamageSuffered, _messages);
+
+                    // Draining
+                    if ((ActionBattleData.events['drain'])) {
+                        const DrainVal = this.Battle.runEvent('ModifyDrainVal', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleData.events['drain'], null, _messages);
+                        const HealedAmount = this.HealDamage((Math.floor(DamageSuffered * DrainVal)), ActionBattleData.type, _action.source, _action.source.Monster, _action.trainer, _action.trainer, _messages, false, false);
+                        this.Battle.runEvent('AfterHealingDamage', _action.trainer, _trainer, _target, _action.source, _action.action, null, HealedAmount, _messages);
+                    }
+                }
+            }            
+
+            // Effects
+
+            // Misc
+     
             return true;
         } else {
+            this.Battle.runEvent('ActionMiss', _action.trainer, _trainer, _target, _action.source, _action.action, null, null, _messages);
             _messages.push({ "generic" : "But " + ActionInfoData.name + " missed!"})        
             return false;
         }        
@@ -219,6 +261,60 @@ class BattleEvents {
 
         // Emit Messages
         this.Battle.SendOutMessage(Messages);
+    }
+
+    /**
+     * Given an action, determine the amount of damage
+     * to deal to a given target
+     * @param _action the action being performed
+     * @param _target the target of the action
+     * @param _trainer the trainer of the target
+     * @param _skipmods if muliplicative modifiers will be applied
+     * @param _skipall if other modifiers will be applied
+     * @param _messages list of messages to add to
+     * @returns the amount of damage for this action to output
+     */
+    public GetDamage(
+        _action     : ActionAction, 
+        _target     : ActivePos | Scene | Side | Plot, 
+        _trainer    : TrainerBase | null, 
+        _skipmods   : boolean,
+        _skipall    : boolean,
+        _messages   : MessageSet) {
+        let DamageMin = this.GetStatValue(_action.trainer, _action.source, "dl");
+        let DamageMax = this.GetStatValue(_action.trainer, _action.source, "dh");
+        let DamageMod = 1;
+
+        // Modify range of damage
+        if (!_skipmods) {
+
+            // Get STAB modifier
+            let TypeModifier = 1;
+            for (let i = 0; i < SpeciesBattleDex[_action.source.Monster.Species].type.length; i++) {
+                if (SpeciesBattleDex[_action.source.Monster.Species].type[i] === ActionBattleDex[_action.action.Action].type) {
+                    TypeModifier += 0.25
+                }
+            }
+            
+            DamageMod = this.Battle.runEvent('GetDamageRangeModifiers', _action.trainer, _trainer, _target, _action.source, _action.action, TypeModifier, null, _messages )
+            
+            DamageMin = Math.floor(DamageMin * (DamageMod))
+            DamageMax = Math.floor(DamageMax * (DamageMod))
+        }
+
+        // Get damage number
+        const Range = ((DamageMax - DamageMin) <= 0) ? (DamageMax - DamageMin): 1;
+        const randomValue = Math.random() * (Range);
+
+        const DealtDamage = (randomValue + DamageMin)
+
+        // Modify damage
+        if (!_skipall) {
+            const FinalDamageDealt = this.Battle.runEvent('GetFinalDamageDealt', _action.trainer, _trainer, _target, _action.source, _action.action, DealtDamage, null, _messages )
+            return FinalDamageDealt;
+        } else {
+            return DealtDamage
+        }
     }
 
     /**
@@ -270,10 +366,10 @@ class BattleEvents {
             const ModifiedDamage = Math.floor( _val - (_val * ((FinalProtection * DamageTakenModifier)/100)))
             
             if (_skipAll) {
-                _target.TakeDamage(ModifiedDamage, _messageList);
+                return _target.TakeDamage(ModifiedDamage, _messageList);
             } else {
                 const FinalDamage = this.Battle.runEvent('GetFinalDamage', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, ModifiedDamage, null, _messageList )
-                _target.TakeDamage(FinalDamage, _messageList);
+                return _target.TakeDamage(FinalDamage, _messageList);
             }
     }
 
@@ -310,10 +406,10 @@ class BattleEvents {
             const ModifiedRecovery = Math.floor( _val + (_val * ((DamageRecoveredModifier)/100)))
             
             if (_skipAll) {
-                _target.HealDamage(ModifiedRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp'));
+                return _target.HealDamage(ModifiedRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp'));
             } else {
                 const FinalRecovery = this.Battle.runEvent('GetFinalRecovery', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, ModifiedRecovery, null, _messageList )
-                _target.HealDamage(FinalRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp'));
+                return _target.HealDamage(FinalRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp'));
             }
     }
 

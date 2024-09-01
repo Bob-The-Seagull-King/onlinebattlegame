@@ -27,7 +27,7 @@ class MonsterFactory {
             nickname    : SpeciesInfoDex[_monster].name,
             actions     : [],
             traits      : [],
-            boosts      : {hp: 0, dm: [], ac: 0, pt: 0, sk: 0, rs: 0, sp: 0},
+            boosts      : {hp: 0, dl: 0, dh: 0, ac: 0, pt: 0, sk: 0, rs: 0, sp: 0},
             tokens      : [],
             trackers    : {},
             hp_cur      : SpeciesBattleDex[_monster].stats.hp,

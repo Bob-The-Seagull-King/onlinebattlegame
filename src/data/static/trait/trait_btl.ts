@@ -1,6 +1,8 @@
 import { Battle } from "../../../classes/sim/controller/battle";
 import { TrainerBase } from "../../../classes/sim/controller/trainer/trainer_basic";
+import { ActiveAction } from "../../../classes/sim/models/active_action";
 import { ActiveMonster } from "../../../classes/sim/models/active_monster";
+import { ActivePos } from "../../../classes/sim/models/team";
 import { Plot } from "../../../classes/sim/models/terrain/terrain_plot";
 import { Scene } from "../../../classes/sim/models/terrain/terrain_scene";
 import { Side } from "../../../classes/sim/models/terrain/terrain_side";
@@ -35,7 +37,20 @@ export const TraitBattleDex : TraitBattleTable = {
         id          : 2,
         cost        : 15,
         category    : [TraitCategory.Revenge],
-        events      : {}
+        events      : {},
+        onAfterDealingDamage(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : ActivePos, sourceEffect : ActiveAction, trackVal: number, messageList: MessageSet, fromSource: boolean) {
+            if (!fromSource) {
+                messageList.push({ "generic" : target.Monster.Nickname + " got mad!"})
+                if (!target.Monster.Tokens.includes("retaliation")) {
+                    target.Monster.Tokens.push("retaliation")
+                }
+                if (target.Monster.Trackers["retaliation"]) {
+                    target.Monster.Trackers["retaliation"] += 1;
+                } else {
+                    target.Monster.Trackers["retaliation"] = 1;
+                }
+            }
+        }
     },
     vampire : {
         id          : 3,
