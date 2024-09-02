@@ -710,7 +710,7 @@ class Battle {
             // @ts-ignore - dynamic lookup
             const func = temp_condition['on'+eventid];
             if (func !== undefined) {
-                events.push( { priority: 4, self: target.Owner, source: target, callback: func, fromsource: _fromSource } )
+                events.push( { priority: 4, self: target.GetOwner(this), source: target, callback: func, fromsource: _fromSource } )
             }     
         }
         if (target instanceof ActiveItem) {

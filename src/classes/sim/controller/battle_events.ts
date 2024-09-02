@@ -449,8 +449,9 @@ class BattleEvents {
         // Determine if the move hits
         const randomValue = Math.random() * (100);
         const DoesTrigger = (randomValue <= Math.floor(SkillChance))    
-        
-        this.Battle.runEvent('EffectApply', _trainer, _trainer, target, _source, _sourceeffect, null, effectName, messageList);  
+        if (DoesTrigger) {
+            this.Battle.runEvent('EffectApply', _trainer, _trainer, target, _source, _sourceeffect, null, effectName, messageList);  
+        }
         return DoesTrigger;
     }
 

@@ -1,5 +1,6 @@
 import { ActionBattleDex } from "../../../data/static/action/action_btl";
 import { IDEntry, InfoSetGeneric } from "../../../global_types"
+import { Battle } from "../controller/battle";
 import { ActiveMonster } from "./active_monster";
 
 /**
@@ -16,7 +17,6 @@ class ActiveAction {
     public Action   : IDEntry;          // The name of the action found in the database
     public Used     : number;           // How many times this action has been used so far
     public Trackers : InfoSetGeneric;   // Misc trackers for using this action
-    public Owner    : ActiveMonster;    // The monster that has this action
 
     /**
      * Simple constructor
@@ -26,7 +26,6 @@ class ActiveAction {
         this.Action = _data.action;
         this.Used = _data.used;
         this.Trackers = _data.trackers;
-        this.Owner = _monster;
     }
 
     /**
@@ -56,6 +55,21 @@ class ActiveAction {
      */
     public UseActionUp() {
         this.Used += 1;
+    }
+
+    
+    public GetOwner(_battle : Battle) {
+        
+        for (let i = 0; i < _battle.Trainers.length; i++) {
+            for (let j = 0; j < _battle.Trainers[i].Team.Monsters.length; j++) {
+                for (let k = 0; k < _battle.Trainers[i].Team.Monsters[j].Actions_Current.length; k++) {
+                    if (this === _battle.Trainers[i].Team.Monsters[j].Actions_Current[k]) {
+                        return _battle.Trainers[i].Team.Monsters[j];
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }
