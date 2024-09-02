@@ -40,7 +40,16 @@ export const ActionBattleDex : ActionBattleTable = {
         team_target : "ENEMY",
         pos_target  : "SINGLE",
         type_target : "MONSTER",
-        events      : {}
+        events      : {},
+        onRunActionEvents(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) {
+            const TriggerDizzy = this.Events.SimpleEffectTriggerCheck(trainer, source, sourceEffect, 33, trainerTarget, target.Monster, 'dizzy', messageList)
+            if (TriggerDizzy) {
+                if (!target.Monster.Tokens.includes('dizzy')) {
+                    messageList.push({ "generic" : target.Monster.Nickname + " got dizzy"})
+                    target.Monster.Tokens.push('dizzy')
+                }
+            }
+        }
     },    
     regrow : {
         id          : 2,
@@ -107,13 +116,22 @@ export const ActionBattleDex : ActionBattleTable = {
         cost        : 20,
         uses        : 10,
         accuracy    : 110,
-        damage_mod  : -25,
+        damage_mod  : -50,
         priority    : 0,
         category    : [ActionCategory.Tactical, ActionCategory.Debuff],
         team_target : "ENEMY",
         pos_target  : "SIDE",
         type_target : "MONSTER",
-        events      : {}
+        events      : {},
+        onRunActionEvents(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) {
+            const TriggerDizzy = this.Events.SimpleEffectTriggerCheck(trainer, source, sourceEffect, 75, trainerTarget, target.Monster, 'dizzy', messageList)
+            if (TriggerDizzy) {
+                if (!target.Monster.Tokens.includes('dizzy')) {
+                    messageList.push({ "generic" : target.Monster.Nickname + " got dizzy"})
+                    target.Monster.Tokens.push('dizzy')
+                }
+            }
+        }
     },    
     scatter : {
         id          : 6,

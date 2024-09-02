@@ -5,6 +5,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { ItemInfoDex } from "../../../data/static/item/item_inf";
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
 import { ActionAction, IDEntry, ItemAction, MessageSet, SelectedAction, SwitchAction, TargetSet } from "../../../global_types";
+import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
 import { ActivePos } from "../models/team";
@@ -38,6 +39,21 @@ class BattleEvents {
         OrderedChoices.forEach(element => {
                 this.runTurn(element)
             })
+
+
+        // Run after all turns occur
+        
+        const Messages : MessageSet = []
+
+        this.Battle.Trainers.forEach(trainer => {
+            trainer.Team.Leads.forEach(lead => {
+                this.Battle.runEvent('RoundEnd', trainer, null, null, lead, null, null, null, Messages);
+            })
+        })
+        
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
+
         return this.Battle.IsBattleAlive();
     }
 
@@ -270,6 +286,172 @@ class BattleEvents {
 
         // Emit Messages
         this.Battle.SendOutMessage(Messages);
+    }
+    
+    /**
+     * Basic method that runs a check to see if an effect
+     * triggers, this involved no modifications to the process
+     * and skips no checks. Used when an effect is very simple.
+     * @param 
+     * @param _baseskill the base chance a skill has to trigger
+     * @param trainerTarget the trainer of the target
+     * @param target the target of the action
+     * @param effectName string name of the effect, used for events
+     * @param messageList list of messages to add to
+     * @returns true if the effect triggers, false otherwise
+     */
+    public SimpleEffectTriggerCheck(
+        _trainer : TrainerBase,
+        _source : ActivePos,
+        _sourceeffect : ActiveAction,
+        _baseskill : number,
+        trainerTarget : TrainerBase, 
+        target : ActiveMonster | Side | Plot | Scene, 
+        effectName : string,
+        messageList: MessageSet) {
+        // Get base chances
+        const Skill = this.GetSkillChance(_trainer, _source, _sourceeffect, _baseskill, false, false, trainerTarget, target, effectName, messageList)
+        const Resistance = this.GetSkillResistance(_trainer, _source, _sourceeffect, ActionBattleDex[ _sourceeffect.Action ].type, false, trainerTarget, target, effectName, messageList)
+
+        // Get result
+        return this.GetDoesEffectTrigger( _trainer, _source, _sourceeffect, Skill, Resistance, false, trainerTarget, target, effectName, messageList )
+    }
+
+    /**
+     * Gets the chance a monster has to apply an effect
+     * to their target.
+     * @param _action the action taking place
+     * @param _baseskill the base skill of the effect being triggered
+     * @param _skipbasemods if modifiers to the effect's base skill should be used
+     * @param _skipallmods if modifiers to the end chance should be used
+     * @param trainerTarget the trainer of the target
+     * @param target the target of the effect
+     * @param effectName the name of the effect, used for events
+     * @param messageList list of messages to add to
+     * @returns numerical chance/100 for an effect to occur
+     */
+    public GetSkillChance(
+        _trainer : TrainerBase,
+        _source : ActivePos,
+        _sourceeffect : ActiveAction,
+        _baseskill : number,
+        _skipbasemods : boolean,
+        _skipallmods : boolean,
+        trainerTarget : TrainerBase, 
+        target : ActiveMonster | Side | Plot | Scene, 
+        effectName : string,
+        messageList: MessageSet) {
+        // Setup base values
+        const BaseChance = _baseskill
+        const SkillStat = this.GetStatValue(_trainer, _source, "sk")
+        let BaseMods = 1
+        let AllMods = 1
+        
+        // Get Additional Modifiers
+        if (!_skipbasemods) {
+            BaseMods = this.Battle.runEvent('GetSkillBaseModifiers', _trainer, trainerTarget, target, _source, _sourceeffect, BaseMods, effectName, messageList)
+        }
+        if (!_skipallmods) {
+            AllMods = this.Battle.runEvent('GetSkillAllModifiers', _trainer, trainerTarget, target, _source, _sourceeffect, AllMods, effectName, messageList)
+        }
+        
+        // Get STAB modifier
+        let TypeModifier = 1;
+        for (let i = 0; i < SpeciesBattleDex[_source.Monster.Species].type.length; i++) {
+            if (SpeciesBattleDex[_source.Monster.Species].type[i] === ActionBattleDex[_sourceeffect.Action].type) {
+                TypeModifier += 0.25
+            }
+        }
+
+        // Return base chance
+        return Math.floor( ( (Math.floor(BaseChance * BaseMods)) + SkillStat ) * AllMods * TypeModifier )
+    }
+
+    /**
+     * Gets the penalty a monster applies to the chance
+     * of incoming effects triggering
+     * 
+     * @param _type the type of the action involved
+     * @param _skipbasemods if modifiers to the resistance should be ignored
+     * @param trainerTarget the trainer of the target
+     * @param target the target of the action
+     * @param effectName the name of the effect, used for events
+     * @param messageList list of messages to add to
+     * @returns numerical reduction to the chance/100 of an effect to trigger
+     */
+    public GetSkillResistance(
+        _trainer : TrainerBase,
+        _source : ActivePos,
+        _sourceeffect : ActiveAction,
+        _type : number,
+        _skipbasemods : boolean,
+        trainerTarget : TrainerBase,
+        target : ActiveMonster | Side | Plot | Scene,
+        effectName : string,
+        messageList: MessageSet) {
+        // Setup modifiers
+        let SkillStat = 0;
+        let BaseMods = 1
+        let TypeModifier = 1; 
+        
+        // If the target is a monster, get their stats and account for type
+        if ((target instanceof ActiveMonster)) {
+            for (const type in SpeciesBattleDex[target.Species].type) {
+                const Matchup = TypeMatchup[_type][type];
+                if (Matchup === 1) { TypeModifier -= 0.25;
+                } else if (Matchup === 2) { TypeModifier += 0.25;
+                } else if (Matchup === 3) { return 10000000 }
+            }
+            SkillStat = this.GetStatValue(_trainer, _source, "rs")
+        }
+        
+        // Get Additional Modifiers
+        if (!_skipbasemods) {
+            BaseMods = this.Battle.runEvent('GetSkillResistModifiers', _trainer, trainerTarget, target, _source, _sourceeffect, BaseMods, effectName, messageList)
+        }
+
+        // Return effect chance penalty
+        return Math.floor( SkillStat * BaseMods * TypeModifier )
+    }
+
+    /**
+     * Determines if an effect will trigger
+     * 
+     * @param _skill the final skill chance of the effect user
+     * @param _resistance the final resistance pently of the defending monster
+     * @param _skipEndMods if final modifiers are ignored
+     * @param trainerTarget the trainer of the target
+     * @param target the target of the effect
+     * @param effectName the name of the effect, used in events
+     * @param messageList list of messages to add to
+     * @returns true if the effect triggers, false otherwise
+     */
+    public GetDoesEffectTrigger(
+        _trainer : TrainerBase,
+        _source : ActivePos,
+        _sourceeffect : ActiveAction,
+        _skill : number,
+        _resistance : number,
+        _skipEndMods : boolean, 
+        trainerTarget : TrainerBase, 
+        target : ActiveMonster | Side | Plot | Scene, 
+        effectName : string,
+        messageList: MessageSet) {
+
+        // Find chance
+        let SkillChance = (_skill - _resistance)
+        if (SkillChance < 0) {SkillChance = 0;}
+
+        if (!_skipEndMods) {
+            SkillChance = this.Battle.runEvent('ModifyFinalSkillChance', _trainer, trainerTarget, target, _source, _sourceeffect, SkillChance, effectName, messageList)
+        }
+        
+        // Determine if the move hits
+        const randomValue = Math.random() * (100);
+        const DoesTrigger = (randomValue <= Math.floor(SkillChance))    
+        
+        this.Battle.runEvent('EffectApply', _trainer, _trainer, target, _source, _sourceeffect, null, effectName, messageList);  
+        return DoesTrigger;
     }
 
     /**

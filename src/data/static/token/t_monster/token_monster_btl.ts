@@ -15,7 +15,26 @@ import { TokenCategory } from "../../../enum/categories";
 export const TokenMonsterBattleDex : TokenBattleTable = {
     dizzy : {
         id          : 0,
-        category    : [TokenCategory.Status,TokenCategory.Debuff]
+        category    : [TokenCategory.Status,TokenCategory.Debuff],
+        onSwitchOut(this: Battle, eventSource : Scene | Side | Plot, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource){
+                source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "dizzy"))                
+            }
+        },        
+        onGetAccuracyModifier(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                return relayVar * 0.5;
+            } else {
+                return relayVar
+            }
+        },
+        onRoundEnd(this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            const randomValue = Math.random() * (100);
+            if (randomValue <= 50) {                
+                messageList.push({ "generic" : source.Monster.Nickname + " stopped being dizzy!"})
+                source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "dizzy"))
+            }
+        }
     },
     stumbling : {
         id          : 1,
@@ -67,7 +86,7 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
                         source.Monster.Tokens = source.Monster.Tokens.filter(item => item != "retaliation")                        
                     }
                     messageList.push({ "generic" : source.Monster.Nickname + " took revenge!"})
-                    return relayVar + 0.25;
+                    return relayVar + 0.5;
                 }
             }
             return relayVar;

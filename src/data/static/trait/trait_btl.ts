@@ -8,6 +8,7 @@ import { Scene } from "../../../classes/sim/models/terrain/terrain_scene";
 import { Side } from "../../../classes/sim/models/terrain/terrain_side";
 import { MessageSet, TraitBattleTable } from "../../../global_types";
 import { TraitCategory } from "../../enum/categories";
+import { MonsterType } from "../../enum/types";
 
 /**
  * Trait mechanical information database
@@ -56,6 +57,21 @@ export const TraitBattleDex : TraitBattleTable = {
         id          : 3,
         cost        : 20,
         category    : [TraitCategory.Drain],
-        events      : {}
+        events      : {},
+        onEffectApply(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, trackVal: string, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                this.Events.HealDamage(
+                    Math.floor(this.Events.GetStatValue(trainer, source, "hp") * 0.1),
+                    MonsterType.None,
+                    source,
+                    source.Monster,
+                    trainer,
+                    trainer,
+                    messageList,
+                    false,
+                    false,
+                )
+            }
+        }
     }
 }
