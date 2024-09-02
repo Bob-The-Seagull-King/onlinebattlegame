@@ -176,7 +176,7 @@ class BattleEvents {
             IsHit = true;
         } else {
             // Get relevant numbers to determine accuracy
-            const UserAccuracy = this.GetStatValue(_action.trainer, _action.source, "ac")
+            const UserAccuracy = this.GetStatValue(_action.trainer, _action.source, "ac", _messages)
             const ActionAccuracy = this.Battle.runEvent('GetActionAccuracy', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleData.accuracy, null, _messages);
             const AccuracyMultiplier = this.Battle.runEvent('GetAccuracyModifier', _action.trainer, _trainer, _target, _action.source, _action.action, 1, null, _messages);
 
@@ -343,7 +343,7 @@ class BattleEvents {
         messageList: MessageSet) {
         // Setup base values
         const BaseChance = _baseskill
-        const SkillStat = this.GetStatValue(_trainer, _source, "sk")
+        const SkillStat = this.GetStatValue(_trainer, _source, "sk", messageList)
         let BaseMods = 1
         let AllMods = 1
         
@@ -402,7 +402,7 @@ class BattleEvents {
                 } else if (Matchup === 2) { TypeModifier += 0.25;
                 } else if (Matchup === 3) { return 10000000 }
             }
-            SkillStat = this.GetStatValue(_trainer, _source, "rs")
+            SkillStat = this.GetStatValue(_trainer, _source, "rs", messageList)
         }
         
         // Get Additional Modifiers
@@ -472,8 +472,8 @@ class BattleEvents {
         _skipmods   : boolean,
         _skipall    : boolean,
         _messages   : MessageSet) {
-        let DamageMin = this.GetStatValue(_action.trainer, _action.source, "dl");
-        let DamageMax = this.GetStatValue(_action.trainer, _action.source, "dh");
+        let DamageMin = this.GetStatValue(_action.trainer, _action.source, "dl", _messages);
+        let DamageMax = this.GetStatValue(_action.trainer, _action.source, "dh", _messages);
         let DamageMod = 1;
 
         // Modify range of damage
@@ -538,7 +538,7 @@ class BattleEvents {
             let DamageTakenModifier = 0;
             // This means the protection of the monster will be considered
             if (!_skipProt) {
-                Protection = this.GetStatValue(_targetTrainer, _target, "pt")
+                Protection = this.GetStatValue(_targetTrainer, _target, "pt", _messageList)
                 let TypeModifier = 1;            
                 for (const type in SpeciesBattleDex[_target.Species].type) {
                     const Matchup = TypeMatchup[_type][type];
@@ -597,10 +597,10 @@ class BattleEvents {
             const ModifiedRecovery = Math.floor( _val + (_val * ((DamageRecoveredModifier)/100)))
             
             if (_skipAll) {
-                return _target.HealDamage(ModifiedRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp'));
+                return _target.HealDamage(ModifiedRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp', _messageList));
             } else {
                 const FinalRecovery = this.Battle.runEvent('GetFinalRecovery', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, ModifiedRecovery, null, _messageList )
-                return _target.HealDamage(FinalRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp'));
+                return _target.HealDamage(FinalRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp', _messageList));
             }
     }
 
@@ -734,6 +734,9 @@ class BattleEvents {
      */
     public orderTurns(_choices : SelectedAction[]): SelectedAction[] {
 
+        // Prep Messages
+        const Messages : MessageSet = []
+
         const OrderedTurnArray : SelectedAction[] = [];
 
         // ---------------------------------------- Populate Arrays ---------------------------------------
@@ -770,10 +773,10 @@ class BattleEvents {
         // Sort By Speed
         var sorted = {};
         for( let i = 0, max = SwitchTurnArray.length; i < max ; i++ ){
-            if( sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp")] == undefined ){
-                sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp")] = [];
+            if( sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp", Messages)] == undefined ){
+                sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp", Messages)] = [];
             }
-            sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp")].push(SwitchTurnArray[i]);
+            sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp", Messages)].push(SwitchTurnArray[i]);
         }
 
         // Order the speed tiers
@@ -835,10 +838,10 @@ class BattleEvents {
             // Organize by speed within priority
             var sorted = {};
             for( let i = 0, max = ArrayOfActions.length; i < max ; i++ ){
-                if( sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp")] == undefined ){
-                    sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp")] = [];
+                if( sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp", Messages)] == undefined ){
+                    sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp", Messages)] = [];
                 }
-                sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp")].push(ArrayOfActions[i]);
+                sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp", Messages)].push(ArrayOfActions[i]);
             }
 
             // Order the speed tiers
@@ -864,6 +867,9 @@ class BattleEvents {
         OrderedTurnArray.push.apply(OrderedTurnArray, OrderedItemTurnArray);
         OrderedTurnArray.push.apply(OrderedTurnArray, OrderedActionTurnArray);
         OrderedTurnArray.push.apply(OrderedTurnArray, OrderedOtherTurnArray);
+        
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
 
         return OrderedTurnArray;
     }
@@ -891,13 +897,13 @@ class BattleEvents {
      * @param _stat the stat to find
      * @returns returns a number or number[], based on the stat
      */
-    public GetStatValue(_trainer : TrainerBase, _monster : ActivePos | ActiveMonster, _stat : string) {
+    public GetStatValue(_trainer : TrainerBase, _monster : ActivePos | ActiveMonster, _stat : string, messageList: MessageSet) {
         
         const _mon : ActiveMonster = (_monster instanceof ActiveMonster)? _monster : _monster.Monster;
 
-        const BaseStat = this.Battle.runEvent(('GetStatBase'+_stat),_trainer, null, null, _mon, null, _mon.GetStat(_stat))
-        const StatMod = this.Battle.runEvent(('GetStatMod'+_stat),_trainer, null, null, _mon, null, _mon.GetStatBoost(_stat))
-        const FinalStat = this.Battle.runEvent(('GetStatFinal'+_stat),_trainer, null, null, _mon, null, (Math.floor(BaseStat + (Math.floor(BaseStat * StatMod)))))
+        const BaseStat = this.Battle.runEvent(('GetStatBase'+_stat),_trainer, null, null, _mon, null, _mon.GetStat(_stat), messageList)
+        const StatMod = this.Battle.runEvent(('GetStatMod'+_stat),_trainer, null, null, _mon, null, _mon.GetStatBoost(_stat), messageList)
+        const FinalStat = this.Battle.runEvent(('GetStatFinal'+_stat),_trainer, null, null, _mon, null, (Math.floor(BaseStat + (Math.floor(BaseStat * StatMod)))), messageList)
         
         return FinalStat;
     }

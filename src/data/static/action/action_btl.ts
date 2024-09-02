@@ -108,7 +108,18 @@ export const ActionBattleDex : ActionBattleTable = {
         team_target : "ENEMY",
         pos_target  : "SINGLE",
         type_target : "MONSTER",
-        events      : {}
+        events      : {},
+        onRunActionEvents(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) {
+            const TriggerDizzy = this.Events.SimpleEffectTriggerCheck(trainer, source, sourceEffect, 33, trainerTarget, target.Monster, 'dizzy', messageList)
+            if (TriggerDizzy) {
+                if (!target.Monster.Tokens.includes('stumbling')) {
+                    messageList.push({ "generic" : target.Monster.Nickname + " started stumbling"})
+                    target.Monster.Tokens.push('stumbling')
+                    
+                    target.Monster.Trackers["stumbling"] = 4;
+                }
+            }
+        }
     },    
     harshthenoise : {
         id          : 5,

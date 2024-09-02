@@ -269,6 +269,7 @@ export interface CallEvents {
     onSwitchOut? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void;
     onSwitchIn? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void
     onRoundEnd? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void
+    onGetStatFinalsp? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
 }
 
 /**

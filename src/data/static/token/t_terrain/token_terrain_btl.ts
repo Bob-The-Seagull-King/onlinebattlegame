@@ -18,7 +18,7 @@ export const TokenTerrainBattleDex : TokenBattleTable = {
         onSwitchIn(this: Battle, eventSource : Scene | Side | Plot, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
             if (fromSource){
                 messageList.push({ "generic" : "Pointed Stones hurt " + source.Monster.Nickname})
-                const DamageVal = Math.floor(this.Events.GetStatValue(trainer, source.Monster, 'hp') * 0.45)
+                const DamageVal = Math.floor(this.Events.GetStatValue(trainer, source.Monster, 'hp', messageList) * 0.3)
                 this.Events.DealDamage(DamageVal, MonsterType.None, eventSource, source.Monster, null, trainer, messageList, true, false, false)
             }
         }

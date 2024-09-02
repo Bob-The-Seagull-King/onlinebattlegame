@@ -24,7 +24,7 @@ export const ItemBattleDex : ItemBattleTable = {
         events      : {},
         onItemOnApply(this: Battle, eventSource : ActiveItem,  trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) {
             messageList.push({ "generic" : trainer.Name + " healed up " + target.Monster.Nickname })
-            const RecoveryVal = Math.floor(this.Events.GetStatValue(trainer, target, 'hp') * 0.25)
+            const RecoveryVal = Math.floor(this.Events.GetStatValue(trainer, target, 'hp', messageList) * 0.25)
             this.Events.HealDamage(RecoveryVal, MonsterType.None, eventSource, target.Monster, null, trainer, messageList, false, false)
         }
     },

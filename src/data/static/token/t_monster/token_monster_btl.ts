@@ -38,7 +38,30 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
     },
     stumbling : {
         id          : 1,
-        category    : [TokenCategory.Condition,TokenCategory.Debuff]
+        category    : [TokenCategory.Condition,TokenCategory.Debuff],
+        onGetStatFinalsp(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+            
+            if (fromSource) {
+                if (source.Tokens.includes("stumbling")) {
+                    return Math.floor(relayVar * 0.5)
+                }
+            }
+            return relayVar;
+        },
+        onRoundEnd(this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            if (source.Monster.Trackers["stumbling"]) {
+                source.Monster.Trackers["stumbling"] -= 1;
+                if (source.Monster.Trackers["stumbling"] <= 0) {
+                    source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "stumbling"))
+                    delete source.Monster.Trackers["stumbling"];
+                    messageList.push({ "generic" : source.Monster.Nickname + " stopped stumbling"});
+                }
+            } else {
+                source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "stumbling"))
+                delete source.Monster.Trackers["stumbling"];
+                messageList.push({ "generic" : source.Monster.Nickname + " stopped stumbling"})
+            }
+        }
     },
     boostdamage : {
         id          : 2,

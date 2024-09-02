@@ -7,8 +7,10 @@ import { Plot } from "../../../classes/sim/models/terrain/terrain_plot";
 import { Scene } from "../../../classes/sim/models/terrain/terrain_scene";
 import { Side } from "../../../classes/sim/models/terrain/terrain_side";
 import { MessageSet, TraitBattleTable } from "../../../global_types";
-import { TraitCategory } from "../../enum/categories";
+import { TokenCategory, TraitCategory } from "../../enum/categories";
 import { MonsterType } from "../../enum/types";
+import { TokenMonsterBattleDex } from "../token/t_monster/token_monster_btl";
+import { TokenMonsterInfoDex } from "../token/t_monster/token_monster_inf";
 
 /**
  * Trait mechanical information database
@@ -18,7 +20,20 @@ export const TraitBattleDex : TraitBattleTable = {
         id          : 0,
         cost        : 10,
         category    : [TraitCategory.Restoration],
-        events      : {}
+        events      : {},
+        onSwitchOut(this: Battle, eventSource : Scene | Side | Plot, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource){
+                source.Monster.Tokens.forEach(token => {
+                    if (TokenMonsterBattleDex[token].category.includes(TokenCategory.Condition)) {
+                        const randomValue = Math.random() * (100);
+                        if (randomValue <= 33) {                
+                            messageList.push({ "generic" : source.Monster.Nickname + " cured itself of " + TokenMonsterInfoDex[token].name})
+                            source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === token))
+                        }
+                    }
+                })           
+            }
+        }
     },
     harshlife : {
         id          : 1,
@@ -61,7 +76,7 @@ export const TraitBattleDex : TraitBattleTable = {
         onEffectApply(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, trackVal: string, messageList: MessageSet, fromSource: boolean) {
             if (fromSource) {
                 this.Events.HealDamage(
-                    Math.floor(this.Events.GetStatValue(trainer, source, "hp") * 0.1),
+                    Math.floor(this.Events.GetStatValue(trainer, source, "hp", messageList) * 0.1),
                     MonsterType.None,
                     source,
                     source.Monster,
