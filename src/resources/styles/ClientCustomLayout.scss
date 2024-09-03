@@ -1,0 +1,8 @@
+.dropdown-toggle::after {
+    display: none !important; 
+  }
+
+.dropdown-menu {
+    max-height: calc(50vh);
+    overflow-y: scroll;
+}

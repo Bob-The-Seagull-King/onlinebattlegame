@@ -34,7 +34,7 @@ const StartGameSpace = (props: any) => {
                 <div className="col-sm-6 col-12">
                     <Stack gap={4} style={{height: "100%"}}>
                         {/* User Info */}
-                        <div className="BasicElementContainer overflow-auto flex-grow-1">
+                        <div className="flex-grow-1">
                             <div>
                                 <UserInfoDisplay user={User}/>
                             </div>

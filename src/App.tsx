@@ -9,15 +9,17 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { ROUTES } from './resources/routes-constants'
 
 import { PlayManager } from './classes/viewmodel/play_manager';
+import { ManagerStore } from './classes/viewmodel/manager_store_static';
 
 import OfflinePage from './pages/OfflinePage';
 import OnlinePage from './pages/OnlinePage';
-import HomePage from './pages/HomePage';
 import StartGameSpace from './pages/Spaces/StartGameSpace';
+import HomePage from './pages/HomePage';
+
 
 function App() {
   
-  const User : PlayManager = new PlayManager();
+  const User : PlayManager = ManagerStore.ReturnUserInformation();
 
   return (
     <div>
