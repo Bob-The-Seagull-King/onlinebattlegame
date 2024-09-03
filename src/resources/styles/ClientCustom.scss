@@ -6,9 +6,23 @@
     padding: 0.5em;
 }
 
+.GamePadding {
+    padding: 1em;
+}
+
+.ForceHeight30 {
+    max-height: calc(30vh);
+    min-height: calc(30vh);
+}
+
 .ForceHeight50 {
     max-height: calc(50vh);
     min-height: calc(50vh);
+}
+
+.ForceHeight90 {
+    max-height: calc(90vh);
+    min-height: calc(90vh);
 }
 
 .TestWebBody {

@@ -10,15 +10,14 @@ import { PlayManager } from '../../../classes/viewmodel/play_manager';
 import '../../../resources/styles/App.css';
 import '../../../resources/styles/CustomStyleHost.scss'
 
-const UserInfoDisplay = (props: any) => { 
+const TeamManagerDisplay = (props: any) => {  
     // Prop Intialisation
     const User : PlayManager = props.user;
 
     return (
         <>
-            
         </>
     )
 }
 
-export default UserInfoDisplay
+export default TeamManagerDisplay
