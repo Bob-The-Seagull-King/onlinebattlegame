@@ -540,13 +540,7 @@ class BattleEvents {
             // This means the protection of the monster will be considered
             if (!_skipProt) {
                 Protection = this.GetStatValue(_targetTrainer, _target, "pt", _messageList)
-                let TypeModifier = 1;            
-                for (const type in SpeciesBattleDex[_target.Species].type) {
-                    const Matchup = TypeMatchup[_type][type];
-                    if (Matchup === 1) { TypeModifier -= 0.25;
-                    } else if (Matchup === 2) { TypeModifier += 0.25;
-                    } else if (Matchup === 3) { TypeModifier = 0; break; }
-                }
+                
                 ProtectionModifier = this.Battle.runEvent('GetProtectionModifiers', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, 1, null, _messageList )
             }
             // This means additional % based modifiers will be considered
@@ -555,8 +549,17 @@ class BattleEvents {
             }
 
             const FinalProtection = Math.floor( Protection * ProtectionModifier )
-            const ModifiedDamage = Math.floor( _val - (_val * ((FinalProtection * DamageTakenModifier)/100)))
             
+            let TypeModifier = 1;            
+            for (const type in SpeciesBattleDex[_target.Species].type) {
+                const Matchup = TypeMatchup[_type][type];
+                if (Matchup === 1) { TypeModifier -= 0.25;
+                } else if (Matchup === 2) { TypeModifier += 0.25;
+                } else if (Matchup === 3) { TypeModifier = 0; break; }
+            }
+
+            const ModifiedDamage = Math.floor( (_val - (_val * ((FinalProtection * DamageTakenModifier)/100))) * TypeModifier)
+
             if (_skipAll) {
                 return _target.TakeDamage(ModifiedDamage, _messageList);
             } else {
