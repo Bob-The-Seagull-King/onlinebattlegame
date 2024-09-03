@@ -13,7 +13,8 @@ enum MonsterType {
     Poison = 6,
     Tempest = 7,
     Gilded = 8,
-    Enchanted = 9
+    Enchanted = 9,
+    Bizarro = 10
 }
 
 /**
@@ -38,7 +39,8 @@ export const TypeMatchup : TypeChartTable = {
         6 : 0, // Poison
         7 : 0, // Tempest
         8 : 0, // Gilded
-        9 : 0  // Enchanted
+        9 : 0, // Enchanted
+        10: 0  // Bizarro
     },
     1 : { // Blaze
         0 : 0, // None
@@ -50,7 +52,8 @@ export const TypeMatchup : TypeChartTable = {
         6 : 0, // Poison
         7 : 2, // Tempest
         8 : 1, // Gilded
-        9 : 0  // Enchanted
+        9 : 0, // Enchanted
+        10: 0  // Bizarro
     },
     2 : { // Vegetation
         0 : 0, // None
@@ -62,7 +65,8 @@ export const TypeMatchup : TypeChartTable = {
         6 : 2, // Poison
         7 : 0, // Tempest
         8 : 2, // Gilded
-        9 : 1  // Enchanted
+        9 : 1, // Enchanted
+        10: 0  // Bizarro
     },
     3 : { // Pelagic
         0 : 0, // None
@@ -74,7 +78,8 @@ export const TypeMatchup : TypeChartTable = {
         6 : 0, // Poison
         7 : 2, // Tempest
         8 : 0, // Gilded
-        9 : 0  // Enchanted
+        9 : 0, // Enchanted
+        10: 0  // Bizarro
     },
     4 : { // Skirmish
         0 : 0, // None
@@ -83,10 +88,11 @@ export const TypeMatchup : TypeChartTable = {
         3 : 0, // Pelagic
         4 : 1, // Skirmish
         5 : 1, // Stonework
-        6 : 2, // Poison
+        6 : 0, // Poison
         7 : 0, // Tempest
         8 : 2, // Gilded
-        9 : 2  // Enchanted
+        9 : 2, // Enchanted
+        10: 2  // Bizarro
     },
     5 : { // Stonework
         0 : 0, // None
@@ -98,7 +104,8 @@ export const TypeMatchup : TypeChartTable = {
         6 : 1, // Poison
         7 : 1, // Tempest
         8 : 2, // Gilded
-        9 : 0  // Enchanted
+        9 : 0, // Enchanted
+        10: 0  // Bizarro
     },
     6 : { // Poison
         0 : 0, // None
@@ -110,7 +117,8 @@ export const TypeMatchup : TypeChartTable = {
         6 : 2, // Poison
         7 : 0, // Tempest
         8 : 0, // Gilded
-        9 : 0  // Enchanted
+        9 : 0, // Enchanted
+        10: 0  // Bizarro
     },
     7 : { // Tempest
         0 : 0, // None
@@ -122,7 +130,8 @@ export const TypeMatchup : TypeChartTable = {
         6 : 0, // Poison
         7 : 1, // Tempest
         8 : 2, // Gilded
-        9 : 0  // Enchanted
+        9 : 0, // Enchanted
+        10: 0  // Bizarro
     },
     8 : { // Gilded
         0 : 0, // None
@@ -134,7 +143,8 @@ export const TypeMatchup : TypeChartTable = {
         6 : 1, // Poison
         7 : 0, // Tempest
         8 : 3, // Gilded
-        9 : 1  // Enchanted
+        9 : 1, // Enchanted
+        10: 3  // Bizarro
     },
     9 : { // Enchanted
         0 : 0, // None
@@ -146,7 +156,21 @@ export const TypeMatchup : TypeChartTable = {
         6 : 2, // Poison
         7 : 2, // Tempest
         8 : 0, // Gilded
-        9 : 1  // Enchanted
+        9 : 1, // Enchanted
+        10: 3  // Bizarro
+    },
+    10 : { // Bizzaro
+        0 : 0, // None
+        1 : 0, // Blaze
+        2 : 1, // Vegetation
+        3 : 0, // Pelagic
+        4 : 0, // Skirmish
+        5 : 0, // Stonework
+        6 : 0, // Poison
+        7 : 0, // Tempest
+        8 : 1, // Gilded
+        9 : 3, // Enchanted
+        10: 0  // Bizarro
     }
 }
 
