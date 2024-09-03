@@ -6,7 +6,7 @@ import { TypeChartTable } from "../../global_types"
 enum MonsterType {
     None = 0,
     Blaze = 1,
-    Vegtation = 2,
+    Flowering = 2,
     Pelagic = 3,
     Skirmish = 4,
     Stonework = 5,
@@ -32,7 +32,7 @@ export const TypeMatchup : TypeChartTable = {
     0 : { // None
         0 : 0, // None
         1 : 0, // Blaze
-        2 : 0, // Vegetation
+        2 : 0, // Flowering
         3 : 0, // Pelagic
         4 : 0, // Skirmish
         5 : 0, // Stonework
@@ -45,7 +45,7 @@ export const TypeMatchup : TypeChartTable = {
     1 : { // Blaze
         0 : 0, // None
         1 : 2, // Blaze
-        2 : 1, // Vegetation
+        2 : 1, // Flowering
         3 : 2, // Pelagic
         4 : 0, // Skirmish
         5 : 0, // Stonework
@@ -55,10 +55,10 @@ export const TypeMatchup : TypeChartTable = {
         9 : 0, // Enchanted
         10: 0  // Bizarro
     },
-    2 : { // Vegetation
+    2 : { // Flowering
         0 : 0, // None
         1 : 2, // Blaze
-        2 : 2, // Vegetation
+        2 : 2, // Flowering
         3 : 1, // Pelagic
         4 : 0, // Skirmish
         5 : 0, // Stonework
@@ -71,7 +71,7 @@ export const TypeMatchup : TypeChartTable = {
     3 : { // Pelagic
         0 : 0, // None
         1 : 1, // Blaze
-        2 : 2, // Vegetation
+        2 : 2, // Flowering
         3 : 2, // Pelagic
         4 : 0, // Skirmish
         5 : 1, // Stonework
@@ -84,7 +84,7 @@ export const TypeMatchup : TypeChartTable = {
     4 : { // Skirmish
         0 : 0, // None
         1 : 0, // Blaze
-        2 : 0, // Vegetation
+        2 : 0, // Flowering
         3 : 0, // Pelagic
         4 : 1, // Skirmish
         5 : 1, // Stonework
@@ -97,7 +97,7 @@ export const TypeMatchup : TypeChartTable = {
     5 : { // Stonework
         0 : 0, // None
         1 : 0, // Blaze
-        2 : 2, // Vegetation
+        2 : 2, // Flowering
         3 : 0, // Pelagic
         4 : 2, // Skirmish
         5 : 0, // Stonework
@@ -110,7 +110,7 @@ export const TypeMatchup : TypeChartTable = {
     6 : { // Poison
         0 : 0, // None
         1 : 0, // Blaze
-        2 : 1, // Vegetation
+        2 : 1, // Flowering
         3 : 1, // Pelagic
         4 : 1, // Skirmish
         5 : 2, // Stonework
@@ -123,7 +123,7 @@ export const TypeMatchup : TypeChartTable = {
     7 : { // Tempest
         0 : 0, // None
         1 : 3, // Blaze
-        2 : 1, // Vegetation
+        2 : 1, // Flowering
         3 : 1, // Pelagic
         4 : 0, // Skirmish
         5 : 2, // Stonework
@@ -136,7 +136,7 @@ export const TypeMatchup : TypeChartTable = {
     8 : { // Gilded
         0 : 0, // None
         1 : 2, // Blaze
-        2 : 3, // Vegetation
+        2 : 3, // Flowering
         3 : 2, // Pelagic
         4 : 0, // Skirmish
         5 : 0, // Stonework
@@ -149,7 +149,7 @@ export const TypeMatchup : TypeChartTable = {
     9 : { // Enchanted
         0 : 0, // None
         1 : 0, // Blaze
-        2 : 0, // Vegetation
+        2 : 0, // Flowering
         3 : 0, // Pelagic
         4 : 1, // Skirmish
         5 : 1, // Stonework
@@ -162,7 +162,7 @@ export const TypeMatchup : TypeChartTable = {
     10 : { // Bizzaro
         0 : 0, // None
         1 : 0, // Blaze
-        2 : 1, // Vegetation
+        2 : 1, // Flowering
         3 : 0, // Pelagic
         4 : 0, // Skirmish
         5 : 0, // Stonework

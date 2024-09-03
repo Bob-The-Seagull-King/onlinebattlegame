@@ -25,7 +25,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     },
     arcana : {
         id      : 3,
-        type    : [MonsterType.Poison, MonsterType.Vegtation],
+        type    : [MonsterType.Poison, MonsterType.Flowering],
         stats   : { hp : 32,  dl : 3, dh : 8, ac: 10, pt: 0, sk : 35, rs : 25, sp: 6 },
         cost    : 50
     }
