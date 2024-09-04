@@ -357,8 +357,8 @@ class BattleEvents {
         
         // Get STAB modifier
         let TypeModifier = 1;
-        for (let i = 0; i < SpeciesBattleDex[_source.Monster.Species].type.length; i++) {
-            if (SpeciesBattleDex[_source.Monster.Species].type[i] === ActionBattleDex[_sourceeffect.Action].type) {
+        for (let i = 0; i < SpeciesBattleDex[_source.Monster.GetSpecies()].type.length; i++) {
+            if (SpeciesBattleDex[_source.Monster.GetSpecies()].type[i] === ActionBattleDex[_sourceeffect.Action].type) {
                 TypeModifier += 0.25
             }
         }
@@ -396,7 +396,7 @@ class BattleEvents {
         
         // If the target is a monster, get their stats and account for type
         if ((target instanceof ActiveMonster)) {
-            for (const type in SpeciesBattleDex[target.Species].type) {
+            for (const type in SpeciesBattleDex[target.GetSpecies()].type) {
                 const Matchup = TypeMatchup[_type][type];
                 if (Matchup === 1) { TypeModifier -= 0.25;
                 } else if (Matchup === 2) { TypeModifier += 0.25;
@@ -482,8 +482,8 @@ class BattleEvents {
 
             // Get STAB modifier
             let TypeModifier = 1;
-            for (let i = 0; i < SpeciesBattleDex[_action.source.Monster.Species].type.length; i++) {
-                if (SpeciesBattleDex[_action.source.Monster.Species].type[i] === ActionBattleDex[_action.action.Action].type) {
+            for (let i = 0; i < SpeciesBattleDex[_action.source.Monster.GetSpecies()].type.length; i++) {
+                if (SpeciesBattleDex[_action.source.Monster.GetSpecies()].type[i] === ActionBattleDex[_action.action.Action].type) {
                     TypeModifier += 0.25
                 }
             }
@@ -551,7 +551,7 @@ class BattleEvents {
             const FinalProtection = Math.floor( Protection * ProtectionModifier )
             
             let TypeModifier = 1;            
-            for (const type in SpeciesBattleDex[_target.Species].type) {
+            for (const type in SpeciesBattleDex[_target.GetSpecies()].type) {
                 const Matchup = TypeMatchup[_type][type];
                 if (Matchup === 1) { TypeModifier -= 0.25;
                 } else if (Matchup === 2) { TypeModifier += 0.25;

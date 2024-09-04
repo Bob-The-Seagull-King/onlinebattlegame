@@ -100,6 +100,19 @@ class ActiveMonster {
     }
 
     /**
+     * Gets the species of a monster, accounting for potential
+     * evolutions.
+     * @returns The current species to reference
+     */
+    public GetSpecies() {
+        if (this.Trackers["evolution"]) {
+            return this.Trackers["evolution"];
+        } else {
+            return this.Species;
+        }
+    }
+
+    /**
      * Return the base stat value by species
      * @param _stat the stat to get
      * @returns number reflecting the stat, defaults to 0
@@ -107,14 +120,14 @@ class ActiveMonster {
      */
     public GetStat(_stat : string) {
         switch (_stat) {
-            case "hp": { return SpeciesBattleDex[this.Species].stats.hp; }
-            case "dl": { return SpeciesBattleDex[this.Species].stats.dl; }
-            case "dh": { return SpeciesBattleDex[this.Species].stats.dh; }
-            case "ac": { return SpeciesBattleDex[this.Species].stats.ac; }
-            case "pt": { return SpeciesBattleDex[this.Species].stats.pt; }
-            case "rs": { return SpeciesBattleDex[this.Species].stats.rs; }
-            case "sk": { return SpeciesBattleDex[this.Species].stats.sk; }
-            case "sp": { return SpeciesBattleDex[this.Species].stats.sp; }
+            case "hp": { return SpeciesBattleDex[this.GetSpecies()].stats.hp; }
+            case "dl": { return SpeciesBattleDex[this.GetSpecies()].stats.dl; }
+            case "dh": { return SpeciesBattleDex[this.GetSpecies()].stats.dh; }
+            case "ac": { return SpeciesBattleDex[this.GetSpecies()].stats.ac; }
+            case "pt": { return SpeciesBattleDex[this.GetSpecies()].stats.pt; }
+            case "rs": { return SpeciesBattleDex[this.GetSpecies()].stats.rs; }
+            case "sk": { return SpeciesBattleDex[this.GetSpecies()].stats.sk; }
+            case "sp": { return SpeciesBattleDex[this.GetSpecies()].stats.sp; }
             default: { return 0; }
         }
     }
