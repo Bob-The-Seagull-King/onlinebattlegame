@@ -548,7 +548,10 @@ class BattleEvents {
                 DamageTakenModifier = this.Battle.runEvent('GetDamageTakenModifiers', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, 1, null, _messageList )
             }
 
-            const FinalProtection = Math.floor( Protection * ProtectionModifier )
+            let FinalProtection = Math.floor( Protection * ProtectionModifier )
+            if (FinalProtection > 90) {
+                FinalProtection = 90
+            }
             
             let TypeModifier = 1;            
             for (const type in SpeciesBattleDex[_target.GetSpecies()].type) {
