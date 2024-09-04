@@ -549,9 +549,6 @@ class BattleEvents {
             }
 
             let FinalProtection = Math.floor( Protection * ProtectionModifier )
-            if (FinalProtection > 90) {
-                FinalProtection = 90
-            }
             
             let TypeModifier = 1;            
             for (const type in SpeciesBattleDex[_target.GetSpecies()].type) {
@@ -561,7 +558,7 @@ class BattleEvents {
                 } else if (Matchup === 3) { TypeModifier = 0; break; }
             }
 
-            const ModifiedDamage = Math.floor( (_val - (_val * ((FinalProtection * DamageTakenModifier)/100))) * TypeModifier)
+            const ModifiedDamage = Math.floor( (_val - (_val * ( ( Math.min(90, FinalProtection * DamageTakenModifier))/100))) * TypeModifier)
 
             if (_skipAll) {
                 return _target.TakeDamage(ModifiedDamage, _messageList);
