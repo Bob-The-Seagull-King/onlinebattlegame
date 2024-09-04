@@ -109,7 +109,7 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
                         source.Monster.Tokens = source.Monster.Tokens.filter(item => item != "retaliation")                        
                     }
                     messageList.push({ "generic" : source.Monster.Nickname + " took revenge!"})
-                    return relayVar + 0.5;
+                    return relayVar + 1;
                 }
             }
             return relayVar;

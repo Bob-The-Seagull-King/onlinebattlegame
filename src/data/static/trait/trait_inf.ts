@@ -22,7 +22,7 @@ export const TraitInfoDex : TraitInfoTable = {
         id          : 2,
         name        : "Retaliation",
         description : [
-            {cat: "generic", text: "When damaged by another monster, gain 25% damage on the next action."}
+            {cat: "generic", text: "When damaged by another monster, gain 50% damage on the next action."}
         ]
     },
     vampire: {
