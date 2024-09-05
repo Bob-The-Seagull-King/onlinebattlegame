@@ -32,7 +32,7 @@ export const SpeciesLearnsetDex : SpeciesLearnsetTable = {
     },
     stalagmitendon: {
         id      : 6,
-        traits  : ["harshlife","solidbody","rockycomposition"],
+        traits  : ["harshlife","solidcomposition"],
         actions : ["tackle","superhotslam","slam","scatter","rockthrow","regrow","harshthenoise"]
     },
     impound: {
