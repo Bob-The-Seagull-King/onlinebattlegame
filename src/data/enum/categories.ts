@@ -20,7 +20,13 @@ enum TraitCategory {
     Restoration = "Restoration", // Recovers HP or removes negative tokens
     Armour = "Armour", // Reduces incoming damage or effects
     Revenge = "Revenge", // Triggers in response to the enemy affecting the monster or their team
-    Drain = "Drain" // Recovers in response to the monster affecting the enemy
+    Drain = "Drain", // Recovers in response to the monster affecting the enemy
+    Damage = "Damage", // Improves or deals damage
+    Lucky = "Lucky", // Requires some chance to trigger
+    Terraform = "Terraform", // Changes the terrain
+    Sacrifice = "Sacrifice", // The monster suffers in some way because of it
+    Skill = "Skill", // Deals with the Skill stat
+    Debuff = "Debuff" // Reduces a monster's efficiency
 }
 
 enum ItemCategory {

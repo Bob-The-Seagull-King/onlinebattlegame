@@ -20,13 +20,12 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             if (fromSource){
                 source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "dizzy"))                
             }
-        },        
-        onGetAccuracyModifier(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+        }, 
+        onGetStatModac(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
             if (fromSource) {
-                return relayVar * 0.5;
-            } else {
-                return relayVar
-            }
+                return relayVar - 2;
+            }            
+            return relayVar;
         },
         onRoundEnd(this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
             const randomValue = Math.random() * (100);
@@ -39,11 +38,10 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
     stumbling : {
         id          : 1,
         category    : [TokenCategory.Condition,TokenCategory.Debuff],
-        onGetStatFinalsp(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
-            
+        onGetStatModsp(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
             if (fromSource) {
                 if (source.Tokens.includes("stumbling")) {
-                    return Math.floor(relayVar * 0.5)
+                    return Math.floor(relayVar - 2)
                 }
             }
             return relayVar;
@@ -72,14 +70,28 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
                 delete source.Monster.Trackers["boostdamage"];                
             }
         },
-        onGetDamageRangeModifiers(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+        onGetStatModdl(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
             if (fromSource) {
-                if (source.Monster.Tokens.includes("boostdamage")) {
-                    if (source.Monster.Trackers["boostdamage"]) {
-                        return relayVar + (0.25 * source.Monster.Trackers["boostdamage"]);
+                if (source.Tokens.includes("boostdamage")) {
+                    if (source.Trackers["boostdamage"]) {
+                        return relayVar + (1 * source.Trackers["boostdamage"]);
                     } else {
-                        source.Monster.Trackers["boostdamage"] = 1;
-                        return relayVar + 0.25;                      
+                        source.Trackers["boostdamage"] = 1;
+                        return relayVar + 1;                      
+                    }
+                    
+                }
+            }
+            return relayVar;
+        },
+        onGetStatModdh(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                if (source.Tokens.includes("boostdamage")) {
+                    if (source.Trackers["boostdamage"]) {
+                        return relayVar + (1 * source.Trackers["boostdamage"]);
+                    } else {
+                        source.Trackers["boostdamage"] = 1;
+                        return relayVar + 1;                      
                     }
                     
                 }
@@ -109,10 +121,39 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
                         source.Monster.Tokens = source.Monster.Tokens.filter(item => item != "retaliation")                        
                     }
                     messageList.push({ "generic" : source.Monster.Nickname + " took revenge!"})
-                    return relayVar + 1;
+                    return relayVar + 0.5;
                 }
             }
             return relayVar;
         }
+    },
+    firstdefense : {
+        id          : 4,
+        category    : [TokenCategory.Status,TokenCategory.Boost],
+        onSwitchOut(this: Battle, eventSource : Scene | Side | Plot, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource){
+                source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "firstdefense"))                
+            }
+        },
+        onGetStatModpt(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                return relayVar + 4;
+            }            
+            return relayVar;
+        },
+        onRoundEnd(this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            messageList.push({ "generic" : source.Monster.Nickname + " dropped their defense!"})
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "firstdefense"))
+        }
+    },
+    burn : {
+        id          : 5,
+        category    : [TokenCategory.Condition,TokenCategory.Debuff],
+        onGetStatModpt(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                return relayVar - 1;
+            }            
+            return relayVar;
+        },
     }
 }

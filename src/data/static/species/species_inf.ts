@@ -4,28 +4,52 @@ import { SpeciesInfoTable } from "../../../global_types";
  * Monster species non-mechanical information database
  */
 export const SpeciesInfoDex : SpeciesInfoTable = {
-    cleric: {
-        id          : 0,
-        name        : "Cleric",
-        subtitle    : "Self Restoration",
-        description : "Test Monster: Able to heal itself and lower pressure from the enemy."
-    },
-    bruiser: {
+    ruckut: {
         id          : 1,
-        name        : "Bruiser",
-        subtitle    : "Hard Hitting",
-        description : "Test Monster: Hits with consistant, high damage, but innacurate and with poor skill."
+        name        : "Ruckut",
+        subtitle    : "Cannon",
+        description : "It spends most of its life quietly absorbing harsh material from the water. When provoked, it blasts it out wildly."
     },
-    nimble: {
+    marrowdread: {
         id          : 2,
-        name        : "Nimble",
-        subtitle    : "Targetted Strike",
-        description : "Test Monster: Usually moves first, usually hits, with decent damage but poor durability."
+        name        : "Marrowdread",
+        subtitle    : "Broken Heart",
+        description : "It seeks out those with positive emotions and pierces them, curdling these feelings into delicious and edible energy."
     },
-    arcana: {
+    humbood: {
         id          : 3,
-        name        : "Arcana",
-        subtitle    : "Added Effects",
-        description : "Test Monster: Generally middling stats, but able to easily inflict effects."
+        name        : "Humbood",
+        subtitle    : "Fightened",
+        description : "Born meek, they rely entirely on their protective mask to avoid harm. It takes a lot of trust to enter a battle."
+    },
+    everocious: {
+        id          : 4,
+        name        : "Everocious",
+        subtitle    : "Brave Warrior",
+        description : "Growing to preternatural size, they believe nothing can strike them down so long as they keep their mask at the ready."
+    },
+    stratate: {
+        id          : 5,
+        name        : "Stratate",
+        subtitle    : "Hidden Face",
+        description : "Naturally weak, their worry about stronger monsters generates an electric field that gathers as intimidating storm clouds."
+    },
+    stalagmitendon: {
+        id          : 6,
+        name        : "Stalagmitendon",
+        subtitle    : "Encroaching",
+        description : "It revels in the pressure of earth above it. Using its head it carves out deep tunnels within rock."
+    },
+    impound: {
+        id          : 7,
+        name        : "Impound",
+        subtitle    : "Watcher",
+        description : "Little is understood about this monster. Its purpose is unknown, and they will only appear to trainers at random while unobserved."
+    },
+    celebratious: {
+        id          : 8,
+        name        : "Celebratious",
+        subtitle    : "Fireworks",
+        description : "It's constantly celebrating. Its unknown exactly what, but their constant dancing is said to warm peoples hearts."
     }
 }

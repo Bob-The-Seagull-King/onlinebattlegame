@@ -218,6 +218,9 @@ class BattleEvents {
 
                     // After dealing damage
                     this.Battle.runEvent('AfterDealingDamage', _action.trainer, _trainer, _target, _action.source, _action.action, null, DamageSuffered, _messages);
+                    if (_target.Monster.HP_Current <= 0) {
+                        this.Battle.runEvent('AfterKnockOut', _action.trainer, _trainer, _target, _action.source, _action.action, null, DamageSuffered, _messages);
+                    }
 
                     // Draining
                     if ((ActionBattleData.events['drain'])) {
@@ -560,12 +563,17 @@ class BattleEvents {
 
             const ModifiedDamage = Math.floor( (_val - (_val * ( ( Math.min(90, FinalProtection * DamageTakenModifier))/100))) * TypeModifier)
 
+            let dmg = 0;
             if (_skipAll) {
-                return _target.TakeDamage(ModifiedDamage, _messageList);
+                dmg = _target.TakeDamage(ModifiedDamage, _messageList);
             } else {
                 const FinalDamage = this.Battle.runEvent('GetFinalDamage', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, ModifiedDamage, null, _messageList )
-                return _target.TakeDamage(FinalDamage, _messageList);
+                dmg = _target.TakeDamage(FinalDamage, _messageList);
             }
+            if (_target.HP_Current <= 0) {
+                this.Battle.runEvent('WhenKnockedOut', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, null, null, _messageList )
+            }
+            return dmg;
     }
 
     /**
@@ -906,8 +914,8 @@ class BattleEvents {
         const _mon : ActiveMonster = (_monster instanceof ActiveMonster)? _monster : _monster.Monster;
 
         const BaseStat = this.Battle.runEvent(('GetStatBase'+_stat),_trainer, null, null, _mon, null, _mon.GetStat(_stat), messageList)
-        const StatMod = this.Battle.runEvent(('GetStatMod'+_stat),_trainer, null, null, _mon, null, _mon.GetStatBoost(_stat), messageList)
-        const FinalStat = this.Battle.runEvent(('GetStatFinal'+_stat),_trainer, null, null, _mon, null, (Math.floor(BaseStat + (Math.floor(BaseStat * StatMod)))), messageList)
+        const StatMod = (this.Battle.runEvent(('GetStatMod'+_stat),_trainer, null, null, _mon, null, _mon.GetStatBoost(_stat), messageList))
+        const FinalStat = this.Battle.runEvent(('GetStatFinal'+_stat),_trainer, null, null, _mon, null, (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4))))), messageList)
         
         return FinalStat;
     }

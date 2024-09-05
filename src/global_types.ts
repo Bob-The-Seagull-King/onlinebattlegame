@@ -134,7 +134,8 @@ export interface ISpeciesBattle extends CallEvents {
     id          : number,           // Numerical ID of the monster
     type        : MonsterType[],    // Type(s) the monster possesses
     stats       : BaseStats,        // Base stats of the monster
-    cost        : number            // The Star Power it takes to add the monster to a team
+    cost        : number,           // The Star Power it takes to add the monster to a team
+    evolution   : boolean           // Determines if the monster is considered a 'base' or 'evolved' form
 }
 
 export interface ISpeciesInfo {
@@ -142,6 +143,12 @@ export interface ISpeciesInfo {
     name        : string,   // The species' name
     subtitle    : string,   // Subtitle / category for the monster
     description : string    // Monster description
+}
+
+export interface ISpeciesLearnset {
+    id          : number,       // Numerical ID of the monster
+    traits      : IDEntry[],    // List of traits a monster can learn
+    actions     : IDEntry[],    // List of actions a monster can learn
 }
 
 // Monster Action
@@ -245,6 +252,7 @@ export interface CallEvents {
     onModifyDrainVal? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the percentage of damage dealt that a monster recovers
     onReturnHealVal? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Return the amount of HP to heal
     onAfterDealingDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, trackVal: number, messageList: MessageSet, fromSource: boolean) => void; // After Dealing Damage
+    onAfterKnockOut? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, trackVal: number, messageList: MessageSet, fromSource: boolean) => void; // When a foe is knocked out by a move
     onAfterHealingDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, trackVal: number, messageList: MessageSet, fromSource: boolean) => void; // After Healing Damage
     onGetActionAccuracy? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Get the modified accuracy of the action   
     onGetAccuracyModifier? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get a mulitplier to modify the final accuracy
@@ -253,7 +261,7 @@ export interface CallEvents {
     onDealCustomDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) => boolean; // Get total damage to deal when the action uses a special case
     onConsumeActionUses? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the action can be used generally, but not on the specific target
     onItemOnApply? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => void; // Starts the action by applying it to one of the targets
-    onGetProtectionModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's protection
+    onGetProtectionModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase | ActivePos, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's protection
     onGetDamageTakenModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's incoming damage
     onGetDamageRangeModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase | ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the attacking modifiers range of damage
     onGetDamageDealtModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the attacking monster's damage dealt
@@ -262,14 +270,24 @@ export interface CallEvents {
     onGetSkillResistModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase | ActivePos, sourceEffect : ActiveAction, relayVar: number, trackVal: string, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the chance to resist
     onModifyFinalSkillChance? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase | ActivePos, sourceEffect : ActiveAction, relayVar: number, trackVal: string, messageList: MessageSet, fromSource: boolean) => number; // Modify the final chance for a skill to trigger
     onGetFinalDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final damage taken
-    onGetFinalDamageDealt? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final damage outputted
+    onWhenKnockedOut? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, messageList: MessageSet, fromSource: boolean) => void; // If the target is knocked out by damage (generic)
+    onGetFinalDamageDealt? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction | ActiveItem, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final damage outputted
     onGetDamageRecoveredModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the recovering monster's incoming hp
     onGetFinalRecovery? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final hp recovered
     onRunActionEvents? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : TrainerBase | ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) => void; // Run any Effects that an action has
     onSwitchOut? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void;
     onSwitchIn? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void
     onRoundEnd? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) => void
+    onGetStatModdl? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatModdh? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatModpt? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatModsp? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatModsk? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatModac? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
     onGetStatFinalsp? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatFinalac? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatFinalsk? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatFinalpt? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
 }
 
 /**
@@ -293,6 +311,7 @@ export interface BehaviourEvents {
 
 export interface SpeciesBattleTable {[speciesid: IDEntry]: ISpeciesBattle}
 export interface SpeciesInfoTable {[speciesid: IDEntry]: ISpeciesInfo}
+export interface SpeciesLearnsetTable {[speciesid: IDEntry]: ISpeciesLearnset}
 export interface ActionBattleTable {[actionid: IDEntry]: IActionBattle}
 export interface ActionInfoTable {[actionid: IDEntry]: IActionInfo}
 export interface TraitBattleTable {[traitid: IDEntry]: ITraitBattle}
