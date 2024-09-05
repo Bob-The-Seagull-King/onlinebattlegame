@@ -199,7 +199,7 @@ class BattleEvents {
                     let DamageDealt = 0;
                     if (ActionBattleData.damage_mod === true) {
                         // If the action uses some alternative method to determine damage dealt
-                        DamageDealt = this.Battle.runEvent('onDealCustomDamage', _action.trainer, _trainer, _target, _action.source, _action.action, 0, null, _messages);
+                        DamageDealt = this.Battle.runEvent('DealCustomDamage', _action.trainer, _trainer, _target, _action.source, _action.action, 0, null, _messages);
                     } else if (typeof ActionBattleData.damage_mod === 'number') {                    
                         // Determine any skipped parts of the damage getting process
                         const SkipMods = this.Battle.runEvent('SkipDamageMods', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipmods'])? ActionBattleData.events['skipmods'] : false, null, _messages);

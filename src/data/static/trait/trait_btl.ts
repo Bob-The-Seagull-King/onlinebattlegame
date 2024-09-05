@@ -80,7 +80,7 @@ export const TraitBattleDex : TraitBattleTable = {
         onGetFinalDamageDealt(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) {
             
             if (fromSource) {
-                const chance = Math.random() * 10;
+                const chance = Math.floor(Math.random() * 10);
 
                 if (chance === 0) {
                     messageList.push({ "generic" : source.Monster.Nickname + " landed a critical hit!"})
@@ -139,7 +139,7 @@ export const TraitBattleDex : TraitBattleTable = {
         onAfterDealingDamage(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActivePos, source : ActivePos, sourceEffect : ActiveAction, trackVal: number, messageList: MessageSet, fromSource: boolean) {
             if (!fromSource) {
                 if (fromSource) {
-                    const chance = Math.random() * 5;
+                    const chance = Math.floor(Math.random() * 5);
     
                     if (chance === 0) {
                         messageList.push({ "generic" : target.Monster.Nickname + " burned " + source.Monster.Nickname + "!" })

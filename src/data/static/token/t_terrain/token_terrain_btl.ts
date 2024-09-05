@@ -112,5 +112,28 @@ export const TokenTerrainBattleDex : TokenBattleTable = {
                 }
             }
         }
+    },
+    deepforest : {
+        id: 4,
+        category: [],
+        onRoundEnd(this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                const HealBaseAmount = this.Events.GetStatValue(trainer, source, "hp", messageList);
+                const HealedAmount = this.Events.HealDamage(HealBaseAmount, MonsterType.None, source, source.Monster, trainer, trainer, messageList, true, true);
+                messageList.push({ "generic" : "The forest recovered " + HealedAmount + " HP to " + source.Monster.Nickname});
+            }
+        }
+    },
+    dancinglights : {
+        id: 5,
+        category: [],
+        onActionMiss(this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | ActivePos | Scene | Side | Plot, source : ActivePos, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) {
+            
+            const HealBaseAmount = this.Events.GetStatValue(trainer, source, "hp", messageList);
+            const HealedAmount = this.Events.HealDamage(HealBaseAmount, MonsterType.None, source, source.Monster, trainer, trainer, messageList, true, true);
+            messageList.push({ "generic" : "As compensation, the spirits recovered " + HealedAmount + " HP to " + source.Monster.Nickname});
+            
+            return true;
+        }
     }
 }

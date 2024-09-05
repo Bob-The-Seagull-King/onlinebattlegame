@@ -594,10 +594,14 @@ class Battle {
 
         // If possible, get events from the source and target's plots
         if (source instanceof ActivePos) {
+            this.getEvents(eventid, this.Scene.Sides[trainer.Position], Events, true);
             this.getEvents(eventid, this.Scene.Sides[trainer.Position].Plots[source.Position], Events, true);
         }
-        if ((target instanceof ActivePos) && (targettrainer)) {
-            this.getEvents(eventid, this.Scene.Sides[targettrainer.Position].Plots[target.Position], Events, false);
+        if ((targettrainer)) {
+            this.getEvents(eventid, this.Scene.Sides[targettrainer.Position], Events, false);
+            if (target instanceof ActivePos) {
+                this.getEvents(eventid, this.Scene.Sides[targettrainer.Position].Plots[target.Position], Events, false);
+            }
         }
 
         // Initialize the return value

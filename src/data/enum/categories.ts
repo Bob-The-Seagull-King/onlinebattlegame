@@ -12,7 +12,9 @@ enum ActionCategory {
     Aggressive = "Aggressive", // Particularly harsh, or dealing with improving damage
     Tactical = "Tactical", // Modifies monsters by inflicting tokens
     Debuff = "Debuff", // Lowers the effectiveness of something
-    Terraform = "Terraform" // Changes the field
+    Terraform = "Terraform", // Changes the field
+    Energy = "Energy", // Hits with elemental power
+    Armour = "Armour" // Defensive actions
 }
 
 enum TraitCategory {
