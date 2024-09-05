@@ -120,7 +120,7 @@ export const TokenTerrainBattleDex : TokenBattleTable = {
             
             if (fromSource) {
                 const HealBaseAmount = this.Events.GetStatValue(trainer, source, "hp", messageList);
-                const HealedAmount = this.Events.HealDamage(HealBaseAmount, MonsterType.None, source, source.Monster, trainer, trainer, messageList, true, true);
+                const HealedAmount = this.Events.HealDamage(Math.max(1,Math.floor(HealBaseAmount/12)), MonsterType.None, source, source.Monster, trainer, trainer, messageList, true, true);
                 messageList.push({ "generic" : "The forest recovered " + HealedAmount + " HP to " + source.Monster.Nickname});
             }
         }
