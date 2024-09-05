@@ -10,6 +10,7 @@ import { ItemBattleTable, MessageSet } from "../../../global_types";
 import { ItemCategory } from "../../enum/categories";
 import { MonsterType } from "../../enum/types";
 import { SpeciesEvolutionDex } from "../species/species_evl";
+import { SpeciesInfoDex } from "../species/species_inf";
 
 /**
  * Item mechanical information database
@@ -196,7 +197,9 @@ export const ItemBattleDex : ItemBattleTable = {
             if (SpeciesEvolutionDex[target.Monster.GetSpecies()]) {
                 for (let i = 0; i < SpeciesEvolutionDex[target.Monster.GetSpecies()].evolutions.length; i++) {
                     if (SpeciesEvolutionDex[target.Monster.GetSpecies()].evolutions[i].triggeritem === "strongsoil") {
+                        messageList.push({ "generic" : target.Monster.Nickname + " evolved into " + SpeciesInfoDex[SpeciesEvolutionDex[target.Monster.GetSpecies()].evolutions[i].newspecies].name})
                         target.Monster.Trackers["evolution"] = SpeciesEvolutionDex[target.Monster.GetSpecies()].evolutions[i].newspecies;
+                        
                         return true;
                     }
                 }

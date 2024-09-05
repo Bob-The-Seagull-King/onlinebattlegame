@@ -43,7 +43,7 @@ class PlayManager {
         _Team.Monsters[2].AddFreshAction('scatter')
         _Team.Monsters[2].AddFreshAction('rockthrow')
         _Team.Monsters[2].AddFreshAction('regrow')
-        _Team.Monsters[2].Traits.push('rockycomposition')
+        _Team.Monsters[2].Traits.push('solidcomposition')
 
         _Team.AddFreshMonster('impound')
         _Team.Monsters[3].AddFreshAction('harshthenoise')

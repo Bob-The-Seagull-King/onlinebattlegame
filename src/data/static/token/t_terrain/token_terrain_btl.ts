@@ -117,6 +117,7 @@ export const TokenTerrainBattleDex : TokenBattleTable = {
         id: 4,
         category: [],
         onRoundEnd(this: Battle, eventSource : any, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            
             if (fromSource) {
                 const HealBaseAmount = this.Events.GetStatValue(trainer, source, "hp", messageList);
                 const HealedAmount = this.Events.HealDamage(HealBaseAmount, MonsterType.None, source, source.Monster, trainer, trainer, messageList, true, true);
