@@ -1,6 +1,10 @@
-import { TurnSelect } from "../../../../global_types";
+import { TurnSelect, TurnSelectReturn } from "../../../../global_types";
 import { IRoomMember, RoomHold } from "../../../structure/room/RoomHold";
 import { ITrainer, TrainerBase } from "./trainer_basic";
+import { EventEmitter } from 'events';
+
+// Tool for awaiting / creating events. Used for action selection.
+const eventEmitter = new EventEmitter();
 
 /**
  * Interface of human trainers playing on a server
@@ -34,8 +38,22 @@ class TrainerUser extends TrainerBase {
      * @returns Returns a SelectedAction object describing what action(s) the trainer takes this turn
      */
     public async SelectChoice(_options: TurnSelect, _room : RoomHold) {
-        const SelectedAction = await _room.GetUserTurn(this, _options)
-        return SelectedAction;
+        _room.GetUserTurn(this, _options)     
+        return new Promise<TurnSelectReturn>((resolve) => {
+            eventEmitter.once('user' + this.Name + 'position' + this.Position + 'selectAction' + _options.Position, (action: TurnSelectReturn) => {
+                resolve(action);
+            });
+        });
+    }
+
+    /**
+     * Given an option is selected, trigger the appropriate
+     * event and send that information to the user.
+     * @param _option the option chosen
+     * @param refID the 
+     */
+    public SendOptions(_option : TurnSelectReturn, refPos : string) {
+        eventEmitter.emit('user' + this.Name + 'position' + this.Position + 'selectAction' + refPos, _option);
     }
     
 }

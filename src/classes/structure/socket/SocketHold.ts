@@ -50,7 +50,7 @@ class SocketHold {
             const Room = this.GetRoom(RoomVal)
             const Action : TurnSelectReturn = data.option;
             if (Room) {
-                Room.SendOptions(Action, this.MyUser.MySocket.MyID + "position" + data.position);
+                Room.SendOptions(Action, data.myID, data.position);
             }
         });
 

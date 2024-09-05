@@ -23,6 +23,7 @@ interface IRoomMember {
     roompos     : number        // The position this member has in the room
     authority   : number        // Unused - Here to allow for elevated action permissions
     team        : ITeam         // The Team a member will be using in battles
+    trainer?    : TrainerUser   // The relevant trainer being created here
 }
 
 /**
@@ -160,12 +161,7 @@ class RoomHold {
      * @returns the chosen SelectedAction
      */
     public async GetUserTurn(_user : TrainerUser, _options : TurnSelect) {
-        _user.User.socket.MySocket.to(this.MyID).emit("receive_battle_options", {message: _options, username: _user.User.user.MySocket.MyID});
-        return new Promise<TurnSelectReturn>((resolve) => {
-            eventEmitter.once('selectAction'+_user.User.user.MySocket.MyID + "position" + _options.Position, (action: TurnSelectReturn) => {
-                resolve(action);
-            });
-        });
+        _user.User.socket.MySocket.emit("receive_battle_options", {message: _options, username: _user.User.user.MySocket.MyID});
     }
     
     /**
@@ -174,8 +170,12 @@ class RoomHold {
      * @param _option the option chosen
      * @param refID the 
      */
-    public SendOptions(_option : TurnSelectReturn, refID : string) {
-        eventEmitter.emit('selectAction'+refID, _option);
+    public SendOptions(_option : TurnSelectReturn, refID : string, refPos : string) {
+        this.MyMembers.forEach(member => {
+            if ((member.user.MySocket.MyID === refID) && (member.trainer)) {
+                member.trainer.SendOptions(_option, refPos)
+            }
+        })
     }
     
     /**
@@ -188,7 +188,7 @@ class RoomHold {
         let i = 0
         for (i = 0; i < this.MyMembers.length; i++) {
             const newTrainer : TrainerUser = new TrainerUser({user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i, name: this.MyMembers[i].user.Name.toString()});
-
+            this.MyMembers[i].trainer = newTrainer;
             Trainers.push(newTrainer);
         }
         

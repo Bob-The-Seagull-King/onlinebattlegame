@@ -102,6 +102,10 @@ class Battle {
      * @returns If the battle should continue.
      */
     public async RunRound() {
+        
+        const Messages : MessageSet = []
+        Messages.push({"generic": "---------------------------------------------------------"})
+
         const Choices : SelectedAction[] = await this.GetTurns()
 
         if (Choices) {
@@ -122,6 +126,10 @@ class Battle {
                 return this.IsBattleAlive();;
             }
         }
+        
+        Messages.push({"generic": "---------------------------------------------------------"})
+        // Emit Messages
+        this.SendOutMessage(Messages);
     }
 
     /**
@@ -657,9 +665,6 @@ class Battle {
             for (i = 0; i < target.Tokens.length; i ++) {
                 // Check the monster itself
                 let temp_condition = TokenMonsterBattleDex[target.Tokens[i]]
-                if (temp_condition === undefined) {                     
-                   console.log(target.Tokens[i])
-                }
                 // @ts-ignore - dynamic lookup
                 const func = temp_condition['on'+eventid];
                 if (func !== undefined) {
@@ -670,9 +675,6 @@ class Battle {
                 // Check the monster's passive traits
                 
                 let temp_condition = TraitBattleDex[target.GetTraits()[i]]
-                if (temp_condition === undefined) {
-                    console.log(target.GetTraits()[i])
-                }
                 // @ts-ignore - dynamic lookup
                 const func = temp_condition['on'+eventid];
                 if (func !== undefined) {
@@ -688,9 +690,6 @@ class Battle {
                 
                 
                 let temp_condition = TokenMonsterBattleDex[target.Monster.Tokens[i]]
-                if (temp_condition === undefined) {
-                    console.log(target.Monster.Tokens[i])
-                }
                 // @ts-ignore - dynamic lookup
                 const func = temp_condition['on'+eventid];
                 if (func !== undefined) {
@@ -702,9 +701,6 @@ class Battle {
                 
                 // Check the monster's passive traits
                 let temp_condition = TraitBattleDex[target.Monster.GetTraits()[i]]
-                if (temp_condition === undefined) {
-                    console.log(target.Monster.GetTraits()[i])
-                }
                 // @ts-ignore - dynamic lookup
                 const func = temp_condition['on'+eventid];
                 if (func !== undefined) {
@@ -716,9 +712,6 @@ class Battle {
             let i = 0;
             for (i = 0; i < target.Tokens.length; i ++) {
                 let temp_condition = TokenTerrainBattleDex[target.Tokens[i]]
-                if (temp_condition === undefined) {                    
-                    console.log(target.Tokens[i])
-                }
                 // @ts-ignore - dynamic lookup
                 const func = temp_condition['on'+eventid];
                 if (func !== undefined) {
@@ -730,9 +723,6 @@ class Battle {
             
             // Search for events made by an action
             let temp_condition = ActionBattleDex[target.Action]
-            if (temp_condition === undefined) {
-                console.log(target.Action)
-            }
             // @ts-ignore - dynamic lookup
             const func = temp_condition['on'+eventid];
             if (func !== undefined) {
@@ -743,9 +733,6 @@ class Battle {
             
             // Search for events made by an item
             let temp_condition = ItemBattleDex[target.Item]
-            if (temp_condition === undefined) {
-                console.log(target.Item)
-            }
             // @ts-ignore - dynamic lookup
             const func = temp_condition['on'+eventid];
             if (func !== undefined) {

@@ -8,7 +8,7 @@ import { MonsterFactory } from "../../sim/factories/monster_factory";
 
 class SocketManager {
 
-    ActiveSocket    : any; // The socket currently used for connecting to the server
+    ActiveSocket    : io.Socket; // The socket currently used for connecting to the server
     Room            : string = ""; // The ID of the room the user is connected to
     BattleManager   : OnlineBattleManager = null; // The ViewModel object used to communicate between the user and the battle
 
@@ -127,7 +127,8 @@ class SocketManager {
      */
     public SendAction(option: TurnSelectReturn, position : number) {
         const room = this.Room;
-        this.ActiveSocket.emit("send_option", {option, position, room});
+        const myID = this.ActiveSocket.id;
+        this.ActiveSocket.emit("send_option", {option, myID , position, room});
     }
 
     /**

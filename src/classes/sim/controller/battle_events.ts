@@ -35,7 +35,7 @@ class BattleEvents {
      */
     public runTurns(_choices : SelectedAction[]): boolean {
         const OrderedChoices : SelectedAction[] = this.orderTurns(_choices);
-        
+        const Messages : MessageSet = []
         OrderedChoices.forEach(element => {
                 this.runTurn(element)
             })
@@ -43,7 +43,6 @@ class BattleEvents {
 
         // Run after all turns occur
         
-        const Messages : MessageSet = []
 
         this.Battle.Trainers.forEach(trainer => {
             trainer.Team.Leads.forEach(lead => {
@@ -51,6 +50,7 @@ class BattleEvents {
             })
         })
         
+        Messages.push({"generic": "---------------------------------------------------------"})
         // Emit Messages
         this.Battle.SendOutMessage(Messages);
 
@@ -709,7 +709,6 @@ class BattleEvents {
      * @param _action the SwitchAction containing information on who to swap into who
      */
     public performSwitch(_action : SwitchAction) {
-        
         // Prep Messages
         const Messages : MessageSet = []
 
