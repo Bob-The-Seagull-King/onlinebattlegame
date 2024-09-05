@@ -145,6 +145,29 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             return relayVar;
         }
     },
+    boostspeed : {
+        id          : 2,
+        category    : [TokenCategory.Boost],
+        onSwitchOut(this: Battle, eventSource : Scene | Side | Plot, trainer : TrainerBase, source : ActivePos, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource){
+                source.Monster.Tokens = source.Monster.Tokens.filter(item => !(item === "boostspeed"))
+                delete source.Monster.Trackers["boostspeed"];                
+            }
+        },
+        onGetStatModsp(this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) {
+            if (fromSource) {
+                if (source.Tokens.includes("boostspeed")) {
+                    if (source.Trackers["boostspeed"]) {
+                        return relayVar + (1 * source.Trackers["boostspeed"]);
+                    } else {
+                        source.Trackers["boostspeed"] = 0;
+                        return relayVar;                      
+                    }                    
+                }
+            }
+            return relayVar;
+        }
+    },
     boostresistance : {
         id          : 2,
         category    : [TokenCategory.Boost],

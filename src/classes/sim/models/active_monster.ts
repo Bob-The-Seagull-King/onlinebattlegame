@@ -1,4 +1,5 @@
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
+import { SpeciesLearnsetDex } from "../../../data/static/species/species_lrn";
 import { BaseStats, IDEntry, InfoSetGeneric, MessageSet } from "../../../global_types"
 import { Battle } from "../controller/battle";
 import { TrainerBase } from "../controller/trainer/trainer_basic";
@@ -110,6 +111,17 @@ class ActiveMonster {
         } else {
             return this.Species;
         }
+    }
+
+    public GetTraits() {
+        const TraitSet = []
+        TraitSet.push.apply(TraitSet, this.Traits)
+
+        if (this.Trackers["evolution"]) {
+            TraitSet.push.apply(TraitSet, SpeciesLearnsetDex[this.Trackers["evolution"]].traits);
+        }
+
+        return TraitSet;
     }
 
     /**

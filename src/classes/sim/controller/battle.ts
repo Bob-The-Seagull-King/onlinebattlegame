@@ -665,13 +665,13 @@ class Battle {
                     events.push( { priority: 0, self: target, source: temp_condition, callback: func, fromsource: _fromSource } )
                 }
             }
-            for (i = 0; i < target.Traits.length; i ++) {
+            for (i = 0; i < target.GetTraits().length; i ++) {
                 // Check the monster's passive traits
-                let temp_condition = TraitBattleDex[target.Traits[i]]
+                let temp_condition = TraitBattleDex[target.GetTraits()[i]]
                 // @ts-ignore - dynamic lookup
                 const func = temp_condition['on'+eventid];
                 if (func !== undefined) {
-                    events.push( { priority: 1, self: target, source: target.Traits[i], callback: func, fromsource: _fromSource } )
+                    events.push( { priority: 1, self: target, source: target.GetTraits()[i], callback: func, fromsource: _fromSource } )
                 }
             }
         }        
@@ -687,13 +687,13 @@ class Battle {
                     events.push( { priority: 0, self: target, source: temp_condition, callback: func, fromsource: _fromSource } )
                 }
             }
-            for (i = 0; i < target.Monster.Traits.length; i ++) {
+            for (i = 0; i < target.Monster.GetTraits().length; i ++) {
                 // Check the monster's passive traits
-                let temp_condition = TraitBattleDex[target.Monster.Traits[i]]
+                let temp_condition = TraitBattleDex[target.Monster.GetTraits()[i]]
                 // @ts-ignore - dynamic lookup
                 const func = temp_condition['on'+eventid];
                 if (func !== undefined) {
-                    events.push( { priority: 1, self: target, source: target.Monster.Traits[i], callback: func, fromsource: _fromSource } )
+                    events.push( { priority: 1, self: target, source: target.Monster.GetTraits()[i], callback: func, fromsource: _fromSource } )
                 }
             }
         }if ((target instanceof Scene) || (target instanceof Side) || (target instanceof Plot)) {

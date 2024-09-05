@@ -4,7 +4,7 @@ import { MonsterType } from "../../enum/types";
 /**
  * Monster species mechanical information database
  */
-export const SpeciesBattleDex : SpeciesLearnsetTable = {
+export const SpeciesLearnsetDex : SpeciesLearnsetTable = {
     ruckut: {
         id      : 1,
         traits  : ["bullseye","retreat"],

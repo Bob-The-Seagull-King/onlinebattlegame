@@ -55,17 +55,11 @@ class OfflineBattleManager extends BattleManager {
     private TempNewTeam() : Team {
         const _Team : Team = TeamFactory.CreateNewTeam();
 
-        _Team.AddFreshItem("herb");
-        _Team.AddFreshItem("sharpstones");
-
         return _Team;
     }
 
     private TempBotTeam() : Team {
         const _Team : Team = TeamFactory.CreateNewTeam();
-
-        _Team.AddFreshItem("herb");
-        _Team.AddFreshItem("sharpstones");
 
         return _Team;
     }

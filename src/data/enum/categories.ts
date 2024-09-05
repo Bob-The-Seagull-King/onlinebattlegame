@@ -34,7 +34,9 @@ enum TraitCategory {
 enum ItemCategory {
     None = "", // No special category
     Restoration = "Restoration", // Recovers the HP or removes negative tokens from a monster
-    Terraform = "Terraform" // Changes the field
+    Terraform = "Terraform", // Changes the field
+    Boost = "Boost", // Improves a monster
+    Debuff = "Debuff" // Hinders a monster
 }
 
 enum TokenCategory {

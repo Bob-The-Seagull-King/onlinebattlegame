@@ -151,6 +151,16 @@ export interface ISpeciesLearnset {
     actions     : IDEntry[],    // List of actions a monster can learn
 }
 
+export interface IEvolutionSet {
+    newspecies  : IDEntry,
+    triggeritem : IDEntry
+}
+
+export interface ISpeciesEvolution {
+    id          : number,           // Numerical ID of the monster
+    evolutions  : IEvolutionSet[]   // Set of evolutions
+}
+
 // Monster Action
 export interface IActionBattle extends CallEvents, ChoiceTarget {
     id          : number,                   // Numerical ID of the action
@@ -314,6 +324,7 @@ export interface BehaviourEvents {
 export interface SpeciesBattleTable {[speciesid: IDEntry]: ISpeciesBattle}
 export interface SpeciesInfoTable {[speciesid: IDEntry]: ISpeciesInfo}
 export interface SpeciesLearnsetTable {[speciesid: IDEntry]: ISpeciesLearnset}
+export interface SpeciesEvolutionTable {[speciesid: IDEntry]: ISpeciesEvolution}
 export interface ActionBattleTable {[actionid: IDEntry]: IActionBattle}
 export interface ActionInfoTable {[actionid: IDEntry]: IActionInfo}
 export interface TraitBattleTable {[traitid: IDEntry]: ITraitBattle}

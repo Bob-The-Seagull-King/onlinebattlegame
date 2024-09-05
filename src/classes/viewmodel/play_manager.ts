@@ -20,16 +20,11 @@ class PlayManager {
     private TempAddTeam() {
         const _Team : Team = TeamFactory.CreateNewTeam();
 
-        _Team.AddFreshItem("herb");
-        _Team.AddFreshItem("sharpstones");
-
         this.TeamList.push( _Team );
         
     }
     private TempAddTeam2() {
         const _Team : Team = TeamFactory.CreateNewTeam();
-        _Team.AddFreshItem("herb");
-        _Team.AddFreshItem("sharpstones");
 
         this.TeamList.push( _Team );
         

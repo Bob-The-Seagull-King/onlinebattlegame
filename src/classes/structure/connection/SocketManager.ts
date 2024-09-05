@@ -67,9 +67,6 @@ class SocketManager {
     private TempNewTeam() : Team {
         const _Team : Team = TeamFactory.CreateNewTeam();
 
-        _Team.AddFreshItem("herb");
-        _Team.AddFreshItem("sharpstones");
-
         return _Team;
     }
 
