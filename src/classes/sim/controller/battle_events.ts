@@ -102,7 +102,23 @@ class BattleEvents {
             }
             TargetList.forEach(target => {
                 let Trainer : TrainerBase | null = this.GetTrainer(target);
-                let ContinueMove = true;
+                const IsTargetAlive = (target instanceof ActivePos)? (target.Monster.HP_Current > 0) : true
+                let ContinueMove = IsTargetAlive;
+
+                // Check for immunity
+                let IsImmune = false;
+                if ((target instanceof ActivePos) && 
+                    (!ActionBattleDex[_action.action.Action].events['skiptype']) && 
+                    (target !== _action.source)) {
+                    for (const type in SpeciesBattleDex[target.Monster.GetSpecies()].type) {
+                        const Matchup = TypeMatchup[ActionBattleDex[_action.action.Action].type][type];
+                        if (Matchup === 3) { IsImmune = true; break; }
+                    }
+                }
+                if (IsImmune === true) {
+                    ContinueMove = false;                    
+                    Messages.push({ "generic" : "But it had no effect!"})
+                }
 
                 // Get Number Of Hits
                 const MaxHits = this.GetNumberOfHits(_action, target, Trainer, Messages )
@@ -113,6 +129,7 @@ class BattleEvents {
                     CurrentHits += 1;
                     
                     const IsTargetAlive = (target instanceof ActivePos)? (target.Monster.HP_Current > 0) : true
+                    
                     const UseOnTarget = this.Battle.runEvent('AttemptAction', _action.trainer, Trainer, target, _action.source, _action.action, IsTargetAlive, null, Messages);
     
                     if ((UseOnTarget)) {
