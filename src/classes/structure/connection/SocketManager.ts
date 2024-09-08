@@ -93,12 +93,12 @@ class SocketManager {
         _Team.Monsters[2].AddFreshAction('regrow')
         _Team.Monsters[2].Traits.push('solidcomposition')
 
-        _Team.AddFreshMonster('impound')
-        _Team.Monsters[3].AddFreshAction('harshthenoise')
-        _Team.Monsters[3].AddFreshAction('flytrap')
-        _Team.Monsters[3].AddFreshAction('mindread')
-        _Team.Monsters[3].AddFreshAction('slam')
-        _Team.Monsters[3].Traits.push('sacrificialaltar')
+        _Team.AddFreshMonster('celebratious')
+        _Team.Monsters[3].AddFreshAction('superhotslam')
+        _Team.Monsters[3].AddFreshAction('blindinglight')
+        _Team.Monsters[3].AddFreshAction('dancinglights')
+        _Team.Monsters[3].AddFreshAction('moonbeam')
+        _Team.Monsters[3].Traits.push('hotfeet')
 
         _Team.AddFreshMonster('stratate')
         _Team.Monsters[4].AddFreshAction('stormwinds')
