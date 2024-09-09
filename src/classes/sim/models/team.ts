@@ -1,3 +1,7 @@
+import { ActionBattleDex } from "../../../data/static/action/action_btl";
+import { ItemBattleDex } from "../../../data/static/item/item_btl";
+import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
+import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
 import { IDEntry, SwitchAction } from "../../../global_types";
 import { ItemFactory } from "../factories/item_factory";
 import { MonsterFactory } from "../factories/monster_factory";
@@ -8,6 +12,7 @@ import { ActiveMonster, IActiveMonster } from "./active_monster"
  * Interface of the Team object
  */
 interface ITeam {
+    name        : string            // The name of the team
     items       : IActiveItem[],    // Items held by the team
     monsters    : IActiveMonster[], // All monsters that are part of this team
     active      : IActivePos[]      // Monsters that are currently 'in play' and on the field
@@ -60,6 +65,7 @@ class Team {
     public Items    : ActiveItem[];     // All items in the team
     public Monsters : ActiveMonster[];  // All monsters within this team
     public Leads    : ActivePos[];      // Currently 'in play' monsters
+    public Name     : string            // Name the team is reffered by
 
     /**
      * Simple constructor
@@ -67,6 +73,7 @@ class Team {
      */
     constructor(_data : ITeam) {
         this.Items = this.ItemGenerator(_data.items);
+        this.Name = _data.name;
         this.Monsters = [];
         this.Leads = [];
         this.MonsterGenerator(_data.monsters)
@@ -127,6 +134,33 @@ class Team {
     }
 
     /**
+     * Determines the total Star Power (point cost)
+     * of the team.
+     * @returns The SP of this team
+     */
+    public CalculateStarPower() : number {
+        let SP_Calc = 0;
+
+        this.Items.forEach(item => {
+            SP_Calc += ItemBattleDex[item.Item].cost;
+        })
+
+        this.Monsters.forEach(monster => {
+            SP_Calc += SpeciesBattleDex[monster.GetSpecies()].cost;
+
+            monster.Actions_Current.forEach(action => {
+                SP_Calc += ActionBattleDex[action.Action].cost;
+            })
+
+            monster.GetTraits().forEach(trait => {
+                SP_Calc += TraitBattleDex[trait].cost;
+            })
+        })
+
+        return SP_Calc;
+    }
+
+    /**
      * Given an Team object, give us the
      * ITeam, with all child objects also converted
      * into their respective interfaces
@@ -147,6 +181,7 @@ class Team {
         })
             
         const _interface : ITeam = {
+            name        : this.Name,
             items       : _items,
             monsters    : _monsters,
             active      : _leads

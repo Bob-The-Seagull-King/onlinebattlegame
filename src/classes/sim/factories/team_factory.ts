@@ -16,8 +16,9 @@ class TeamFactory {
      * Generate an empty Team
      * @returns a new Team object
      */
-    public static CreateNewTeam() {
+    public static CreateNewTeam(_name : string) {
         const freshTeam : ITeam = {
+            name: _name, 
             items: [],
             monsters: [],
             active: []

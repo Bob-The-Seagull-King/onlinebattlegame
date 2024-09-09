@@ -18,9 +18,22 @@
     margin: 0.1em;
 }
 
+.MedTextWhite {   
+    font-size: 1.75em;
+    font-weight: 700;
+    color: var(--colour_text_bright);
+    margin: 0.1em;
+}
+
 .BigText {    
     font-size: 2em;
     font-weight: 700;
     color: var(--colour_main_blue);
     margin: 0.1em;
+}
+
+.LargeIcon {  
+    font-size: 2em;
+    font-weight: 800;
+    color: var(--colour_main_blue);
 }

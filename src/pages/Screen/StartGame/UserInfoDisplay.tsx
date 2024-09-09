@@ -40,20 +40,40 @@ const UserInfoDisplay = (props: any) => {
         returnallteams(User.TeamList);
         returnteamposition(User.TeamCurr);
     }
+
+    type CustomToggleProps = {
+        children?: React.ReactNode;
+        onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {};
+      };
+
+      const CustomToggle = React.forwardRef(
+        (props: CustomToggleProps, ref: React.Ref<HTMLAnchorElement>) => (
+          <a
+            href=""
+            ref={ref}
+            onClick={e => {
+              e.preventDefault();
+              props.onClick(e);
+            }}
+          >
+                    <TeamPreview user={User} team={_allteams[_teamposition]} />
+          </a>
+        )
+      );
  
     return (
         <div>
             <TextInput inputname={"Display Name"} textvalue={User.UserName} updatemethod={UpdateUsername}/>
 
             <Dropdown>
-                <Dropdown.Toggle variant="success" id="dropdown-basic" style={{width:"100%"}}>
-                    <TeamPreview user={User} team={_allteams[_teamposition]} />
+                <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components">
+                    Custom toggle
                 </Dropdown.Toggle>
 
-                <Dropdown.Menu style={{width:"100%"}}>
+                <Dropdown.Menu style={{width:"100%",padding:"0%"}} className="previewborder">
                     {_allteams.map(item => (
-                        <Dropdown.Item onClick={() => UpdateTeamCurr(_allteams.indexOf(item))} key={"TeamSelectDropdown" + _allteams.indexOf(item)}>
-                            <TeamPreview user={User} team={item} />
+                        <Dropdown.Item key={"TeamSelectDropdown" + _allteams.indexOf(item)} onClick={() => UpdateTeamCurr(_allteams.indexOf(item))} style={{padding:"1em",margin:"0%",borderRadius:"0.5em"}}>
+                            <TeamPreview user={User} team={item}  /> 
                         </Dropdown.Item>
                     ))}
                 </Dropdown.Menu>

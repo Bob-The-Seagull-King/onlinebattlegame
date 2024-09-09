@@ -8,3 +8,29 @@
     border-color: var(--colour_main_blue);
     background-color: var(--colour_main_blue);
 }
+
+.starpower {
+    font-size: 2em;
+    color: var(--colour_text_bright);
+}
+
+.starpowervalue{
+    font-size: 2em;
+    font-weight: 700;
+    background-color: var(--colour_main_starpower);
+    border-radius: 0.25em;
+    color: var(--colour_text_bright);
+}
+
+.previewborder {    
+    border-radius: 0.5em;
+    border-color: var(--colour_main_blue) !important; 
+    border-style: solid;
+    border-width: 3px; 
+}
+
+.miniImage {
+    max-width: 5%;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}

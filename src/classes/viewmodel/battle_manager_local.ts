@@ -53,7 +53,7 @@ class OfflineBattleManager extends BattleManager {
 
     
     private TempNewTeam() : Team {
-        const _Team : Team = TeamFactory.CreateNewTeam();
+        const _Team : Team = TeamFactory.CreateNewTeam('TempTeam');
 
         _Team.AddFreshItem('blueherb')
         _Team.AddFreshItem('greenherb')
@@ -101,7 +101,7 @@ class OfflineBattleManager extends BattleManager {
     }
 
     private TempBotTeam() : Team {
-        const _Team : Team = TeamFactory.CreateNewTeam();
+        const _Team : Team = TeamFactory.CreateNewTeam('TeamTeam');
 
         _Team.AddFreshItem('blueherb')
         _Team.AddFreshItem('greenherb')

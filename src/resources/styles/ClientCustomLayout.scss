@@ -6,3 +6,14 @@
     max-height: calc(50vh);
     overflow-y: scroll;
 }
+
+.bluebackground {
+  background-color: var(--colour_main_blue);
+  padding-bottom: 0.5em;
+}
+
+.starpowerbackground {
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 0.5em;
+}
