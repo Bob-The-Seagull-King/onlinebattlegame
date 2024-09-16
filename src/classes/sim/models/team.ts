@@ -26,7 +26,8 @@ interface ITeam {
  */
 interface IFieldedMonster {
     monster : number,
-    position : number[]
+    position : number[],
+    hasactivated : boolean
 }
 
 class FieldedMonster {
@@ -35,6 +36,7 @@ class FieldedMonster {
     public Position : number[];
     public Plot : Plot;
     public Owner : Team;
+    public Activated : boolean
 
     /**
      * Simple constructor
@@ -43,7 +45,8 @@ class FieldedMonster {
     constructor(_data : IFieldedMonster, _team : Team) {
         this.Monster = this.Owner.Monsters[_data.monster]
         this.Position = _data.position;
-
+        this.Activated = _data.hasactivated;
+        this.Plot = _team.Owner.Owner.Owner.Scene.ReturnGivenPlot(this.Position[0], this.Position[1])
         this.Owner = _team;
     }
 
@@ -54,7 +57,8 @@ class FieldedMonster {
     public ConvertToInterface() {
         const _interface : IFieldedMonster = {
             monster : this.Owner.Monsters.indexOf(this.Monster),
-            position : this.Position
+            position : this.Position,
+            hasactivated : this.Activated
         }
         return _interface;
     }

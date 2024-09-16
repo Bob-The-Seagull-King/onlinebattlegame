@@ -88,7 +88,7 @@ export type BotOptions = BotBehaviourWeight[]
  * Base interface for possible actions that can be taken.
  */
 export interface SelectedAction {
-    type    : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE',    // What kind of action is being taken
+    type    : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE',    // What kind of action is being taken
     trainer : TrainerBase   // The trainer selecting this action
 }
 
