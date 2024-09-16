@@ -27,7 +27,7 @@ const OptionsDisplay = (props: any) => {
       <div className="BasicElementContainer overflow-auto">
         <div className='row justify-content-center'>
           <div className='col-11'>
-            <div className="ForceHeight50" style={{width:"100%", justifyContent:"center"}}>
+            <div className="ForceHeight20" style={{width:"100%", justifyContent:"center"}}>
               {/** Display each suite of choices */}
               {optionsReceived.map(item => (
                 <div key={"choice" + optionsReceived.indexOf(item)}>

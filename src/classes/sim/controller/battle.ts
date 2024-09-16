@@ -55,6 +55,9 @@ class Battle {
         this.Manager = _manager;
         this.Events = new BattleEvents(this);
 
+        // Initial Plot Map
+        this.Manager.UpdateState(this.ConvertToInterface())
+
         this.StartBattle();
     }
     /**

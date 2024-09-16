@@ -90,6 +90,10 @@ class OfflineBattleManager extends BattleManager {
             document.addEventListener('selectAction'+_position, handleEvent as EventListener);
           });
     }
+
+    public UpdateState(_battle : IBattle) {
+        this.UpdateBattleState(_battle);
+    }
     
     /**
      * Send the chosen option to the battle by triggering

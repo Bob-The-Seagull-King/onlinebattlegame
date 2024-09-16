@@ -13,6 +13,7 @@ class BattleManager {
 
     public funcReceiveResults   : any;  // method from the Page for receiving battle messages
     public funcReceiveOptions   : any;  // method from the Page for receiving battle options
+    public funcReceivePlots   : any;  // method from the Page for receiving battle options
 
     public SidePosition : number = 0;
     public BattlePosition : number = 0;
@@ -21,7 +22,13 @@ class BattleManager {
     public ChoicesLog   : { action : TurnChoices, pos : number}[]; // Collection of choices to be made
     public TranslatedLog : string[];
 
-    public BattleState  : IBattle;  // The most recent evaluation of the battle's state sent from the battle
+    public BattleState  : IBattle = {
+        sides       : [],
+        scene       : {            
+                weather     : [],
+                field       : [],
+                plots       : []   
+        }   };  // The most recent evaluation of the battle's state sent from the battle
 
     /**
      * Simple constructor
@@ -54,6 +61,14 @@ class BattleManager {
     }
 
     /**
+     * Assign the method for updating the page's list of battle options
+     * @param receiveoptions the react function involved
+     */
+    public setPlotsFuncs(receiveoptions : any) {
+        this.funcReceivePlots = receiveoptions;
+    }
+
+    /**
      * Send the chosen option to the battle by triggering
      * an event.
      * @param _option the SelectedAction chosen
@@ -80,6 +95,11 @@ class BattleManager {
      */
     public ReceiveResults(_message : MessageSet) {
         undefined;
+    }
+
+    public UpdateBattleState(_battle : IBattle) {
+        this.BattleState = _battle;
+        this.funcReceivePlots();
     }
 
     /**

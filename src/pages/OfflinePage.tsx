@@ -6,6 +6,7 @@ import { OfflineBattleManager } from '../classes/viewmodel/battle_manager_local'
 import MessagesDisplay from './Screen/MessagesDisplay';
 import OptionsDisplay from './Screen/OptionsDisplay';
 import Button from 'react-bootstrap/Button';
+import PlotsDisplay from './Screen/PlotsDisplay';
 
 const OfflinePage = (props: any) => {
 
@@ -22,21 +23,25 @@ const OfflinePage = (props: any) => {
       <div className="row">
         <div className="col-12">
           {/** Battle start button */}
-          <Button bsPrefix="TestButton MedText" onClick={joinOfflineBattle} size="lg"> Start Local Battle</Button>
         </div>
       </div>
       <div className="row">
         <div className="col-6">
           <div className="TestWebComponentHolder">
             {/** Display user choices */}
+          <Button bsPrefix="TestButton MedText" onClick={joinOfflineBattle} size="lg"> Start Local Battle</Button>
+          </div>
+          <div className="TestWebComponentHolder">
+            {/** Display user choices */}
             <OptionsDisplay manager={battleManager}/> 
           </div>
-        </div>
-        <div className="col-6">
           <div className="TestWebComponentHolder">
             {/** Display battle text log */}
             <MessagesDisplay manager={battleManager}/>
           </div>
+        </div>
+        <div className="col-6">
+          <PlotsDisplay  manager={battleManager}/>
         </div>
       </div>
 

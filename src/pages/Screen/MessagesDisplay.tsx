@@ -24,7 +24,7 @@ const MessagesDisplay = (props: any) => {
       <h1 className="BigText"> BATTLE MESSAGES</h1>
       
       <div className="BasicElementContainer overflow-auto flex-grow-1">
-        <div className="ForceHeight50">
+        <div className="ForceHeight20">
             {/** Display each message in human readable format */}
             {messageReceived.map(item => (
               <div key={"messageset"+messageReceived.indexOf(item)}>

@@ -4,7 +4,7 @@ import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { RoomStore } from "./RoomStore";
 import { MessageSet, SelectedAction, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ITeam } from "../../sim/models/team";
-import { Battle } from "../../sim/controller/battle";
+import { Battle, IBattle } from "../../sim/controller/battle";
 import { TerrainFactory } from "../../sim/factories/terrain_factory";
 import { IScene, Scene } from "../../sim/models/terrain/terrain_scene";
 import { BattleFactory } from "../../sim/factories/battle_factory";
@@ -200,6 +200,15 @@ class RoomHold {
         this.GameRoom.Sides.forEach(element => {
             element.Trainers.forEach((item) => {
                 (item as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : "Battle Room Made For Room" + this.MyID}]});
+                item.SendPositionInfo(this);
+            })
+        });
+    }
+
+    public UpdateState(_battle : IBattle) {
+        this.GameRoom.Sides.forEach(element => {
+            element.Trainers.forEach((item) => {
+                (item as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_battle_state", {battle: _battle});
                 item.SendPositionInfo(this);
             })
         });
