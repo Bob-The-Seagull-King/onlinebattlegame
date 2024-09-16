@@ -44,12 +44,26 @@ class PlayManager {
     public TempAddTeam() {
         const _Team : Team = TeamFactory.CreateNewTeam('TempTeam', null);
 
+        _Team.AddFreshMonster("cleric");
+        _Team.AddFreshMonster("terrain");
+        _Team.AddFreshMonster("nimble");
+        _Team.AddFreshMonster("bruiser");
+        _Team.AddFreshMonster("arcane");
+        _Team.AddFreshMonster("evolvea");
+
         this.TeamList.push( _Team );
         
     }
 
     public TempAddTeam2() {
         const _Team : Team = TeamFactory.CreateNewTeam('TempTeam2', null);
+
+        _Team.AddFreshMonster("cleric");
+        _Team.AddFreshMonster("terrain");
+        _Team.AddFreshMonster("nimble");
+        _Team.AddFreshMonster("bruiser");
+        _Team.AddFreshMonster("arcane");
+        _Team.AddFreshMonster("evolvea");
 
         this.TeamList.push( _Team );
         

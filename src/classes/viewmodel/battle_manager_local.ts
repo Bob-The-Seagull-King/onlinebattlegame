@@ -60,12 +60,28 @@ class OfflineBattleManager extends BattleManager {
     
     private TempNewTeam() : ITeam {
         const _Team : Team = TeamFactory.CreateNewTeam('TempTeam', null);
+
+        _Team.AddFreshMonster("cleric");
+        _Team.AddFreshMonster("terrain");
+        _Team.AddFreshMonster("nimble");
+        _Team.AddFreshMonster("bruiser");
+        _Team.AddFreshMonster("arcane");
+        _Team.AddFreshMonster("evolvea");
+
         const _teamfinal : ITeam =  _Team.ConvertToInterface();
         return _teamfinal;
     }
 
     private TempBotTeam() : ITeam {
         const _Team : Team = TeamFactory.CreateNewTeam('TeamTeam', null);
+
+        _Team.AddFreshMonster("cleric");
+        _Team.AddFreshMonster("terrain");
+        _Team.AddFreshMonster("nimble");
+        _Team.AddFreshMonster("bruiser");
+        _Team.AddFreshMonster("arcane");
+        _Team.AddFreshMonster("evolvea");
+        
         const _teamfinal : ITeam =  _Team.ConvertToInterface();
         return _teamfinal;
     }
