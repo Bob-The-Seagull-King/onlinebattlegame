@@ -1,6 +1,6 @@
 import * as io from "socket.io-client";
 import { CONNECTION } from "../../../resources/connection-routes";
-import { ActivePos, Team } from "../../sim/models/team";
+import { IFieldedMonster, FieldedMonster, ITeam, Team } from "../../sim/models/team";
 import { TeamFactory } from "../../sim/factories/team_factory";
 import { OnlineBattleManager } from "../../viewmodel/battle_manager_online";
 import { SelectedAction, TurnSelectReturn } from "../../../global_types";
@@ -37,6 +37,11 @@ class SocketManager {
             }
         });
 
+        // Used when the battle provides possible actions and awaits a user response
+        this.ActiveSocket.on("receive_battle_position", async (data : any) => {
+            this.BattleManager.SetUserInfo(data.sidepos, data.battlepos)
+        });
+
         // Used when the server responds to the socket's connection request
         this.ActiveSocket.on("connection_response", (data : any) => {
             if (data.room > 0) {
@@ -60,56 +65,15 @@ class SocketManager {
      * a specified Team.
      */
     public JoinRoom() {
-        const Team : Team = this.TempNewTeam();    
-        this.ActiveSocket.emit("join_room", Team.ConvertToInterface());    
+        const _Team : ITeam = this.TempNewTeam();    
+        this.ActiveSocket.emit("join_room", _Team);    
     }
 
-    private TempNewTeam() : Team {
-        const _Team : Team = TeamFactory.CreateNewTeam('TeamTeam');
+    private TempNewTeam() : ITeam {
+        const _Team : Team = TeamFactory.CreateNewTeam('TeamTeam', null);
 
-        _Team.AddFreshItem('blueherb')
-        _Team.AddFreshItem('greenherb')
-        _Team.AddFreshItem('savouryberry')
-        _Team.AddFreshItem('strongsoil')
-
-        _Team.AddFreshMonster('marrowdread')
-        _Team.Monsters[0].AddFreshAction('sparkup')
-        _Team.Monsters[0].AddFreshAction('nausea')
-        _Team.Monsters[0].AddFreshAction('braindrain')
-        _Team.Monsters[0].AddFreshAction('stinger')
-        _Team.Monsters[0].Traits.push('vampire')
-
-        _Team.AddFreshMonster('humbood')
-        _Team.Monsters[1].AddFreshAction('deeproots')
-        _Team.Monsters[1].AddFreshAction('flytrap')
-        _Team.Monsters[1].AddFreshAction('pressurecannon')
-        _Team.Monsters[1].AddFreshAction('rockthrow')
-        _Team.Monsters[1].Traits.push('firstdefense')
-
-        _Team.AddFreshMonster('stalagmitendon')
-        _Team.Monsters[2].AddFreshAction('superhotslam')
-        _Team.Monsters[2].AddFreshAction('scatter')
-        _Team.Monsters[2].AddFreshAction('rockthrow')
-        _Team.Monsters[2].AddFreshAction('regrow')
-        _Team.Monsters[2].Traits.push('solidcomposition')
-
-        _Team.AddFreshMonster('celebratious')
-        _Team.Monsters[3].AddFreshAction('superhotslam')
-        _Team.Monsters[3].AddFreshAction('blindinglight')
-        _Team.Monsters[3].AddFreshAction('dancinglights')
-        _Team.Monsters[3].AddFreshAction('moonbeam')
-        _Team.Monsters[3].Traits.push('hotfeet')
-
-        _Team.AddFreshMonster('stratate')
-        _Team.Monsters[4].AddFreshAction('stormwinds')
-        _Team.Monsters[4].AddFreshAction('raindance')
-        _Team.Monsters[4].AddFreshAction('blindinglight')
-        _Team.Monsters[4].AddFreshAction('slam')
-        _Team.Monsters[4].Traits.push('scaryface')
-
-        _Team.Leads.push(new ActivePos(0,0,_Team));
-
-        return _Team;
+        const _teamfinal : ITeam =  _Team.ConvertToInterface();
+        return _teamfinal;
     }
 
     /**

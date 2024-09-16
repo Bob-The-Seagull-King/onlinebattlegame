@@ -9,14 +9,13 @@ import { ActiveMonster } from "./active_monster";
 interface IActiveAction {
     action     : IDEntry,       // The type of the action
     used       : number,        // How many times the action has been used
-    trackers   : InfoSetGeneric // Used generically to track battle information (such as if the action is charging)
 }
 
 class ActiveAction {
 
     public Action   : IDEntry;          // The name of the action found in the database
     public Used     : number;           // How many times this action has been used so far
-    public Trackers : InfoSetGeneric;   // Misc trackers for using this action
+    public Owner    : ActiveMonster;
 
     /**
      * Simple constructor
@@ -25,7 +24,7 @@ class ActiveAction {
     constructor(_data : IActiveAction, _monster : ActiveMonster) {
         this.Action = _data.action;
         this.Used = _data.used;
-        this.Trackers = _data.trackers;
+        this.Owner = _monster;
     }
 
     /**
@@ -35,8 +34,7 @@ class ActiveAction {
     public ConvertToInterface() {
         const _interface : IActiveAction = {
             action: this.Action,
-            used: this.Used,
-            trackers: this.Trackers
+            used: this.Used
         }
         return _interface;
     }
@@ -55,21 +53,6 @@ class ActiveAction {
      */
     public UseActionUp() {
         this.Used += 1;
-    }
-
-    
-    public GetOwner(_battle : Battle) {
-        
-        for (let i = 0; i < _battle.Trainers.length; i++) {
-            for (let j = 0; j < _battle.Trainers[i].Team.Monsters.length; j++) {
-                for (let k = 0; k < _battle.Trainers[i].Team.Monsters[j].Actions_Current.length; k++) {
-                    if (this === _battle.Trainers[i].Team.Monsters[j].Actions_Current[k]) {
-                        return _battle.Trainers[i].Team.Monsters[j];
-                    }
-                }
-            }
-        }
-        return null;
     }
 
 }

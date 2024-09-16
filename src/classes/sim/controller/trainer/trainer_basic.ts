@@ -1,5 +1,7 @@
-import { TurnSelect } from "../../../../global_types";
+import { IDEntry, TurnSelect } from "../../../../global_types";
+import { RoomHold } from "../../../structure/room/RoomHold";
 import { TeamFactory } from "../../factories/team_factory";
+import { BattleSide } from "../../models/battle_side";
 import { Team, ITeam } from "../../models/team"
 import { Battle } from "../battle";
 
@@ -10,19 +12,25 @@ class ITrainer {
     team : ITeam // The trainer's team - in Interface form
     pos  : number // The position (side) the trainer takes in the battle
     name : string // The name/username of the trainer
+    type : IDEntry // the type of Trainer this is
 }
+
 class TrainerBase {
 
     public Team     : Team;     // The trainer's team
     public Position : number;   // The position (side) the trainer takes in battle
     public Name     : string;   // The trainer's name
+    public Owner    : BattleSide
+    public Type     : IDEntry;
 
     /**
      * Simple constructor
      * @param _trainer The interface representing the trainer
      */
-    constructor(_trainer : ITrainer) {
-        this.Team = TeamFactory.CreateTeam(_trainer.team);
+    constructor(_trainer : ITrainer, _owner : BattleSide) {
+        this.Team = TeamFactory.CreateTeam(_trainer.team, this);
+        this.Type = _trainer.type;
+        this.Owner = _owner
         this.Position = _trainer.pos;
         this.Name = _trainer.name;
     }
@@ -37,6 +45,8 @@ class TrainerBase {
      */
     public async SelectChoice(_options: TurnSelect, _room? : any, _battle? : Battle) { return null; }
 
+    public SendPositionInfo(_room? : RoomHold) { undefined; }
+
     /**
      * Given a TrainerBase object, give us the
      * ITrainer, with all child objects also converted
@@ -47,7 +57,8 @@ class TrainerBase {
         const _interface : ITrainer = {
             team : this.Team.ConvertToInterface(),
             pos  : this.Position,
-            name : this.Name
+            name : this.Name,
+            type : this.Type
         }
         return _interface;
     }

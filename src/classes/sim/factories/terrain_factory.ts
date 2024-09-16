@@ -1,6 +1,6 @@
+import { Battle } from "../controller/battle";
 import { IPlot } from "../models/terrain/terrain_plot";
 import { IScene, Scene } from "../models/terrain/terrain_scene";
-import { ISide } from "../models/terrain/terrain_side";
 
 class TerrainFactory {
 
@@ -9,8 +9,8 @@ class TerrainFactory {
      * @param _terrain the Scene interface
      * @returns a new Scene object
      */
-    public static CreateTerrain(_terrain : IScene) {
-        const newScene = new Scene(_terrain);
+    public static CreateTerrain(_terrain : IScene, _owner : Battle) {
+        const newScene = new Scene(_terrain, _owner);
         return newScene;
     }
 
@@ -21,25 +21,61 @@ class TerrainFactory {
      * @param _sides the maximum number of teams that can be in play
      * @returns a new Scene object
      */
-    public static CreateNewTerrain(_plots : number, _sides : number) {
-        const Sides : ISide[] = [];
+    public static CreateNewTerrain(_width : number, _height : number, _owner : Battle) {
 
-        for (let i = 0; i < _sides; i++) {
-            const Plots : IPlot[] = [];            
-            for (let j = 0; j < _plots; j++) {
-                const Plot : IPlot = { position : j, tokens : [], trackers : {} }
-                Plots.push(Plot);
+        const Plots : IPlot[][] = [];
+
+        for (let i = 0; i < _width; i++) {
+            const Row : IPlot[] = []
+
+            for (let j = 0; j < _height; j++) {
+                const Plot : IPlot = {
+                    position  : [i,j],           // The row this plot is in
+                    tokens      : [],        // Tokens held by the plot
+                    trackers    : {}    // Misc trackers used by plot tokens
+                }
+
+                Row.push(Plot);
             }
-            const Side : ISide = { position : i, tokens : [], trackers : {}, plots : Plots }
-            Sides.push(Side);
+
+            Plots.push(Row)
         }
 
         const freshScene : IScene = {
-            tokens : [],
-            trackers : {},
-            sides: Sides
+            field: [],
+            weather: [],
+            plots: Plots
         }
-        return TerrainFactory.CreateTerrain(freshScene);
+
+        return TerrainFactory.CreateTerrain(freshScene, _owner);
+    }
+
+    public static CreateIScene(_width : number, _height : number) {
+        const Plots : IPlot[][] = [];
+
+        for (let i = 0; i < _width; i++) {
+            const Row : IPlot[] = []
+
+            for (let j = 0; j < _height; j++) {
+                const Plot : IPlot = {
+                    position  : [i,j],           // The row this plot is in
+                    tokens      : [],        // Tokens held by the plot
+                    trackers    : {}    // Misc trackers used by plot tokens
+                }
+
+                Row.push(Plot);
+            }
+
+            Plots.push(Row)
+        }
+
+        const freshScene : IScene = {
+            field: [],
+            weather: [],
+            plots: Plots
+        }
+
+        return freshScene
     }
 
 }

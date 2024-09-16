@@ -1,5 +1,6 @@
 import { TurnSelect, TurnSelectReturn } from "../../../../global_types";
 import { IRoomMember, RoomHold } from "../../../structure/room/RoomHold";
+import { BattleSide } from "../../models/battle_side";
 import { ITrainer, TrainerBase } from "./trainer_basic";
 import { EventEmitter } from 'events';
 
@@ -25,9 +26,14 @@ class TrainerUser extends TrainerBase {
      * Simple constructor
      * @param _trainer The interface representing the trainer
      */
-    constructor(_trainer : ITrainerUser) {
-        super(_trainer)
+    constructor(_trainer : ITrainerUser, _owner : BattleSide) {
+        super(_trainer, _owner)
         this.User = _trainer.user;
+    }
+
+    
+    public SendPositionInfo(_room : RoomHold) {         
+        _room.SetUserPosition(this, this.Position, this.Owner.Position)
     }
 
     /**

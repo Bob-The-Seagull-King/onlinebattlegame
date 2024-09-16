@@ -1,4 +1,5 @@
 import { IDEntry, InfoSetGeneric } from "../../../global_types"
+import { Team } from "./team";
 
 /**
  * Interface of the Item object
@@ -6,23 +7,22 @@ import { IDEntry, InfoSetGeneric } from "../../../global_types"
 interface IActiveItem {
     item        : IDEntry,          // The type of the action
     used        : boolean,          // How many times the action has been used
-    trackers    : InfoSetGeneric    // Used generically to track battle information
 }
 
 class ActiveItem {
 
     public Item     : IDEntry;          // The type of the action
     public Used     : boolean;          // How many times the action has been used
-    public Trackers : InfoSetGeneric;   // Used generically to track battle information
+    public Owner    : Team;
 
     /**
      * Simple constructor
      * @param _data The interface representing the item
      */
-    constructor(_data : IActiveItem) {
+    constructor(_data : IActiveItem, _owner : Team) {
         this.Item = _data.item;
         this.Used = _data.used;
-        this.Trackers = _data.trackers;
+        this.Owner = _owner;
     }
 
     /**
@@ -32,8 +32,7 @@ class ActiveItem {
     public ConvertToInterface() {
         const _interface : IActiveItem = {
             item        : this.Item,
-            used        : this.Used,
-            trackers    : this.Trackers,
+            used        : this.Used
         }
         return _interface;
     }

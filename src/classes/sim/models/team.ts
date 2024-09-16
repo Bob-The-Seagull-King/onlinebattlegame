@@ -3,10 +3,13 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
 import { IDEntry, SwitchAction } from "../../../global_types";
+import { TrainerBase } from "../controller/trainer/trainer_basic";
 import { ItemFactory } from "../factories/item_factory";
 import { MonsterFactory } from "../factories/monster_factory";
 import { ActiveItem, IActiveItem } from "./active_item"
 import { ActiveMonster, IActiveMonster } from "./active_monster"
+import { BattleSide } from "./battle_side";
+import { Plot } from "./terrain/terrain_plot";
 
 /**
  * Interface of the Team object
@@ -15,46 +18,43 @@ interface ITeam {
     name        : string            // The name of the team
     items       : IActiveItem[],    // Items held by the team
     monsters    : IActiveMonster[], // All monsters that are part of this team
-    active      : IActivePos[]      // Monsters that are currently 'in play' and on the field
+    active      : IFieldedMonster[]      // Monsters that are currently 'in play' and on the field
 }
 
 /**
  * Interface of the active monster's location
  */
-interface IActivePos {
-    position : number,  // The position a monster has on their side of the field
-    teampos  : number   // The index the monster has in their trainer's team
+interface IFieldedMonster {
+    monster : number,
+    position : number[]
 }
 
-class ActivePos {
+class FieldedMonster {
 
-    public Monster      : ActiveMonster;    // The monster currently active on the field
-    public Position     : number;           // The position a monster has on their side of the field
-    public TeamPosition : number;           // The index the monster has in their trainer's team
+    public Monster: ActiveMonster;    // The monster currently active on the field
+    public Position : number[];
+    public Plot : Plot;
+    public Owner : Team;
 
     /**
      * Simple constructor
      * @param _data The interface representing the active monster's position
      */
-    constructor(_pos : number, _teampos: number, _team : Team) {
-        this.Monster = _team.Monsters[_teampos];
-        this.Position = _pos;
-        this.TeamPosition = _teampos;
+    constructor(_data : IFieldedMonster, _team : Team) {
+        this.Monster = this.Owner.Monsters[_data.monster]
+        this.Position = _data.position;
+
+        this.Owner = _team;
     }
 
-    public SwapMon(_action : SwitchAction, _team : Team) {
-        this.TeamPosition = _action.trainer.Team.Monsters.indexOf(_action.newmon)
-        this.Monster = _team.Monsters[this.TeamPosition];
+    public SwapMon(_action : SwitchAction) {
+        this.Monster = this.Owner.Monsters[_action.trainer.Team.Monsters.indexOf(_action.newmon)];
     }
 
-    /**
-     * Given an ActivePos object, give us the IActivePos
-     * @returns the IActivePos reflecting this active monster
-     */
     public ConvertToInterface() {
-        const _interface : IActivePos = {
-            position: this.Position,
-            teampos: this.TeamPosition
+        const _interface : IFieldedMonster = {
+            monster : this.Owner.Monsters.indexOf(this.Monster),
+            position : this.Position
         }
         return _interface;
     }
@@ -64,20 +64,23 @@ class Team {
 
     public Items    : ActiveItem[];     // All items in the team
     public Monsters : ActiveMonster[];  // All monsters within this team
-    public Leads    : ActivePos[];      // Currently 'in play' monsters
+    public Leads    : FieldedMonster[];      // Currently 'in play' monsters
     public Name     : string            // Name the team is reffered by
+    public Owner    : TrainerBase;
+
 
     /**
      * Simple constructor
      * @param _data The interface representing the team
      */
-    constructor(_data : ITeam) {
+    constructor(_data : ITeam, _owner : TrainerBase) {
         this.Items = this.ItemGenerator(_data.items);
         this.Name = _data.name;
         this.Monsters = [];
         this.Leads = [];
         this.MonsterGenerator(_data.monsters)
         this.LeadGenerator(_data.active)
+        this.Owner = _owner
     }
 
     /**
@@ -90,7 +93,7 @@ class Team {
         const ItemList : ActiveItem[] = [];
         let i = 0;
         for (i = 0; i < _items.length; i++) {
-            ItemList.push(ItemFactory.CreateItem(_items[i]))
+            ItemList.push(ItemFactory.CreateItem(_items[i], this))
         }
         return ItemList;
     }
@@ -100,7 +103,7 @@ class Team {
      * @param _item The ID/name of the item to add
      */
     public AddFreshItem(_item : IDEntry) {
-        const NewItem = ItemFactory.CreateNewAction(_item);
+        const NewItem = ItemFactory.CreateNewItem(_item, this);
         this.Items.push(NewItem)
     }
 
@@ -113,7 +116,7 @@ class Team {
     private MonsterGenerator(_monsters : IActiveMonster[]) {
         let i = 0;
         for (i = 0; i < _monsters.length ; i++) {
-            const MonGen : ActiveMonster = MonsterFactory.CreateMonster(_monsters[i]);
+            const MonGen : ActiveMonster = MonsterFactory.CreateMonster(_monsters[i], this);
             this.Monsters.push(MonGen);
         }
     }
@@ -123,13 +126,13 @@ class Team {
      * @param _monster The ID/name of the monster to add
      */
     public AddFreshMonster(_monster : IDEntry) {
-        const NewMonster = MonsterFactory.CreateNewMonster(_monster);
+        const NewMonster = MonsterFactory.CreateNewMonster(_monster, this);
         this.Monsters.push(NewMonster)
     }
 
-    private LeadGenerator(_leads : IActivePos[]) {
+    private LeadGenerator(_leads : IFieldedMonster[]) {
         _leads.forEach(item =>
-            this.Leads.push(new ActivePos(item.position, item.teampos, this))
+            this.Leads.push(new FieldedMonster(item, this))
         )
     }
 
@@ -169,7 +172,7 @@ class Team {
     public ConvertToInterface() {
         const _items : IActiveItem[] = []
         const _monsters : IActiveMonster[] = []
-        const _leads : IActivePos[] = []
+        const _leads : IFieldedMonster[] = []
         this.Items.forEach(item => {
             _items.push(item.ConvertToInterface())
         })
@@ -191,4 +194,4 @@ class Team {
 
 }
 
-export {Team, ITeam, ActivePos}
+export {Team, ITeam, IFieldedMonster, FieldedMonster}

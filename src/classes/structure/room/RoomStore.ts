@@ -68,7 +68,7 @@ class RoomStore {
 
             // If connected to a room, add the ID to the message and check if that room still has space for more users.
             if (JoinReportVal === ConnectionReports.CONNECTED_TO_ROOM) { RoomVal = RoomFind.MyID; }
-            if (RoomFind.MyMembers.length === RoomFind.MaxMembers) { this.RemoveRoomVacant(RoomFind); }
+            if (RoomFind.MyMembers.length === RoomFind.MaxMembers) {  this.RemoveRoomVacant(RoomFind); }
         } catch (e) { 
             // Generic catch if anything unexpected happens during the join attempt
             JoinReportVal = ConnectionReports.ERROR_UNKNOWN 

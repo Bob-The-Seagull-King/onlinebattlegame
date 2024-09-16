@@ -5,6 +5,7 @@ import { Battle } from "../controller/battle";
 import { TrainerBase } from "../controller/trainer/trainer_basic";
 import { ActionFactory } from "../factories/action_factory";
 import { IActiveAction, ActiveAction } from "./active_action"
+import { Team } from "./team";
 
 /**
  * Interface of the Monster object
@@ -14,7 +15,6 @@ interface IActiveMonster {
     nickname    : string,           // A nickname that a monster displays instead of the species name
     actions     : IDEntry[],        // The actions a monster has been equipped with
     traits      : IDEntry[],        // The traits a monster has been equipped with
-    boosts      : BaseStats,        // The boosts to stats a monster has been equipped with
     tokens      : IDEntry[],        // Any tokens (conditions or statuses) a monster currently has
     trackers    : InfoSetGeneric,   // Used generically to track battle information (such as the number of turns a token has remianing)
     hp_cur      : number,           // The current Health of the monster
@@ -27,26 +27,26 @@ class ActiveMonster {
     public Nickname         : string;           // A nickname that a monster displays instead of the species name
     public Actions          : IDEntry[];        // The actions a monster has been equipped with
     public Traits           : IDEntry[];        // The traits a monster has been equipped with
-    public Boosts           : BaseStats;        // The boosts to stats a monster has been equipped with
     public Tokens           : IDEntry[];        // Any tokens (conditions or statuses) a monster currently has
     public Trackers         : InfoSetGeneric;   // Used generically to track battle information (such as the number of turns a token has remianing)
     public HP_Current       : number;           // The current Health of the monster
     public Actions_Current  : ActiveAction[];   // The current state of the monster's moves
+    public Owner            : Team
 
     /**
      * Simple constructor
      * @param _data The interface representing the monster
      */
-    constructor (_data : IActiveMonster) {
+    constructor (_data : IActiveMonster, _owner : Team) {
         this.Species = _data.species;
         this.Nickname = _data.nickname;
         this.Actions = _data.actions;
         this.Traits = _data.traits;
-        this.Boosts = _data.boosts;
         this.Tokens = _data.tokens;
         this.Trackers = _data.trackers;
         this.HP_Current = _data.hp_cur;
         this.Actions_Current = this.ActionGenerator(_data.actions_cur);
+        this.Owner = _owner
     }
 
     /**
@@ -90,8 +90,7 @@ class ActiveMonster {
             species     : this.Species,
             nickname    : this.Nickname, 
             actions     : this.Actions,
-            traits      : this.Traits, 
-            boosts      : this.Boosts, 
+            traits      : this.Traits,
             tokens      : this.Tokens, 
             trackers    : this.Trackers,
             hp_cur      : this.HP_Current, 
@@ -152,14 +151,14 @@ class ActiveMonster {
      */
     public GetStatBoost(_stat : string) {
         switch (_stat) {
-            case "hp": { return this.Boosts.hp; }
-            case "dl": { return this.Boosts.dl; }
-            case "dh": { return this.Boosts.dh; }
-            case "ac": { return this.Boosts.ac; }
-            case "pt": { return this.Boosts.pt; }
-            case "rs": { return this.Boosts.rs; }
-            case "sk": { return this.Boosts.sk; }
-            case "sp": { return this.Boosts.sp; }
+            case "hp": { return 0 }
+            case "dl": { return 0 }
+            case "dh": { return 0 }
+            case "ac": { return 0 }
+            case "pt": { return 0 }
+            case "rs": { return 0 }
+            case "sk": { return 0 }
+            case "sp": { return 0 }
             default: { return 0; }
         }
     }

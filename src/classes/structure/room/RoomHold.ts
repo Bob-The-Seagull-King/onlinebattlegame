@@ -6,9 +6,9 @@ import { MessageSet, SelectedAction, TurnSelect, TurnSelectReturn } from "../../
 import { ITeam } from "../../sim/models/team";
 import { Battle } from "../../sim/controller/battle";
 import { TerrainFactory } from "../../sim/factories/terrain_factory";
-import { Scene } from "../../sim/models/terrain/terrain_scene";
+import { IScene, Scene } from "../../sim/models/terrain/terrain_scene";
 import { BattleFactory } from "../../sim/factories/battle_factory";
-import { TrainerUser } from "../../sim/controller/trainer/trainer_user";
+import { ITrainerUser, TrainerUser } from "../../sim/controller/trainer/trainer_user";
 import { EventEmitter } from 'events';
 
 // Tool for awaiting / creating events. Used for action selection.
@@ -163,6 +163,10 @@ class RoomHold {
     public async GetUserTurn(_user : TrainerUser, _options : TurnSelect) {
         _user.User.socket.MySocket.emit("receive_battle_options", {message: _options, username: _user.User.user.MySocket.MyID});
     }
+
+    public SetUserPosition(_user : TrainerUser, _sidepos : number, _battlepos : number) {
+        _user.User.socket.MySocket.emit("receive_battle_position", {sidepos: _sidepos, battlepos: _battlepos});
+    }
     
     /**
      * Given an option is selected, trigger the appropriate
@@ -182,19 +186,22 @@ class RoomHold {
      * Create and start a battle with the current room members
      */
     public GenerateBattle() {
-        const Trainers : TrainerUser[] = [];
-        const newScene : Scene = TerrainFactory.CreateNewTerrain(1,2);
+        const Trainers : ITrainerUser[][] = [];
+        const newScene : IScene = TerrainFactory.CreateIScene(6,6)
         
         let i = 0
         for (i = 0; i < this.MyMembers.length; i++) {
-            const newTrainer : TrainerUser = new TrainerUser({user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i, name: this.MyMembers[i].user.Name.toString()});
-            this.MyMembers[i].trainer = newTrainer;
-            Trainers.push(newTrainer);
+            const newTrainer : ITrainerUser = {type : "user", user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i, name: this.MyMembers[i].user.Name.toString()};
+            Trainers.push([newTrainer]);
         }
         
-        this.GameRoom = BattleFactory.CreateBattle(Trainers, newScene, this);
-        Trainers.forEach(element => {
-            element.User.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : "Battle Room Made For Room" + this.MyID}]});
+        this.GameRoom = BattleFactory.CreateNewBattle(Trainers, newScene, this);
+
+        this.GameRoom.Sides.forEach(element => {
+            element.Trainers.forEach((item) => {
+                (item as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : "Battle Room Made For Room" + this.MyID}]});
+                item.SendPositionInfo(this);
+            })
         });
     }
 
@@ -203,8 +210,10 @@ class RoomHold {
      */
     public DestroyBattle() {
         if (this.GameRoom) {
-            this.GameRoom.Trainers.forEach(element => {
-                (element as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : "Battle Ended In Room " + this.MyID}]});
+            this.GameRoom.Sides.forEach(element => {
+                element.Trainers.forEach(item => {
+                    (item as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : "Battle Ended In Room " + this.MyID}]});
+                })
             });
 
             delete this.GameRoom;

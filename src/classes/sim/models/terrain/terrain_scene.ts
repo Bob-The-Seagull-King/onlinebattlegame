@@ -1,33 +1,37 @@
 import { IDEntry, InfoSetGeneric } from "../../../../global_types"
-import { Plot } from "./terrain_plot";
-import { ISide, Side } from "./terrain_side"
+import { Battle } from "../../controller/battle";
+import { FieldEffect, IFieldEffect } from "../Effects/field_effect";
+import { IWeatherEffect, WeatherEffect } from "../Effects/weather_effect";
+import { IPlot, Plot } from "./terrain_plot";
 
 /**
  * Interface of the Scene object
  */
 interface IScene {
-    tokens      : IDEntry[],        // Tokens held by the scene
-    trackers    : InfoSetGeneric,   // Misc trackers used by scene tokens
-    sides       : ISide[]           // Array of sides within the scene
+    weather     : IWeatherEffect[],
+    field       : IFieldEffect[],
+    plots       : IPlot[][]           // Array of plots within the scene
 }
 
 class Scene {
 
-    public Tokens   : IDEntry[]         // Tokens held by the scene
-    public Trackers : InfoSetGeneric;   // Misc trackers used by scene tokens
-    public Sides    : Side[];           // Array of sides within the scene
-    public Plots    : Plot[];           // Array of plots within the scene
+    public Weather  : WeatherEffect[]
+    public Field    : FieldEffect[]
+    public Plots    : Plot[][];           // Array of plots within the scene
+    public Owner    : Battle
 
     /**
      * Simple constructor
      * @param _data The interface representing the scene
      */
-    constructor(_data : IScene) {
-        this.Tokens = _data.tokens;
-        this.Trackers = _data.trackers;
-        this.Sides = [];
+    constructor(_data : IScene, _owner : Battle) {
         this.Plots = [];
-        this.SideGenerator(_data.sides)
+        this.PlotGenerator(_data.plots)
+        this.Weather = [];
+        this.WeatherGenerator(_data.weather)
+        this.Field = [];
+        this.FieldGenerator(_data.field)
+        this.Owner = _owner;
     }
 
     /**
@@ -35,16 +39,45 @@ class Scene {
      * Side and Plot objects for the Scene.
      * @param _data array of ISides
      */
-    private SideGenerator(_data : ISide[]) {
-        let i = 0;
-        for (i = 0; i < _data.length; i++) {
-            const TempSide = new Side(_data[i], this);
-            this.Sides.push(TempSide);
-            let j = 0;
-            for (j = 0; j < TempSide.Plots.length; j++) {
-                this.Plots.push(TempSide.Plots[j]);
+    private PlotGenerator(_data : IPlot[][]) {
+        for (let i = 0; i < _data.length; i++) {
+            const Row : Plot[] = []
+
+            for (let j = 0; j < _data[i].length; j++) {
+                const _plot = new Plot(_data[i][j], this);
+                Row.push(_plot);
             }
+
+            this.Plots.push(Row);
         }
+    }
+
+    /**
+     * Takes an array of ISides and produces the relevant
+     * Side and Plot objects for the Scene.
+     * @param _data array of ISides
+     */
+    private WeatherGenerator(_data : IWeatherEffect[]) {
+        for (let i = 0; i < _data.length; i++) {            
+            const _plot = new WeatherEffect(_data[i], this);
+            this.Weather.push(_plot);
+        }
+    }
+
+    /**
+     * Takes an array of ISides and produces the relevant
+     * Side and Plot objects for the Scene.
+     * @param _data array of ISides
+     */
+    private FieldGenerator(_data : IFieldEffect[]) {
+        for (let i = 0; i < _data.length; i++) {            
+            const _plot = new FieldEffect(_data[i], this);
+            this.Field.push(_plot);
+        }
+    }
+
+    public ReturnGivenPlot(column : number, row : number) {
+        return this.Plots[column][row]
     }
 
     /**
@@ -54,14 +87,28 @@ class Scene {
      * @returns the IScene reflecting this battlefield
      */
     public ConvertToInterface() {
-        const _sides : ISide[] = []
-        this.Sides.forEach(item => {
-            _sides.push(item.ConvertToInterface())
+        const _plots : IPlot[][] = []
+        const _field : IFieldEffect[] = []
+        const _weather : IWeatherEffect[] = []
+        this.Plots.forEach(item => {
+            const column : IPlot[] = []
+            item.forEach(plot => {
+                column.push(plot.ConvertToInterface())
+            })
+            _plots.push(column)
         })
+        this.Weather.forEach(item => {
+            _weather.push(item.ConvertToInterface())
+        })
+        this.Field.forEach(item => {
+            _field.push(item.ConvertToInterface())
+        })
+            
+
         const _interface : IScene = {
-            tokens: this.Tokens,
-            trackers: this.Trackers,
-            sides: _sides
+            plots: _plots,
+            field: _field,
+            weather : _weather
         }
         return _interface;
     }

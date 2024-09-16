@@ -1,13 +1,15 @@
 import { SelectedAction, TurnChoices, TurnSelectReturn } from "../../global_types";
 import { Battle, IBattle } from "../sim/controller/battle";
-import { TrainerBot } from "../sim/controller/trainer/trainer_bot";
-import { TrainerLocal } from "../sim/controller/trainer/trainer_local";
+import { ITrainer } from "../sim/controller/trainer/trainer_basic";
+import { ITrainerBot, TrainerBot } from "../sim/controller/trainer/trainer_bot";
+import { ITrainerLocal, TrainerLocal } from "../sim/controller/trainer/trainer_local";
+import { ITrainerUser } from "../sim/controller/trainer/trainer_user";
 import { BattleFactory } from "../sim/factories/battle_factory";
 import { MonsterFactory } from "../sim/factories/monster_factory";
 import { TeamFactory } from "../sim/factories/team_factory";
 import { TerrainFactory } from "../sim/factories/terrain_factory";
-import { ActivePos, Team } from "../sim/models/team";
-import { Scene } from "../sim/models/terrain/terrain_scene";
+import { IFieldedMonster, FieldedMonster, Team, ITeam } from "../sim/models/team";
+import { IScene, Scene } from "../sim/models/terrain/terrain_scene";
 import { BattleManager } from "./battle_manager";
 
 // Used for handling events
@@ -38,114 +40,34 @@ class OfflineBattleManager extends BattleManager {
      * @returns the newly created battle
      */
     public GenerateBattle() {
-        const myTeam : Team = this.TempNewTeam();
-        const myTrainer : TrainerLocal = new TrainerLocal({team: myTeam.ConvertToInterface(), pos: 0, manager: this, name: "Local"});
-        this.Trainer = myTrainer;
+        const myTeam : ITeam = this.TempNewTeam();
+        const myTrainer : ITrainerLocal = {team: myTeam, pos: 0, manager: this, name: "Local", type: 'local'};
 
-        const otherTeam : Team = this.TempBotTeam();
-        const otherTrainer : TrainerBot = new TrainerBot({team: otherTeam.ConvertToInterface(), pos: 1, behaviour: ['random'], name: "Bot"});
+        const otherTeam : ITeam = this.TempBotTeam();
+        const otherTrainer : ITrainerBot = {type : 'bot', team: otherTeam, pos: 1, behaviour: ['random'], name: "Bot"};
 
-        const battleScene : Scene = TerrainFactory.CreateNewTerrain(1,2)
+        
+        const Trainers : ITrainer[][] = [];
+        const newScene : IScene = TerrainFactory.CreateIScene(6,6)
+        Trainers.push([myTrainer]);
+        Trainers.push([otherTrainer]);
 
-        const newBattle : Battle = BattleFactory.CreateBattle([myTrainer, otherTrainer], battleScene, this)
+        const newBattle : Battle = BattleFactory.CreateNewBattle(Trainers, newScene, this);
+        this.Trainer = newBattle.Sides[0].Trainers[0] as TrainerLocal;
         return newBattle;
     }
 
     
-    private TempNewTeam() : Team {
-        const _Team : Team = TeamFactory.CreateNewTeam('TempTeam');
-
-        _Team.AddFreshItem('blueherb')
-        _Team.AddFreshItem('greenherb')
-        _Team.AddFreshItem('savouryberry')
-        _Team.AddFreshItem('strongsoil')
-
-        _Team.AddFreshMonster('marrowdread')
-        _Team.Monsters[0].AddFreshAction('sparkup')
-        _Team.Monsters[0].AddFreshAction('nausea')
-        _Team.Monsters[0].AddFreshAction('braindrain')
-        _Team.Monsters[0].AddFreshAction('stinger')
-        _Team.Monsters[0].Traits.push('vampire')
-
-        _Team.AddFreshMonster('humbood')
-        _Team.Monsters[1].AddFreshAction('deeproots')
-        _Team.Monsters[1].AddFreshAction('flytrap')
-        _Team.Monsters[1].AddFreshAction('pressurecannon')
-        _Team.Monsters[1].AddFreshAction('rockthrow')
-        _Team.Monsters[1].Traits.push('firstdefense')
-
-        _Team.AddFreshMonster('stalagmitendon')
-        _Team.Monsters[2].AddFreshAction('superhotslam')
-        _Team.Monsters[2].AddFreshAction('scatter')
-        _Team.Monsters[2].AddFreshAction('rockthrow')
-        _Team.Monsters[2].AddFreshAction('regrow')
-        _Team.Monsters[2].Traits.push('solidcomposition')
-
-        _Team.AddFreshMonster('impound')
-        _Team.Monsters[3].AddFreshAction('harshthenoise')
-        _Team.Monsters[3].AddFreshAction('flytrap')
-        _Team.Monsters[3].AddFreshAction('mindread')
-        _Team.Monsters[3].AddFreshAction('slam')
-        _Team.Monsters[3].Traits.push('sacrificialaltar')
-
-        _Team.AddFreshMonster('stratate')
-        _Team.Monsters[4].AddFreshAction('stormwinds')
-        _Team.Monsters[4].AddFreshAction('raindance')
-        _Team.Monsters[4].AddFreshAction('blindinglight')
-        _Team.Monsters[4].AddFreshAction('slam')
-        _Team.Monsters[4].Traits.push('scaryface')
-
-        _Team.Leads.push(new ActivePos(0,0,_Team));
-
-        return _Team;
+    private TempNewTeam() : ITeam {
+        const _Team : Team = TeamFactory.CreateNewTeam('TempTeam', null);
+        const _teamfinal : ITeam =  _Team.ConvertToInterface();
+        return _teamfinal;
     }
 
-    private TempBotTeam() : Team {
-        const _Team : Team = TeamFactory.CreateNewTeam('TeamTeam');
-
-        _Team.AddFreshItem('blueherb')
-        _Team.AddFreshItem('greenherb')
-        _Team.AddFreshItem('savouryberry')
-        _Team.AddFreshItem('strongsoil')
-
-        _Team.AddFreshMonster('marrowdread')
-        _Team.Monsters[0].AddFreshAction('sparkup')
-        _Team.Monsters[0].AddFreshAction('nausea')
-        _Team.Monsters[0].AddFreshAction('braindrain')
-        _Team.Monsters[0].AddFreshAction('stinger')
-        _Team.Monsters[0].Traits.push('vampire')
-
-        _Team.AddFreshMonster('humbood')
-        _Team.Monsters[1].AddFreshAction('deeproots')
-        _Team.Monsters[1].AddFreshAction('flytrap')
-        _Team.Monsters[1].AddFreshAction('pressurecannon')
-        _Team.Monsters[1].AddFreshAction('rockthrow')
-        _Team.Monsters[1].Traits.push('firstdefense')
-
-        _Team.AddFreshMonster('stalagmitendon')
-        _Team.Monsters[2].AddFreshAction('superhotslam')
-        _Team.Monsters[2].AddFreshAction('scatter')
-        _Team.Monsters[2].AddFreshAction('rockthrow')
-        _Team.Monsters[2].AddFreshAction('regrow')
-        _Team.Monsters[2].Traits.push('solidcomposition')
-
-        _Team.AddFreshMonster('impound')
-        _Team.Monsters[3].AddFreshAction('harshthenoise')
-        _Team.Monsters[3].AddFreshAction('flytrap')
-        _Team.Monsters[3].AddFreshAction('mindread')
-        _Team.Monsters[3].AddFreshAction('slam')
-        _Team.Monsters[3].Traits.push('sacrificialaltar')
-
-        _Team.AddFreshMonster('stratate')
-        _Team.Monsters[4].AddFreshAction('stormwinds')
-        _Team.Monsters[4].AddFreshAction('raindance')
-        _Team.Monsters[4].AddFreshAction('blindinglight')
-        _Team.Monsters[4].AddFreshAction('slam')
-        _Team.Monsters[4].Traits.push('scaryface')
-
-        _Team.Leads.push(new ActivePos(0,0,_Team));
-
-        return _Team;
+    private TempBotTeam() : ITeam {
+        const _Team : Team = TeamFactory.CreateNewTeam('TeamTeam', null);
+        const _teamfinal : ITeam =  _Team.ConvertToInterface();
+        return _teamfinal;
     }
 
     /**

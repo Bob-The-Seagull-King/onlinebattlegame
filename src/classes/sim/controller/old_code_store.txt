@@ -1,0 +1,1560 @@
+// Battle
+
+
+    /**
+     * Grabs the selected actions each trainer will take, then
+     * has the Events object perform them.
+     * @returns If the battle should continue.
+     */
+    public async RunRound() {
+        
+        const Messages : MessageSet = []
+        Messages.push({"generic": "---------------------------------------------------------"})
+
+        const Choices : SelectedAction[] = await this.GetTurns()
+
+        if (Choices) {
+            const KeepGoing = await this.Events.runTurns(Choices);
+            if (KeepGoing) { 
+                let DeadSwapNeeded = this.CountTheDead() > 0
+
+                while (DeadSwapNeeded === true) {
+                    const DeadChoices : SelectedAction[] = await this.GetDeadSwap()
+                    const DeadSwap = await this.Events.runTurns(DeadChoices);
+                        
+                    if (DeadSwap) { }
+                    if (DeadChoices.length === 0) {
+                        DeadSwapNeeded = false;
+                    }
+                }
+                // Next Round
+                return this.IsBattleAlive();;
+            }
+        }
+        
+        Messages.push({"generic": "---------------------------------------------------------"})
+        // Emit Messages
+        this.SendOutMessage(Messages);
+    }
+
+    /**
+     * Checks if there are enough living monsters to continue the battle.
+     * @returns boolean if there is more than one trainer with living monsters
+     */
+    public IsBattleAlive() {
+        let LivingCount = 0
+        
+        this.Trainers.forEach(item => {
+            if (this.IsAlive(item.Team)) {
+                LivingCount += 1
+            }
+        })
+        return (LivingCount > 1)
+    }
+
+    /**
+     * Counts the number of teams which require a
+     * swap to occur.
+     * @returns number of teams that have some living monster, but some leads are dead
+     */
+    public CountTheDead() {
+        let DeadCount = 0
+
+        this.Trainers.forEach(trainer => {            
+            if (this.IsAlive(trainer.Team)) {
+                trainer.Team.Leads.forEach(lead => {
+                    if (lead.Monster.HP_Current <= 0) {
+                        DeadCount += 1;
+                    }
+                })
+            }
+        })
+
+        return DeadCount
+    }
+
+    /**
+     * Checks if a team has enough living monsters to continue fighting.
+     * @param _team The team being checked for living monsters
+     * @returns If there are any monsters with non-zero hit points
+     */
+    public IsAlive(_team : Team) {
+        let LivingCount = 0
+        _team.Monsters.forEach(item => {
+            if (item.HP_Current > 0) {
+                LivingCount += 1;
+            }
+        })
+        return (LivingCount > 0);
+    }
+
+    /**
+     * Gets SWITCH actions for when a monster is dead
+     * at the end of a round.
+     * @returns actions selected
+     */
+    public async GetDeadSwap() {
+        const Choices : SelectedAction[] = [];
+
+        const TurnPromise = this.Trainers.map(async (item) => {
+            if (item.Team.Leads.length > 0) {
+                const LeadPromise = item.Team.Leads.map( async (element) => {
+                    if (element.Monster.HP_Current <= 0) {
+                        const Options : TurnChoices = this.GetDeadSwitchChoices(item, element)
+                        if (Options["SWITCH"]) {
+                            const Turn : TurnSelectReturn = await (item.SelectChoice({ Choices: Options, Position: element.Position, Battle: this.ConvertToInterface()}, this.Manager, this))
+                            if (Turn) {
+                                let ChosenAction : SelectedAction = null;
+                                if (Turn.subItemIndex !== undefined) {
+                                    ChosenAction = (Options[Turn.actiontype][Turn.itemIndex] as SubSelectAction).options[Turn.subItemIndex]
+                                } else {
+                                    ChosenAction = (Options[Turn.actiontype][Turn.itemIndex])
+                                }
+                                ChosenAction.trainer = item // When creating options, the trainer is replaced with a simple version for message size reasons, this sets it back to the right trainer object.
+                                Choices.push(ChosenAction)
+                            }
+                        }
+                    }                    
+                })
+                await Promise.all(LeadPromise);
+            }
+        });
+
+        await Promise.all(TurnPromise);
+        if (TurnPromise) { return Choices; }
+    }
+
+    /**
+     * Async function that, for each viable monster on the scene, collates
+     * their possible actions and sends a request to that monster's trainer
+     * which will return a single SelectedAction.
+     * 
+     * Once all actions have been selected, the array of actions is returned.
+     */
+    public async GetTurns() {
+        const Choices : SelectedAction[] = [];
+
+        const TurnPromise = this.Trainers.map(async (item) => {
+            // If the trainer has no monsters on the field, they instead
+            // return a "Skip Turn" action.
+            if (item.Team.Leads.length > 0) {
+                const LeadPromise = item.Team.Leads.map( async (element) => {
+                    const Options : TurnChoices = this.GetTrainerChoices(item, element)
+                    const Turn : TurnSelectReturn = await (item.SelectChoice({ Choices: Options, Position: element.Position, Battle: this.ConvertToInterface()}, this.Manager, this))
+                    if (Turn) {
+                        let ChosenAction : SelectedAction = null;
+                        if (Turn.subItemIndex !== undefined) {
+                            ChosenAction = (Options[Turn.actiontype][Turn.itemIndex] as SubSelectAction).options[Turn.subItemIndex]
+                        } else {
+                            ChosenAction = (Options[Turn.actiontype][Turn.itemIndex])
+                        }
+                        ChosenAction.trainer = item // When creating options, the trainer is replaced with a simple version for message size reasons, this sets it back to the right trainer object.
+                        Choices.push(ChosenAction)
+                    }
+                })
+
+                await Promise.all(LeadPromise);
+            } else {
+                // Trainer skips their turn.
+                const Turn : SelectedAction = {type: "NONE", trainer: item}
+                if (Turn) { Choices.push(Turn) }
+            }
+
+        });
+
+        await Promise.all(TurnPromise);
+        if (TurnPromise) { return Choices; }
+    }
+
+    /**
+     * Given a trainer, and a monster currently on the field, return
+     * an array of all possible actions that the monster can take, or that
+     * the trainer can take in place of the monster.
+     * @param _trainer the trainer controlling the monster
+     * @param _monster the monster whose 'position' the action is taken from
+     * @returns an array of SelectAction objects
+     */
+    public GetTrainerChoices(_trainer : TrainerBase, _monster : ActivePos) {
+        // Simplified Trainer Info for Socket-Safe message size
+        const baseTrainer = new TrainerBase({ team : _trainer.Team.ConvertToInterface(), pos : _trainer.Position, name: _trainer.Name })
+
+        // Setup Empties
+        const SwitchChoices : SubSelectAction[] = []
+        const ItemChoices : SubSelectAction[] = [];
+        const ActionChoices : SubSelectAction[] = [];
+        const NoneActions : SelectedAction[] = [{type : "NONE", trainer : baseTrainer}];
+
+        const _activeChoices : TurnChoices = {}
+
+        // Gather Choices
+
+        // Switch Options
+        const SwitchOptions : SwitchAction[] = []
+        _trainer.Team.Monsters.forEach(item => {
+            let IsOut = (item.HP_Current > 0)? false : true;
+            for (let i = 0; i < _trainer.Team.Leads.length; i++) {
+                if (_trainer.Team.Leads[i].Monster === item) {
+                    IsOut = true;
+                    break;
+                }
+            }
+            if (IsOut === false) { SwitchOptions.push( { type: "SWITCH", trainer: baseTrainer, current: _monster, newmon: item }) }
+        })
+        if (SwitchOptions.length > 0) {
+            SwitchChoices.push({
+                type    : "SWITCH",
+                trainer : baseTrainer,
+                choice  : _monster,
+                options : SwitchOptions
+            })
+        }
+
+        // Item Options
+        _trainer.Team.Items.forEach(item => {
+            if (item.Used === false) {
+                const ItemOptions : ItemAction[] = []
+                this.GetTrainerItemChoices(item, _trainer, ItemOptions)
+                ItemChoices.push({
+                    type    : "ITEM",
+                    trainer : baseTrainer,
+                    choice  : item,
+                    options : ItemOptions
+                })
+            }
+        })
+
+        // Action Options
+        if (_monster.Monster.HP_Current > 0) {
+            _monster.Monster.Actions_Current.forEach(item => {
+                if (item.HasUsesRemaining()) {
+                    const ActionOptions : ActionAction[] = []
+                    this.GetMonsterActionChoices(item, _trainer, _monster, ActionOptions)
+                    ActionChoices.push({
+                        type    : "ACTION",
+                        trainer : baseTrainer,
+                        choice  : item,
+                        options : ActionOptions
+                    })
+                }
+            })
+        }
+
+        // Assign to choice list
+        if (SwitchChoices.length > 0) { _activeChoices["SWITCH"] = SwitchChoices; }
+        if (ItemChoices.length > 0) { _activeChoices["ITEM"] = ItemChoices; }
+        if (ActionChoices.length > 0) { _activeChoices["ACTION"] = ActionChoices; }
+
+        // Emergency "Skip Turn" choice if no other choices were generated
+        if ((SwitchChoices.length <= 0) &&
+            (ItemChoices.length <= 0) &&
+            (ActionChoices.length <= 0)) {
+            _activeChoices["NONE"] = NoneActions;
+        }
+
+        return _activeChoices
+    }
+
+    /**
+     * Just return a selection of Switch options, used
+     * when a monster is dead at the end of a turn.
+     * @param _trainer the trainer of the monster
+     * @param _monster the monster to swap out
+     * @returns set of available choices to swap in.
+     */
+    public GetDeadSwitchChoices(_trainer : TrainerBase, _monster : ActivePos) {        
+        // Simplified Trainer Info for Socket-Safe message size
+        const baseTrainer = new TrainerBase({ team : _trainer.Team.ConvertToInterface(), pos : _trainer.Position, name: _trainer.Name })
+
+        const SwitchOptions : SwitchAction[] = []
+        const SwitchChoices : SubSelectAction[] = []
+        const _activeChoices : TurnChoices = {}
+
+        _trainer.Team.Monsters.forEach(item => {
+            let IsOut = (item.HP_Current > 0)? false : true;
+            for (let i = 0; i < _trainer.Team.Leads.length; i++) {
+                if (_trainer.Team.Leads[i].Monster === item) {
+                    IsOut = true;
+                    break;
+                }
+            }
+            if (IsOut === false) { SwitchOptions.push( { type: "SWITCH", trainer: baseTrainer, current: _monster, newmon: item }) }
+        })
+        
+        if (SwitchOptions.length > 0) {
+            SwitchChoices.push({ type : "SWITCH", trainer : baseTrainer, choice : _monster, options : SwitchOptions })
+        }
+        
+        if (SwitchChoices.length > 0) { _activeChoices["SWITCH"] = SwitchChoices; }
+        return _activeChoices
+    }
+
+    /**
+     * Given a monster is taking a specific action, generate all
+     * the possible combinations of target selection based on the action's
+     * available target options.
+     * @param _action The action that will be made
+     * @param _trainer The acting monster's trainer
+     * @param _monster The acting monster
+     * @param choiceList The list of possible ActionAction objects to push to.
+     */
+    public GetMonsterActionChoices( _action : ActiveAction, _trainer : TrainerBase, _monster : ActivePos, choiceList : ActionAction[]) {
+        const ActionData = ActionBattleDex[_action.Action];
+        const baseTrainer = new TrainerBase({ team : _trainer.Team.ConvertToInterface(), pos : _trainer.Position, name: _trainer.Name })
+
+        // Check if the monster allows itself to use this action.
+        if (this.runEvent("CanUseMove", _trainer, _trainer, _monster, _monster, _action, true)) {
+            if (ActionData.team_target === "SELF") {
+                // If the actions targets the user
+                choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[_trainer.Position, _monster.Position]] })            
+            } else if (ActionData.team_target === "ALL") {
+                // If the user targets the entire field
+                if (ActionData.pos_target === "ALL") { 
+                    // If it specifically targets the Scene
+                    choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [] })
+                } else if (ActionData.pos_target === "SINGLE") { 
+                    // If it specifically targets each monster / their plot
+                    const PlotList : number[][] = []
+                    this.Scene.Plots.forEach(item => {PlotList.push([item.ScenePos, item.Position]) })
+                    choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: PlotList })
+                }
+            } else if (ActionData.team_target === "ANY") {
+                // If the user targets any single unit on the field
+                if (ActionData.pos_target === "SINGLE") {
+                    // If it specifically targets a monster / their plot
+                    this.Scene.Plots.forEach(item => {
+                        choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[item.ScenePos, item.Position]] })
+                    })
+                }
+            } else if (ActionData.team_target === "TEAM") {
+                // If the user targets their own team
+                if (ActionData.pos_target === "SINGLE") {
+                    // If it specifically targets them or an ally / their or an ally's plot
+                    this.Scene.Plots.forEach(item => {
+                        if (item.ScenePos === _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[item.ScenePos, item.Position]] })
+                        }
+                    })
+                }
+            } else if (ActionData.team_target === "ENEMY") {
+                // If the user targets any team other than their own
+                if (ActionData.pos_target === "SINGLE") {
+                    // If it specifically targets a monster / their plot
+                    this.Scene.Plots.forEach(item => {
+                        if (item.ScenePos != _trainer.Position) {
+                            choiceList.push({ type: "ACTION", trainer: baseTrainer, source: _monster, action: _action, target: [[item.ScenePos, item.Position]] })
+                        }
+                    })
+                }
+            }
+        }
+    }
+
+    /**
+     * Given a trainer is using a specific item, generate all
+     * the possible combinations of target selection based on the item's
+     * available target options.
+     * @param _item The item that will be used
+     * @param _trainer The acting trainer
+     * @param choiceList The list of possible ItemAction objects to push to.
+     */
+    public GetTrainerItemChoices(_item : ActiveItem, _trainer : TrainerBase, choiceList : ItemAction[]) {
+        const ItemData = ItemBattleDex[_item.Item];
+        const baseTrainer = new TrainerBase({ team : _trainer.Team.ConvertToInterface(), pos : _trainer.Position, name: _trainer.Name })
+
+        // Check if the trainer allows itself to use this item.
+        if (this.runEvent("CanUseItem", _trainer, _trainer, null, _trainer, _item, true)) {
+            if (ItemData.team_target === "ALL") {
+                // If the item affects the entire field at once
+                if (ItemData.pos_target === "ALL") {
+                    // If it specifically affects the entire scene
+                    choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: []
+                    })
+                } else if (ItemData.pos_target === "SINGLE") {
+                    // If it specifically affects a single monster / their plot
+                    const PlotList : number[][] = []
+                    this.Scene.Plots.forEach(item => {
+                        PlotList.push([item.ScenePos, item.Position])
+                    })
+                    choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: PlotList })
+                }
+            } else if (ItemData.team_target === "ANY") {
+                // If the item affects any single part of the field
+                if (ItemData.pos_target === "SINGLE") {
+                    // If it specifically affects a single monster / their plot
+                    this.Scene.Plots.forEach(item => {
+                        choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                    })
+                }
+            } else if (ItemData.team_target === "ENEMY") {
+                // If the item affects any enemy part of the field
+                if (ItemData.pos_target === "SINGLE") {
+                    // If it specifically affects a single enemy monster / their plot
+                    this.Scene.Plots.forEach(item => {
+                        if (item.ScenePos != _trainer.Position) {
+                            choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                        }
+                    })
+                }
+            } else if (ItemData.team_target === "TEAM") {
+                // If the item affects the users part of the field
+                if (ItemData.pos_target === "SINGLE") {
+                    // If it specificaly affects one of their monsters / their plots
+                    this.Scene.Plots.forEach(item => {
+                        if (item.ScenePos === _trainer.Position) {
+                            choiceList.push({ type: "ITEM", trainer: baseTrainer, item: _item, target: [[item.ScenePos, item.Position]] })
+                        }
+                    })
+                }
+            }
+        }
+
+    }    
+
+    /**
+     * Super important method that handles events. When an event is run, any relevant objects which
+     * have that event as a part of them have said event added to the list of events. These
+     * events are then performed in sequence which can result in a number of different outcomes.
+     * 
+     * @param eventid       The string name of the event, with the function being "on" + the eventid
+     * @param trainer       The trainer whose action is causing this event
+     * @param targettrainer The trainer who is being affected by this action
+     * @param target        The target of the event-causing-action
+     * @param source        The origin of the event-causing-action
+     * @param sourceEffect  The specific action that is causing this event
+     * @param relayVar      A variable which, if included, is passed through the event functions to be modifier and returned
+     * @param trackVal      A variable which is set once, and used to modify the way event functions run
+     * @param messageList   Holds a list of messages to be added to
+     * @param onEffect      ------------------------ Unused currently ------------------------    
+     * @param fastExit      ------------------------ Unused currently ------------------------    
+     * @param eventdepth    ------------------------ Unused currently ------------------------    
+     * @returns if relayVar is non null, it returns the value of the relayVar after each event has been run
+     */
+    public runEvent(
+        eventid: string,
+        trainer: TrainerBase, 
+        targettrainer? : TrainerBase,
+        target?: TrainerBase | ActivePos | ActiveMonster | Plot | Scene | null, 
+        source?: TrainerBase | ActivePos | ActiveMonster | Plot | Scene | ActiveItem | null,
+        sourceEffect?: ActiveItem | ActiveAction | null, 
+        relayVar?: any, 
+        trackVal?: any,
+        messageList? : MessageSet,
+        onEffect?: boolean, 
+        fastExit?: boolean,
+        eventdepth?: number
+    ) {
+
+        // Gather all event functions to call
+        const Events : EventHolder[] = [];
+        
+        // If the relevant object exists, gather events from it
+        if (target) { this.getEvents(eventid, target, Events, false) }
+        if (source) { this.getEvents(eventid, source, Events, true) }
+        if (sourceEffect) { this.getEvents(eventid, sourceEffect, Events, true) }
+
+        // Get events from the battle's current scene, and the relevant trainer's sides
+        this.getEvents(eventid, this.Scene, Events, true);
+
+        // If possible, get events from the source and target's plots
+        if (source instanceof ActivePos) {
+            this.getEvents(eventid, this.Scene.Plots[source.Row][source.Column], Events, true);
+        }
+        if ((targettrainer)) {
+            if (target instanceof ActivePos) {
+                this.getEvents(eventid, this.Scene.Plots[target.Row][target.Column], Events, false);
+            }
+        }
+
+        // Initialize the return value
+        let relay_variable = relayVar;
+        let returnVal;
+
+        // Organize events by priority
+        Events.sort((a, b) => a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0)
+
+        // Run each event
+        for (const _event of Events) {
+            
+            // Determine function arguments
+            const args = [];
+
+            let i = 0;
+            if ((_event.self !== undefined) && (_event.self !== null)) { args[i] = _event.self; i += 1;}
+            if ((trainer !== undefined) && (trainer !== null)) { args[i] = trainer; i += 1; }
+            if ((targettrainer !== undefined) && (targettrainer !== null)) { args[i] = targettrainer; i += 1; }
+            if ((target !== undefined) && (target !== null)) { args[i] = target; i += 1; }
+            if ((source !== undefined) && (source !== null)) { args[i] = source; i += 1; }
+            if ((sourceEffect !== undefined) && (sourceEffect !== null)) { args[i] = sourceEffect; i += 1; }
+            if ((relay_variable !== undefined) && (relay_variable !== null)) { args[i] = relay_variable; i += 1; }
+            if ((trackVal !== undefined) && (trackVal !== null)) { args[i] = trackVal; i += 1; }
+            if ((messageList !== undefined) && (messageList !== null)) { args[i] = messageList; i += 1; }
+            if ((onEffect !== undefined) && (onEffect !== null)) { args[i] = onEffect; i += 1; }
+            if ((fastExit !== undefined) && (fastExit !== null)) { args[i] = fastExit; i += 1; }
+            if ((_event.fromsource !== undefined) && (_event.fromsource !== null)) { args[i] = _event.fromsource; i += 1; }
+            if ((eventdepth !== undefined) && (eventdepth !== null)) {
+                args[i] = eventdepth;
+                i += 1;
+            }
+
+            // Run the event
+            returnVal = _event.callback.apply(this, args);
+            relay_variable = returnVal;
+        }
+
+        return relay_variable;
+    }
+
+    /**
+     * Given an object and the name of an event, find any relevant parts of that object
+     * which have the function "on"+eventid in them and add that function as an Event
+     * to the battle's list of events to run.
+     * @param eventid the name of the event being searched for
+     * @param target the object being searched within for events
+     * @param events the array of events to add to
+     * @param _fromSource if the target is the thing that triggered this event in the first place.
+     */
+    public getEvents( eventid: string, target: TrainerBase | ActivePos | ActiveMonster | ActiveItem | ActiveAction | Plot | Scene, events : EventHolder[], _fromSource : boolean ) {
+        if (target instanceof ActiveMonster) {
+            // Search for Monster events
+            let i = 0;
+            for (i = 0; i < target.Tokens.length; i ++) {
+                // Check the monster itself
+                let temp_condition = TokenMonsterBattleDex[target.Tokens[i]]
+                // @ts-ignore - dynamic lookup
+                const func = temp_condition['on'+eventid];
+                if (func !== undefined) {
+                    events.push( { priority: 0, self: target, source: temp_condition, callback: func, fromsource: _fromSource } )
+                }
+            }
+            for (i = 0; i < target.GetTraits().length; i ++) {
+                // Check the monster's passive traits
+                
+                let temp_condition = TraitBattleDex[target.GetTraits()[i]]
+                // @ts-ignore - dynamic lookup
+                const func = temp_condition['on'+eventid];
+                if (func !== undefined) {
+                    events.push( { priority: 1, self: target, source: target.GetTraits()[i], callback: func, fromsource: _fromSource } )
+                }
+            }
+        }        
+        if (target instanceof ActivePos) {
+            // Search for Monster events
+            let i = 0;
+            for (i = 0; i < target.Monster.Tokens.length; i ++) {
+                // Check the monster itself
+                
+                
+                let temp_condition = TokenMonsterBattleDex[target.Monster.Tokens[i]]
+                // @ts-ignore - dynamic lookup
+                const func = temp_condition['on'+eventid];
+                if (func !== undefined) {
+                    events.push( { priority: 0, self: target, source: temp_condition, callback: func, fromsource: _fromSource } )
+                }
+            }
+            for (i = 0; i < target.Monster.GetTraits().length; i ++) {
+                
+                
+                // Check the monster's passive traits
+                let temp_condition = TraitBattleDex[target.Monster.GetTraits()[i]]
+                // @ts-ignore - dynamic lookup
+                const func = temp_condition['on'+eventid];
+                if (func !== undefined) {
+                    events.push( { priority: 1, self: target, source: target.Monster.GetTraits()[i], callback: func, fromsource: _fromSource } )
+                }
+            }
+        }if ((target instanceof Scene) || (target instanceof Plot)) {
+            // Search for terrain events
+            let i = 0;
+            for (i = 0; i < target.Tokens.length; i ++) {
+                let temp_condition = TokenTerrainBattleDex[target.Tokens[i]]
+                // @ts-ignore - dynamic lookup
+                const func = temp_condition['on'+eventid];
+                if (func !== undefined) {
+                    events.push( { priority: 2, self: target, source: temp_condition, callback: func, fromsource: _fromSource } )
+                }
+            }
+        }
+        if (target instanceof ActiveAction) {
+            
+            // Search for events made by an action
+            let temp_condition = ActionBattleDex[target.Action]
+            // @ts-ignore - dynamic lookup
+            const func = temp_condition['on'+eventid];
+            if (func !== undefined) {
+                events.push( { priority: 4, self: target.GetOwner(this), source: target, callback: func, fromsource: _fromSource } )
+            }     
+        }
+        if (target instanceof ActiveItem) {
+            
+            // Search for events made by an item
+            let temp_condition = ItemBattleDex[target.Item]
+            // @ts-ignore - dynamic lookup
+            const func = temp_condition['on'+eventid];
+            if (func !== undefined) {
+                events.push( { priority: 3, self: target, source: target, callback: func, fromsource: _fromSource } )
+            }     
+        }
+    }
+
+    /**
+     * Handles running Trainer Bot descision making. Takes a collection of possible options
+     * and runs any events in that trainer's behaviour modifiers to change the proportional
+     * weight of those options.
+     * @param behaviourid       The string name of the event, with the function being "on" + the eventid
+     * @param trainer           The trainer making this descision
+     * @param options           The available options to choose from
+     * @param optionSpecific    The specific option to modify, if any
+     * @param relayVar          A variable which, if included, is passed through the event functions to be modifier and returned
+     * @param trackVal          A variable which is set once, and used to modify the way event functions run
+     * @returns if relayVar is non null, it returns the value of the relayVar after each event has been run
+     */
+    public runBehaviour(
+        behaviourid: string,
+        trainer: TrainerBot, 
+        options? : BotOptions,
+        optionSpecific? : BotBehaviourWeight,
+        relayVar?: any, 
+        trackVal?: any
+    ) {
+
+        // Gather all event functions to call
+        const Events : EventHolder[] = [];
+
+        // Get events from the trainer
+        this.getBehaviour(behaviourid, trainer, Events, true);
+
+        // Initialize the return value
+        let relay_variable = relayVar;
+        let returnVal;
+
+        // Organize events by priority
+        Events.sort((a, b) => a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0)
+
+        // Run each event
+        for (const _event of Events) {
+            
+            // Determine function arguments
+            const args = [];
+
+            let i = 0;
+            if ((trainer !== undefined) && (trainer !== null)) { args[i] = trainer; i += 1; }
+            if ((options !== undefined) && (options !== null)) { args[i] = options; i += 1; }
+            if ((optionSpecific !== undefined) && (optionSpecific !== null)) { args[i] = optionSpecific; i += 1; }
+            if ((relay_variable !== undefined) && (relay_variable !== null)) { args[i] = relay_variable; i += 1; }
+            if ((trackVal !== undefined) && (trackVal !== null)) { args[i] = trackVal; i += 1; }
+
+            // Run the event
+            returnVal = _event.callback.apply(this, args);
+            relay_variable = returnVal;
+        }
+
+        return relay_variable;
+    }
+    
+    /**
+     * Given a trainer and the name of a behaviour, find any behaviours
+     * which have the function "on"+eventid in them and add that function 
+     * as an Event to the battle's list of events to run.
+     * @param eventid the name of the event being searched for
+     * @param target the trainer being searched within for events
+     * @param events the array of events to add to
+     * @param _fromSource if the target is the thing that triggered this event in the first place.
+     */
+    public getBehaviour( eventid: string, target: TrainerBot, events : EventHolder[], _fromSource : boolean ) {
+        for (let i = 0; i < target.Behaviour.length; i ++) {
+            // Check the monster's passive traits
+            let temp_condition = BehaviourDex[target.Behaviour[i]]
+            // @ts-ignore - dynamic lookup
+            const func = temp_condition['on'+eventid];
+            if (func !== undefined) {
+                events.push( { priority: 1, self: target, source: target, callback: func, fromsource: _fromSource } )
+            }
+        }
+    }
+
+
+// Battle Events
+
+
+    /**
+     * Once given the actions being taken by trainers, it determines the appropriate
+     * order and then performs them.
+     * @param _choices The actions that will be performed (or attempted) this turn of play
+     * @returns boolean value deciding if the battle should continue
+     */
+    public runTurns(_choices : SelectedAction[]): boolean {
+        const OrderedChoices : SelectedAction[] = this.orderTurns(_choices);
+        const Messages : MessageSet = []
+        OrderedChoices.forEach(element => {
+                this.runTurn(element)
+            })
+
+
+        // Run after all turns occur
+        
+
+        this.Battle.Trainers.forEach(trainer => {
+            trainer.Team.Leads.forEach(lead => {
+                this.Battle.runEvent('RoundEnd', trainer, null, null, lead, null, null, null, Messages);
+            })
+        })
+        
+        Messages.push({"generic": "---------------------------------------------------------"})
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
+
+        return this.Battle.IsBattleAlive();
+    }
+
+    /**
+     * Perform a single action
+     * @param _action The action to run
+     */
+    public runTurn(_action : SelectedAction) {
+        if (_action.type === "SWITCH") {            
+            this.performSwitch(_action as SwitchAction);
+        } else if (_action.type === "ITEM") {
+            this.performItem(_action as ItemAction);
+        } else if (_action.type === "ACTION") {
+            this.performAction(_action as ActionAction);
+        } else {
+            const DuplicateAction : SelectedAction = _action 
+            DuplicateAction.trainer = new TrainerBase({ team : DuplicateAction.trainer.Team.ConvertToInterface(), pos : DuplicateAction.trainer.Position, name: DuplicateAction.trainer.Name })
+            const Message : {[id : IDEntry]: any} = { "choice" : DuplicateAction}
+            this.Battle.SendOutMessage([Message]);
+        }
+    }
+
+    /**
+     * Given a trainer selects to have a monster act, perform
+     * this action.
+     * @param _action The Action to have a monster use
+     */
+    public performAction(_action : ActionAction) {
+        // Prep Messages
+        const Messages : MessageSet = []
+        Messages.push({ "generic" : _action.source.Monster.Nickname + " used " + ActionInfoDex[_action.action.Action].name})
+
+        // Find All Targets
+        const TargetList : TargetSet = this.GetTargets(_action.target, ActionBattleDex[_action.action.Action].target_type)
+
+        // Check if the action can be used at all
+        let CanUseAction = (_action.action.HasUsesRemaining());
+        TargetList.forEach(target => {
+            let Trainer : TrainerBase | null = this.GetTrainer(target);
+            CanUseAction = this.Battle.runEvent('AttemptActionAtAll', _action.trainer, Trainer, target, _action.source, _action.action, CanUseAction, null, Messages);
+        })
+
+        if (CanUseAction) {
+            if (this.Battle.runEvent('AttemptActionAtAll', _action.trainer, null, null, _action.source, _action.action, true, null, Messages)) {
+                _action.action.UseActionUp()                
+            }
+            TargetList.forEach(target => {
+                let Trainer : TrainerBase | null = this.GetTrainer(target);
+                const IsTargetAlive = (target instanceof ActivePos)? (target.Monster.HP_Current > 0) : true
+                let ContinueMove = IsTargetAlive;
+
+                // Check for immunity
+                let IsImmune = false;
+                if ((target instanceof ActivePos) && 
+                    (!ActionBattleDex[_action.action.Action].events['skiptype']) && 
+                    (target !== _action.source)) {
+                    for (const type in SpeciesBattleDex[target.Monster.GetSpecies()].type) {
+                        const Matchup = TypeMatchup[ActionBattleDex[_action.action.Action].type][type];
+                        if (Matchup === 3) { IsImmune = true; break; }
+                    }
+                }
+                if (IsImmune === true) {
+                    ContinueMove = false;                    
+                    Messages.push({ "generic" : "But it had no effect!"})
+                }
+
+                // Get Number Of Hits
+                const MaxHits = this.GetNumberOfHits(_action, target, Trainer, Messages )
+                let CurrentHits = 0;
+
+                // Continue Hitting
+                while (ContinueMove) {
+                    CurrentHits += 1;
+                    
+                    const IsTargetAlive = (target instanceof ActivePos)? (target.Monster.HP_Current > 0) : true
+                    
+                    const UseOnTarget = this.Battle.runEvent('AttemptAction', _action.trainer, Trainer, target, _action.source, _action.action, IsTargetAlive, null, Messages);
+    
+                    if ((UseOnTarget)) {
+                        ContinueMove = this.RunActionOnTarget(_action, target, Trainer, Messages);
+                    } else { ContinueMove = false; }
+
+                    if (CurrentHits >= MaxHits) { ContinueMove = false; }
+                }
+
+                // If the user is dead, stop using the Action
+                if (_action.source.Monster.HP_Current <= 0) {
+                    return false;
+                }
+                
+            })
+        } else {
+            Messages.push({ "generic" : "But the action couldn't be used!"})
+        }
+
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
+    }
+
+    /**
+     * Find the number of times for a move to hit a target.
+     * @param _action The action being checked
+     * @param _target The current target of the action
+     * @param _trainer The target's associated trainer, if any
+     * @param _messages List of messages to add to.
+     * @returns The number of times to perform the move against a target (multihit moves)
+     */
+    public GetNumberOfHits(_action : ActionAction, _target : ActivePos | Scene | Plot, _trainer : TrainerBase | null, _messages : MessageSet) {
+        if (ActionBattleDex[_action.action.Action].events["multihit"]) {
+            const MinimumCount = this.Battle.runEvent('GetHitMinimum', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleDex[_action.action.Action].events["multihit"][0], null, _messages);
+            const MaximumCount = this.Battle.runEvent('GetHitMaximum', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleDex[_action.action.Action].events["multihit"][1], null, _messages);
+
+            const Range = ((MaximumCount - MinimumCount) < 0)? 0 : (MaximumCount - MinimumCount)
+
+            const randomValue = Math.random() * (1+(Range));
+            return randomValue;
+        }
+        return 1;
+    }
+
+    /**
+     * Actually perform the Action on a target.
+     * @param _action The action being run
+     * @param _target The current target of the action
+     * @param _trainer The target's associated trainer, if any
+     * @param _messages List of messages to add to.
+     * @returns if the move should continue to be run against the target
+     */
+    public RunActionOnTarget(_action : ActionAction, _target : ActivePos | Scene | Plot, _trainer : TrainerBase | null, _messages : MessageSet) {
+        const ActionBattleData = ActionBattleDex[_action.action.Action];
+        const ActionInfoData = ActionInfoDex[_action.action.Action];
+
+        // Get Accuracy
+        let IsHit : boolean;
+
+        if (ActionBattleData.accuracy === true) {
+            IsHit = true;
+        } else {
+            // Get relevant numbers to determine accuracy
+            const UserAccuracy = this.GetStatValue(_action.trainer, _action.source, "ac", _messages)
+            const ActionAccuracy = this.Battle.runEvent('GetActionAccuracy', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleData.accuracy, null, _messages);
+            const AccuracyMultiplier = this.Battle.runEvent('GetAccuracyModifier', _action.trainer, _trainer, _target, _action.source, _action.action, 1, null, _messages);
+
+            // Calculate final accuracy (floor of 5%)
+            let FinalAccuracy = Math.floor((UserAccuracy + ActionAccuracy) * AccuracyMultiplier);
+            if (FinalAccuracy < 5) {FinalAccuracy = 5}
+
+            // Determine if the move hits
+            const randomValue = Math.random() * (100);
+            IsHit = (randomValue <= FinalAccuracy)            
+        }
+
+        if (IsHit) {
+
+            // Only do damage if the move targets a monster
+            if ((_target instanceof ActivePos)) {
+                // If relevant, have the move do damage
+                if (ActionBattleData.damage_mod !== false) {
+                    // Determine total damage to deal
+                    let DamageDealt = 0;
+                    if (ActionBattleData.damage_mod === true) {
+                        // If the action uses some alternative method to determine damage dealt
+                        DamageDealt = this.Battle.runEvent('DealCustomDamage', _action.trainer, _trainer, _target, _action.source, _action.action, 0, null, _messages);
+                    } else if (typeof ActionBattleData.damage_mod === 'number') {                    
+                        // Determine any skipped parts of the damage getting process
+                        const SkipMods = this.Battle.runEvent('SkipDamageMods', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipmods'])? ActionBattleData.events['skipmods'] : false, null, _messages);
+                        const SkipAll = this.Battle.runEvent('SkipDamageChanges', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipall'])? ActionBattleData.events['skipall'] : false, null, _messages);
+
+                        DamageDealt = this.GetDamage(_action, _target, _trainer, SkipMods, SkipAll, _messages)
+                    }
+                    
+                    // Determine any skipped parts of the damage process
+                    const SkipProt = this.Battle.runEvent('SkipDamageDealProtection', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtprotection'])? ActionBattleData.events['skipdealtprotection'] : false, null, _messages);
+                    const SkipMod = this.Battle.runEvent('SkipDamageDealModifiers', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtmods'])? ActionBattleData.events['skipdealtmods'] : false, null, _messages);
+                    const SkipAll = this.Battle.runEvent('SkipDamageDealAll', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skipdealtall'])? ActionBattleData.events['skipdealtall'] : false, null, _messages);
+
+                    // Deal that damage
+                    const DamageSuffered = this.DealDamage(DamageDealt, ActionBattleData.type, _action.source, _target.Monster, _action.trainer, this.GetTrainer(_target), _messages, SkipProt, SkipMod, SkipAll)
+
+                    // After dealing damage
+                    this.Battle.runEvent('AfterDealingDamage', _action.trainer, _trainer, _target, _action.source, _action.action, null, DamageSuffered, _messages);
+                    if (_target.Monster.HP_Current <= 0) {
+                        this.Battle.runEvent('AfterKnockOut', _action.trainer, _trainer, _target, _action.source, _action.action, null, DamageSuffered, _messages);
+                    }
+
+                    // Draining
+                    if ((ActionBattleData.events['drain'])) {
+                        const DrainVal = this.Battle.runEvent('ModifyDrainVal', _action.trainer, _trainer, _target, _action.source, _action.action, ActionBattleData.events['drain'], null, _messages);
+                        const HealedAmount = this.HealDamage((Math.floor(DamageSuffered * DrainVal)), ActionBattleData.type, _action.source, _action.source.Monster, _action.trainer, _action.trainer, _messages, false, false);
+                        this.Battle.runEvent('AfterHealingDamage', _action.trainer, _trainer, _target, _action.source, _action.action, null, HealedAmount, _messages);
+                    }
+                }
+            }            
+
+            // Effects
+            this.Battle.runEvent('RunActionEvents', _action.trainer, _trainer, _target, _action.source, _action.action, null, null, _messages )
+
+            // Misc
+            if ((ActionBattleData.events['heal'])) {
+                const SkipHealMod = this.Battle.runEvent('SkipHealModifiers', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skihealmods'])? ActionBattleData.events['skihealmods'] : false, null, _messages);
+                const SkipHealAll = this.Battle.runEvent('SkipHealAll', _action.trainer, _trainer, _target, _action.source, _action.action, (ActionBattleData.events['skiphealall'])? ActionBattleData.events['skiphealall'] : false, null, _messages);
+
+                const AmountToHeal = this.Battle.runEvent('ReturnHealVal', _action.trainer, _trainer, _target, _action.source, _action.action, 0, null, _messages);
+                const HealedAmount = this.HealDamage(AmountToHeal, ActionBattleData.type, _action.source, _action.source.Monster, _action.trainer, _action.trainer, _messages, SkipHealMod, SkipHealAll);
+                this.Battle.runEvent('AfterHealingDamage', _action.trainer, _trainer, _target, _action.source, _action.action, null, HealedAmount, _messages);
+            }
+     
+            return true;
+        } else {
+            this.Battle.runEvent('ActionMiss', _action.trainer, _trainer, _target, _action.source, _action.action, null, null, _messages);
+            _messages.push({ "generic" : "But " + ActionInfoData.name + " missed!"})        
+            return false;
+        }        
+    }
+
+    /**
+     * Use an item on one or multiple monsters
+     * and/or terrain pieces.
+     * @param _action 
+     */
+    public performItem(_action : ItemAction) {
+        // Prep Messages
+        const Messages : MessageSet = []
+        Messages.push({ "generic" : _action.trainer.Name + " used " + ItemInfoDex[_action.item.Item].name})
+
+        // Find All Targets
+        const TargetList : TargetSet = this.GetTargets(_action.target, ItemBattleDex[_action.item.Item].target_type)
+       
+        // Check if the item can be used at all
+        let CanUseItem = !(_action.item.Used);
+        TargetList.forEach(target => {
+            let Trainer : TrainerBase | null = this.GetTrainer(target);
+            CanUseItem = this.Battle.runEvent('AttemptItemAtAll', _action.trainer, Trainer, target, _action.trainer, _action.item, CanUseItem, null, Messages);
+        })
+
+        if (CanUseItem) {
+            _action.item.Used = true;
+            TargetList.forEach(target => {
+                let Trainer : TrainerBase | null = this.GetTrainer(target);
+                const IsTargetAlive = (target instanceof ActivePos)? (target.Monster.HP_Current > 0) : true
+                const UseOnTarget = this.Battle.runEvent('AttemptItem', _action.trainer, Trainer, target, _action.trainer, _action.item, IsTargetAlive, null, Messages);
+
+                if (UseOnTarget) {
+                    this.Battle.runEvent('ItemOnApply', _action.trainer, Trainer, target, _action.trainer, _action.item, true, null, Messages);
+                }
+            })
+        } else {
+            Messages.push({ "generic" : "But the item couldn't be used!"})
+        }
+
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
+    }
+    
+    /**
+     * Basic method that runs a check to see if an effect
+     * triggers, this involved no modifications to the process
+     * and skips no checks. Used when an effect is very simple.
+     * @param 
+     * @param _baseskill the base chance a skill has to trigger
+     * @param trainerTarget the trainer of the target
+     * @param target the target of the action
+     * @param effectName string name of the effect, used for events
+     * @param messageList list of messages to add to
+     * @returns true if the effect triggers, false otherwise
+     */
+    public SimpleEffectTriggerCheck(
+        _trainer : TrainerBase,
+        _source : ActivePos,
+        _sourceeffect : ActiveAction,
+        _baseskill : number,
+        trainerTarget : TrainerBase, 
+        target : ActiveMonster | Plot | Scene, 
+        effectName : string,
+        messageList: MessageSet) {
+        // Get base chances
+        const Skill = this.GetSkillChance(_trainer, _source, _sourceeffect, _baseskill, false, false, trainerTarget, target, effectName, messageList)
+        const Resistance = this.GetSkillResistance(_trainer, _source, _sourceeffect, ActionBattleDex[ _sourceeffect.Action ].type, false, trainerTarget, target, effectName, messageList)
+
+        // Get result
+        return this.GetDoesEffectTrigger( _trainer, _source, _sourceeffect, Skill, Resistance, false, trainerTarget, target, effectName, messageList )
+    }
+
+    /**
+     * Gets the chance a monster has to apply an effect
+     * to their target.
+     * @param _action the action taking place
+     * @param _baseskill the base skill of the effect being triggered
+     * @param _skipbasemods if modifiers to the effect's base skill should be used
+     * @param _skipallmods if modifiers to the end chance should be used
+     * @param trainerTarget the trainer of the target
+     * @param target the target of the effect
+     * @param effectName the name of the effect, used for events
+     * @param messageList list of messages to add to
+     * @returns numerical chance/100 for an effect to occur
+     */
+    public GetSkillChance(
+        _trainer : TrainerBase,
+        _source : ActivePos,
+        _sourceeffect : ActiveAction,
+        _baseskill : number,
+        _skipbasemods : boolean,
+        _skipallmods : boolean,
+        trainerTarget : TrainerBase, 
+        target : ActiveMonster | Plot | Scene, 
+        effectName : string,
+        messageList: MessageSet) {
+        // Setup base values
+        const BaseChance = _baseskill
+        const SkillStat = this.GetStatValue(_trainer, _source, "sk", messageList)
+        let BaseMods = 1
+        let AllMods = 1
+        
+        // Get Additional Modifiers
+        if (!_skipbasemods) {
+            BaseMods = this.Battle.runEvent('GetSkillBaseModifiers', _trainer, trainerTarget, target, _source, _sourceeffect, BaseMods, effectName, messageList)
+        }
+        if (!_skipallmods) {
+            AllMods = this.Battle.runEvent('GetSkillAllModifiers', _trainer, trainerTarget, target, _source, _sourceeffect, AllMods, effectName, messageList)
+        }
+        
+        // Get STAB modifier
+        let TypeModifier = 1;
+        for (let i = 0; i < SpeciesBattleDex[_source.Monster.GetSpecies()].type.length; i++) {
+            if (SpeciesBattleDex[_source.Monster.GetSpecies()].type[i] === ActionBattleDex[_sourceeffect.Action].type) {
+                TypeModifier += 0.25
+            }
+        }
+
+        // Return base chance
+        return Math.floor( ( (Math.floor(BaseChance * BaseMods)) + SkillStat ) * AllMods * TypeModifier )
+    }
+
+    /**
+     * Gets the penalty a monster applies to the chance
+     * of incoming effects triggering
+     * 
+     * @param _type the type of the action involved
+     * @param _skipbasemods if modifiers to the resistance should be ignored
+     * @param trainerTarget the trainer of the target
+     * @param target the target of the action
+     * @param effectName the name of the effect, used for events
+     * @param messageList list of messages to add to
+     * @returns numerical reduction to the chance/100 of an effect to trigger
+     */
+    public GetSkillResistance(
+        _trainer : TrainerBase,
+        _source : ActivePos,
+        _sourceeffect : ActiveAction,
+        _type : number,
+        _skipbasemods : boolean,
+        trainerTarget : TrainerBase,
+        target : ActiveMonster | Plot | Scene,
+        effectName : string,
+        messageList: MessageSet) {
+        // Setup modifiers
+        let SkillStat = 0;
+        let BaseMods = 1
+        let TypeModifier = 1; 
+        
+        // If the target is a monster, get their stats and account for type
+        if ((target instanceof ActiveMonster)) {
+            for (const type in SpeciesBattleDex[target.GetSpecies()].type) {
+                const Matchup = TypeMatchup[_type][type];
+                if (Matchup === 1) { TypeModifier -= 0.25;
+                } else if (Matchup === 2) { TypeModifier += 0.25;
+                } else if (Matchup === 3) { return 10000000 }
+            }
+            SkillStat = this.GetStatValue(_trainer, _source, "rs", messageList)
+        }
+        
+        // Get Additional Modifiers
+        if (!_skipbasemods) {
+            BaseMods = this.Battle.runEvent('GetSkillResistModifiers', _trainer, trainerTarget, target, _source, _sourceeffect, BaseMods, effectName, messageList)
+        }
+
+        // Return effect chance penalty
+        return Math.floor( SkillStat * BaseMods * TypeModifier )
+    }
+
+    /**
+     * Determines if an effect will trigger
+     * 
+     * @param _skill the final skill chance of the effect user
+     * @param _resistance the final resistance pently of the defending monster
+     * @param _skipEndMods if final modifiers are ignored
+     * @param trainerTarget the trainer of the target
+     * @param target the target of the effect
+     * @param effectName the name of the effect, used in events
+     * @param messageList list of messages to add to
+     * @returns true if the effect triggers, false otherwise
+     */
+    public GetDoesEffectTrigger(
+        _trainer : TrainerBase,
+        _source : ActivePos,
+        _sourceeffect : ActiveAction,
+        _skill : number,
+        _resistance : number,
+        _skipEndMods : boolean, 
+        trainerTarget : TrainerBase, 
+        target : ActiveMonster | Plot | Scene, 
+        effectName : string,
+        messageList: MessageSet) {
+
+        // Find chance
+        let SkillChance = (_skill - _resistance)
+        if (SkillChance < 0) {SkillChance = 0;}
+
+        if (!_skipEndMods) {
+            SkillChance = this.Battle.runEvent('ModifyFinalSkillChance', _trainer, trainerTarget, target, _source, _sourceeffect, SkillChance, effectName, messageList)
+        }
+        
+        // Determine if the move hits
+        const randomValue = Math.random() * (100);
+        const DoesTrigger = (randomValue <= Math.floor(SkillChance))    
+        if (DoesTrigger) {
+            this.Battle.runEvent('EffectApply', _trainer, _trainer, target, _source, _sourceeffect, null, effectName, messageList);  
+        }
+        return DoesTrigger;
+    }
+
+    /**
+     * Given an action, determine the amount of damage
+     * to deal to a given target
+     * @param _action the action being performed
+     * @param _target the target of the action
+     * @param _trainer the trainer of the target
+     * @param _skipmods if muliplicative modifiers will be applied
+     * @param _skipall if other modifiers will be applied
+     * @param _messages list of messages to add to
+     * @returns the amount of damage for this action to output
+     */
+    public GetDamage(
+        _action     : ActionAction, 
+        _target     : ActivePos | Scene | Plot, 
+        _trainer    : TrainerBase | null, 
+        _skipmods   : boolean,
+        _skipall    : boolean,
+        _messages   : MessageSet) {
+        let DamageMin = this.GetStatValue(_action.trainer, _action.source, "dl", _messages);
+        let DamageMax = this.GetStatValue(_action.trainer, _action.source, "dh", _messages);
+        let DamageMod = 1;
+
+        // Modify range of damage
+        if (!_skipmods) {
+
+            // Get STAB modifier
+            let TypeModifier = 1;
+            for (let i = 0; i < SpeciesBattleDex[_action.source.Monster.GetSpecies()].type.length; i++) {
+                if (SpeciesBattleDex[_action.source.Monster.GetSpecies()].type[i] === ActionBattleDex[_action.action.Action].type) {
+                    TypeModifier += 0.25
+                }
+            }
+            
+            DamageMod = this.Battle.runEvent('GetDamageRangeModifiers', _action.trainer, _trainer, _target, _action.source, _action.action, TypeModifier, null, _messages )
+            
+            DamageMin = Math.floor(DamageMin * (DamageMod))
+            DamageMax = Math.floor(DamageMax * (DamageMod))
+        }
+
+        // Get damage number
+        const Range = ((DamageMax - DamageMin) <= 0) ? (DamageMax - DamageMin): 1;
+        const randomValue = Math.random() * (Range);
+
+        const DealtDamage = (randomValue + DamageMin)
+
+        // Modify damage
+        if (!_skipall) {
+            const FinalDamageDealt = this.Battle.runEvent('GetFinalDamageDealt', _action.trainer, _trainer, _target, _action.source, _action.action, DealtDamage, null, _messages )
+            return FinalDamageDealt;
+        } else {
+            return DealtDamage
+        }
+    }
+
+    /**
+     * Given an amount of incoming damage, calculate the final
+     * damage dealt and apply that to the monster.
+     * @param _val the incoming damage number
+     * @param _type the type of the damage
+     * @param _source the source of the damage
+     * @param _target monster the damage is being applied to
+     * @param _trainer trainer associated with the source
+     * @param _targetTrainer trainer associated with the target
+     * @param _messageList list of messages to add to
+     * @param _skipProt if protection will be ignored
+     * @param _skipMod if % based modifiers will be ignored
+     * @param _skipAll if all adjustments to the damage will be ignores
+     */
+    public DealDamage(
+        _val : number, 
+        _type : number,
+        _source : ActivePos | ActiveMonster | ActiveItem | Scene | Plot, 
+        _target: ActiveMonster, 
+        _trainer : TrainerBase | null, 
+        _targetTrainer : TrainerBase | null,
+        _messageList : MessageSet,
+        _skipProt : boolean,
+        _skipMod : boolean,
+        _skipAll : boolean) {
+            let Protection = 0;
+            let ProtectionModifier = 0;
+            let DamageTakenModifier = 0;
+            // This means the protection of the monster will be considered
+            if (!_skipProt) {
+                Protection = this.GetStatValue(_targetTrainer, _target, "pt", _messageList)
+                
+                ProtectionModifier = this.Battle.runEvent('GetProtectionModifiers', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, 1, null, _messageList )
+            }
+            // This means additional % based modifiers will be considered
+            if (!_skipMod) {
+                DamageTakenModifier = this.Battle.runEvent('GetDamageTakenModifiers', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, 1, null, _messageList )
+            }
+
+            let FinalProtection = Math.floor( Protection * ProtectionModifier )
+            
+            let TypeModifier = 1;            
+            for (const type in SpeciesBattleDex[_target.GetSpecies()].type) {
+                const Matchup = TypeMatchup[_type][type];
+                if (Matchup === 1) { TypeModifier -= 0.25;
+                } else if (Matchup === 2) { TypeModifier += 0.25;
+                } else if (Matchup === 3) { TypeModifier = 0; break; }
+            }
+
+            const ModifiedDamage = Math.floor( (_val - (_val * ( ( Math.min(90, FinalProtection * DamageTakenModifier))/100))) * TypeModifier)
+
+            let dmg = 0;
+            if (_skipAll) {
+                dmg = _target.TakeDamage(ModifiedDamage, _messageList);
+            } else {
+                const FinalDamage = this.Battle.runEvent('GetFinalDamage', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, ModifiedDamage, null, _messageList )
+                dmg = _target.TakeDamage(FinalDamage, _messageList);
+            }
+            if (_target.HP_Current <= 0) {
+                this.Battle.runEvent('WhenKnockedOut', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, null, null, _messageList )
+            }
+            return dmg;
+    }
+
+    /**
+     * Given an amount of HP to recover, determine the final
+     * recovery amount and apply it to a monster
+     * @param _val the base amount of HP to recover
+     * @param _type the type of recovery
+     * @param _source the reason for this recovery to happen
+     * @param _target the monster being healed
+     * @param _trainer the trainer associated with the source
+     * @param _targetTrainer the trainer associated with the target
+     * @param _messageList list of messages to add to
+     * @param _skipMod if % based modifiers should be ignored
+     * @param _skipAll if final modifiers should be ignored
+     */
+    public HealDamage(
+        _val : number, 
+        _type : number,
+        _source : ActivePos | ActiveMonster | ActiveItem | Scene | Plot, 
+        _target: ActiveMonster, 
+        _trainer : TrainerBase | null, 
+        _targetTrainer : TrainerBase | null,
+        _messageList : MessageSet,
+        _skipMod : boolean,
+        _skipAll : boolean) {
+            
+            let DamageRecoveredModifier = 0;
+            
+            // This means additional % based modifiers will be considered
+            if (!_skipMod) {
+                DamageRecoveredModifier = this.Battle.runEvent('GetDamageRecoveredModifiers', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, 1, null, _messageList )
+            }
+            const ModifiedRecovery = Math.floor( _val + (_val * ((DamageRecoveredModifier)/100)))
+            
+            if (_skipAll) {
+                return _target.HealDamage(ModifiedRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp', _messageList));
+            } else {
+                const FinalRecovery = this.Battle.runEvent('GetFinalRecovery', this.GetTrainer(_source), this.GetTrainer(_target), _target, _source, null, ModifiedRecovery, null, _messageList )
+                return _target.HealDamage(FinalRecovery, _messageList, this.GetStatValue(this.GetTrainer(_target), _target, 'hp', _messageList));
+            }
+    }
+
+    /**
+     * For a given object, attempt to find the right
+     * trainer associated with it.
+     * @param _obj the object to check
+     * @returns the trainer, if one can be found, or null otherwise
+     */
+    public GetTrainer(_obj : any) {
+        if (_obj instanceof ActivePos) {
+            return _obj.Owner;       
+        } else if (_obj instanceof ActiveItem) {
+            for (let i = 0; i < this.Battle.Trainers.length; i++) {
+                for (let j = 0; j < this.Battle.Trainers[i].Team.Items.length; j++) {
+                    if (this.Battle.Trainers[i].Team.Items[j] === _obj) { 
+                        return this.Battle.Trainers[i]; }
+                }
+            }           
+        }
+
+        return null;
+    } 
+
+    /**
+     * Given a list of targets, and the type of targets,
+     * return an array listing every object affected.
+     * @param _targets The coordinates of each target
+     * @param _targettype the type of target (Monster, Terrain, or Both)
+     * @returns Array of Scene, Plot, and ActivePos objects
+     */
+    public GetTargets(_targets : number[][], _targettype : string): TargetSet {
+        const Targets : TargetSet = []
+
+        // If empty, return the scene
+        if (_targets.length <= 0) {
+            if ((_targettype === "ALL") || (_targettype === "MONSTER")) {
+                this.Battle.Trainers.forEach(trainer => {
+                    trainer.Team.Leads.forEach(lead => { Targets.push(lead); })
+                })
+            }
+            if ((_targettype === "ALL") || (_targettype === "TERRAIN")) {
+                Targets.push(this.Battle.Scene);
+            }
+        } else { // Otherwise locate the relevant side/plot/monster
+            _targets.forEach(target => {
+                // If plot coordinates are given
+                if ((_targettype === "ALL") || (_targettype === "MONSTER")) {                    
+                    this.Battle.Trainers.forEach(trainer => {
+                        trainer.Team.Leads.forEach(lead => { 
+                            if ((lead.Row === target[0]) && (lead.Column === target[1])) {
+                                Targets.push(lead); 
+                            }
+                        })
+                    })
+                }
+                if ((_targettype === "ALL") || (_targettype === "TERRAIN")) {
+                    Targets.push(this.Battle.Scene.Plots[target[0]][target[1]])
+                }
+            })
+        }
+
+        return Targets;
+    }
+
+    /**
+     * Switch out one monster for another
+     * @param _action the SwitchAction containing information on who to swap into who
+     */
+    public performSwitch(_action : SwitchAction) {
+        // Prep Messages
+        const Messages : MessageSet = []
+
+        // Run Switch
+        let CanSwitch = this.Battle.runEvent('AttemptSwitch', _action.trainer, _action.trainer, _action.newmon, _action.current, null, true, null, Messages);
+        _action.trainer.Team.Leads.forEach(item => {
+            if (item.Monster === _action.newmon) {
+                CanSwitch = false;
+            }
+        })
+        
+        if (CanSwitch) {
+            Messages.push({ "generic" : _action.current.Monster.Nickname + " come back!"})
+            this.Battle.runEvent('SwitchOut', _action.trainer, null, null, _action.current, null, null, null, Messages);
+
+            _action.current.SwapMon(_action, _action.trainer.Team);
+            
+            Messages.push({ "generic" : (_action.newmon.Nickname) + " it's your turn!"})
+            this.Battle.runEvent('SwitchIn', _action.trainer, null, null, _action.current, null, null, null, Messages);
+        } else {            
+            Messages.push({ "generic" : "But " + _action.current.Monster.Nickname + " couldn't switch!"})
+        }
+
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
+    }
+
+    /**
+     * Takes a list of actions and sorts them in order
+     * of play with the first item being run first, the
+     * second being run second, and so on.
+     * @param _choices the SelectedAction list to organize
+     * @returns an organized array of SelectedAction objects
+     */
+    public orderTurns(_choices : SelectedAction[]): SelectedAction[] {
+
+        // Prep Messages
+        const Messages : MessageSet = []
+
+        const OrderedTurnArray : SelectedAction[] = [];
+
+        // ---------------------------------------- Populate Arrays ---------------------------------------
+
+        const NoneTurnArray : SelectedAction[] = [];
+        const SwitchTurnArray : SwitchAction[] = [];
+        const ItemTurnArray : ItemAction[] = [];
+        const ActionTurnArray : ActionAction[] = [];
+        const OtherTurnArray : SelectedAction[] = [];
+
+        _choices.forEach(choice => {
+            if (choice.type === "NONE") {
+                NoneTurnArray.push(choice);
+            } else if (choice.type === "SWITCH") {
+                SwitchTurnArray.push(choice as SwitchAction)
+            } else if (choice.type === "ITEM") {
+                ItemTurnArray.push(choice as ItemAction)
+            } else if (choice.type === "ACTION") {
+                ActionTurnArray.push(choice as ActionAction)
+            } else {
+                OtherTurnArray.push(choice)
+            }
+        })        
+
+        // ---------------------------------------- Turn Skip ---------------------------------------------
+        const OrderedNoneTurnArray : SelectedAction[] = [];
+        NoneTurnArray.forEach(item => {
+            OrderedNoneTurnArray.push(item);
+        })
+
+        // ---------------------------------------- Switch Monster ----------------------------------------
+        const OrderedSwitchTurnArray : SwitchAction[] = [];
+
+        // Sort By Speed
+        var sorted = {};
+        for( let i = 0, max = SwitchTurnArray.length; i < max ; i++ ){
+            if( sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp", Messages)] == undefined ){
+                sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp", Messages)] = [];
+            }
+            sorted[this.GetStatValue(SwitchTurnArray[i].trainer, SwitchTurnArray[i].current, "sp", Messages)].push(SwitchTurnArray[i]);
+        }
+
+        // Order the speed tiers
+        const sortedEntries = Object.entries(sorted).sort((a, b) => { return parseInt(b[0].toString()) - parseInt(a[0].toString())})
+        const sortedDictionary: {} = Object.fromEntries(sortedEntries);
+
+        // Shuffle within speed tiers and add to turn order
+        for (let i = (Object.keys(sortedDictionary).length - 1); i >= 0; i--) {
+            OrderedSwitchTurnArray.push.apply(OrderedSwitchTurnArray, this.shuffleArray(sortedDictionary[Object.keys(sortedDictionary)[i]]))
+        }
+        
+        // ---------------------------------------- Use Item ----------------------------------------------
+        const OrderedItemTurnArray : ItemAction[] = [];
+
+        // Group Item usage by impact on the field
+        // Scene-affecting items go first, then items
+        // for the trainer, then items affecting an
+        // opposing team.
+        const ItemScene : ItemAction[] = [];
+        const ItemSelf : ItemAction[] = [];
+        const ItemOther : ItemAction[] = [];
+
+        ItemTurnArray.forEach(item => {
+            if (item.target.length === 0) {
+                ItemScene.push(item)
+            } else {                
+                if (item.target[0][0] === item.trainer.Position) {
+                    ItemSelf.push(item);
+                } else { ItemOther.push(item) }
+            }
+        })
+        
+        // Shuffle within Item groups and add to turn order
+        OrderedItemTurnArray.push.apply(OrderedItemTurnArray, this.shuffleArray(ItemScene))
+        OrderedItemTurnArray.push.apply(OrderedItemTurnArray, this.shuffleArray(ItemSelf))
+        OrderedItemTurnArray.push.apply(OrderedItemTurnArray, this.shuffleArray(ItemOther))
+
+        // ---------------------------------------- Perform Action ----------------------------------------
+        const OrderedActionTurnArray : ActionAction[] = [];
+
+        // Sort By priority
+        var sorted = {};
+        for( let i = 0, max = ActionTurnArray.length; i < max ; i++ ){
+            if( sorted[ActionBattleDex[ActionTurnArray[i].action.Action].priority] == undefined ){
+                sorted[ActionBattleDex[ActionTurnArray[i].action.Action].priority] = [];
+            }
+            sorted[ActionBattleDex[ActionTurnArray[i].action.Action].priority].push(ActionTurnArray[i]);
+        }
+        
+        // Order the priority tiers
+        const sortedActionEntries = Object.entries(sorted).sort((a, b) => {
+            return parseInt(b[0].toString()) - parseInt(a[0].toString())})
+        const sortedActionDictionary: {} = Object.fromEntries(sortedActionEntries);
+
+        // Iterate through each tier of priority
+        for (let i = (Object.keys(sortedActionDictionary).length - 1); i >= 0; i--) {
+            const ArrayOfActions : ActionAction[] = sortedActionDictionary[Object.keys(sortedActionDictionary)[i]];
+
+            // Organize by speed within priority
+            var sorted = {};
+            for( let i = 0, max = ArrayOfActions.length; i < max ; i++ ){
+                if( sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp", Messages)] == undefined ){
+                    sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp", Messages)] = [];
+                }
+                sorted[this.GetStatValue(ArrayOfActions[i].trainer, ArrayOfActions[i].source.Monster, "sp", Messages)].push(ArrayOfActions[i]);
+            }
+
+            // Order the speed tiers
+            const sortedPriorityActionEntries = Object.entries(sorted).sort((a, b) => { return parseInt(b[0].toString()) - parseInt(a[0].toString())})
+            const sortedPriorityActionDictionary: {} = Object.fromEntries(sortedPriorityActionEntries);
+            // Shuffle within speed tiers and add to turn order
+            for (let i = (Object.keys(sortedPriorityActionDictionary).length - 1); i >= 0; i--) {
+                OrderedActionTurnArray.push.apply(OrderedActionTurnArray, this.shuffleArray(sortedPriorityActionDictionary[Object.keys(sortedPriorityActionDictionary)[i]]))
+            }
+        }
+
+        // ---------------------------------------- Emergency Misc Dump -----------------------------------
+        const OrderedOtherTurnArray : SelectedAction[] = [];
+
+        OtherTurnArray.forEach(item => {
+            OrderedOtherTurnArray.push(item)
+        })
+
+        // ---------------------------------------- Combine Arrays ----------------------------------------
+
+        OrderedTurnArray.push.apply(OrderedTurnArray, OrderedNoneTurnArray);
+        OrderedTurnArray.push.apply(OrderedTurnArray, OrderedSwitchTurnArray);
+        OrderedTurnArray.push.apply(OrderedTurnArray, OrderedItemTurnArray);
+        OrderedTurnArray.push.apply(OrderedTurnArray, OrderedActionTurnArray);
+        OrderedTurnArray.push.apply(OrderedTurnArray, OrderedOtherTurnArray);
+        
+        // Emit Messages
+        this.Battle.SendOutMessage(Messages);
+
+        return OrderedTurnArray;
+    }
+
+    /**
+     * Given an array of objects, randomise their order
+     * @param array the array to shuffle
+     * @returns the array, with objects randomly swapped around
+     */
+    public shuffleArray(array: any[]): any[] {
+        const newArray = array.slice();
+    
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+    
+        return newArray;
+    }
+
+    /**
+     * Given a particular stat, get the base value of that stat
+     * @param _trainer the trainer of the relevant monster
+     * @param _monster the monster to get the stat from
+     * @param _stat the stat to find
+     * @returns returns a number or number[], based on the stat
+     */
+    public GetStatValue(_trainer : TrainerBase, _monster : ActivePos | ActiveMonster, _stat : string, messageList: MessageSet) {
+        
+        const _mon : ActiveMonster = (_monster instanceof ActiveMonster)? _monster : _monster.Monster;
+
+        const BaseStat = this.Battle.runEvent(('GetStatBase'+_stat),_trainer, null, null, _mon, null, _mon.GetStat(_stat), messageList)
+        const StatMod = (this.Battle.runEvent(('GetStatMod'+_stat),_trainer, null, null, _mon, null, _mon.GetStatBoost(_stat), messageList))
+        const FinalStat = this.Battle.runEvent(('GetStatFinal'+_stat),_trainer, null, null, _mon, null, (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4))))), messageList)
+        
+        return FinalStat;
+    }

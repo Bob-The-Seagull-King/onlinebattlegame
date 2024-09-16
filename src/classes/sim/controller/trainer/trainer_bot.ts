@@ -1,4 +1,5 @@
 import { BotBehaviourWeight, BotOptions, IDEntry, SelectedAction, SubSelectAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
+import { BattleSide } from "../../models/battle_side";
 import { Battle } from "../battle";
 import { ITrainer, TrainerBase } from "./trainer_basic";
 
@@ -17,8 +18,8 @@ class TrainerBot extends TrainerBase {
      * Simple constructor
      * @param _trainer The interface representing the trainer
      */
-    constructor(_trainer : ITrainerBot) {
-        super(_trainer)
+    constructor(_trainer : ITrainerBot, _owner : BattleSide) {
+        super(_trainer, _owner)
         this.Behaviour = _trainer.behaviour;
     }
     
@@ -33,9 +34,9 @@ class TrainerBot extends TrainerBase {
 
         const _weightedoptions = this.ConvertToWeightedArray(_options.Choices, _battle);
         
-        _weightedoptions.forEach(item =>{
+        /*_weightedoptions.forEach(item =>{
             item.weight = _battle.runBehaviour("Modify" + item.action.type + "Chance", this, _weightedoptions, item, item.weight)
-        })
+        })*/
         
         const chosenOption : BotBehaviourWeight = this.SelectedMoveWeighted(_weightedoptions, _battle )
 
@@ -70,7 +71,7 @@ class TrainerBot extends TrainerBase {
         Object.keys(_choices).forEach(_key => {
             _choices[_key].forEach(item => {
                 let BaseMod = 1000;
-                BaseMod = _battle.runBehaviour('GetBase'+_key+"Chance", this, null, null, BaseMod);
+                /*BaseMod = _battle.runBehaviour('GetBase'+_key+"Chance", this, null, null, BaseMod);*/
                 _botoptions.push({action: item, weight: BaseMod})
             })
         })
@@ -92,7 +93,7 @@ class TrainerBot extends TrainerBase {
         _choices.forEach(item => {
             let BaseMod = _base.weight / _choices.length
             const newOption : BotBehaviourWeight = { action : item, weight : BaseMod }
-            newOption.weight = _battle.runBehaviour('ModifySub'+_base.action.type+"Chance", this, null, newOption, BaseMod);
+            /*newOption.weight = _battle.runBehaviour('ModifySub'+_base.action.type+"Chance", this, null, newOption, BaseMod);*/
             _botoptions.push(newOption)
         })
 
@@ -108,7 +109,7 @@ class TrainerBot extends TrainerBase {
      * @returns the final BotOption being selected
      */
     public SelectedMoveWeighted(options : BotOptions, _battle : Battle) {
-        const culledOptions = _battle.runBehaviour('CullOptions', this, options, null, options);
+        const culledOptions = options //_battle.runBehaviour('CullOptions', this, options, null, options);
         const totalWeight = culledOptions.reduce((sum, culledOptions) => sum + culledOptions.weight, 0);
 
         // Generate a random number between 0 and totalWeight

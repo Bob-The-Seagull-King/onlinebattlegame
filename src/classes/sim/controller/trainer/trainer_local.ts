@@ -1,5 +1,6 @@
 import { TurnSelect } from "../../../../global_types";
 import { OfflineBattleManager } from "../../../viewmodel/battle_manager_local";
+import { BattleSide } from "../../models/battle_side";
 import { ITrainer, TrainerBase } from "./trainer_basic";
 
 /**
@@ -17,9 +18,13 @@ class TrainerLocal extends TrainerBase {
      * Simple constructor
      * @param _trainer The interface representing the trainer
      */
-    constructor(_trainer : ITrainerLocal) {
-        super(_trainer)
+    constructor(_trainer : ITrainerLocal, _owner : BattleSide) {
+        super(_trainer, _owner)
         this.Manager = _trainer.manager;
+    }
+
+    public SendPositionInfo() {         
+        this.Manager.SetUserInfo(this.Position, this.Owner.Position)
     }
     
     /**

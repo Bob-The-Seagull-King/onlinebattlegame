@@ -23,8 +23,7 @@ class ActionFactory {
     public static CreateNewAction(_action : IDEntry, _owner : ActiveMonster) {
         const freshAction : IActiveAction = {
             action: _action,
-            used: 0,
-            trackers: {}
+            used: 0
         }
         return ActionFactory.CreateAction(freshAction, _owner);
     }

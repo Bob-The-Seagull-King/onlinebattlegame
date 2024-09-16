@@ -1,5 +1,6 @@
 import { IDEntry } from "../../../global_types";
 import { ActiveItem, IActiveItem } from "../models/active_item";
+import { Team } from "../models/team";
 
 class ItemFactory {
     
@@ -8,8 +9,8 @@ class ItemFactory {
      * @param _item the item interface
      * @returns a new ActiveItem object
      */
-    public static CreateItem(_item : IActiveItem) {
-        const newAction = new ActiveItem(_item);
+    public static CreateItem(_item : IActiveItem, _owner : Team) {
+        const newAction = new ActiveItem(_item, _owner);
         return newAction;
     }
 
@@ -19,13 +20,12 @@ class ItemFactory {
      * @param _item the item's name'
      * @returns a new ActiveItem object
      */
-    public static CreateNewAction(_item : IDEntry) {
+    public static CreateNewItem(_item : IDEntry, _owner : Team ) {
         const freshAction : IActiveItem = {
             item: _item,
-            used: false,
-            trackers: {}
+            used: false
         }
-        return ItemFactory.CreateItem(freshAction);
+        return ItemFactory.CreateItem(freshAction, _owner);
     }
 
 }

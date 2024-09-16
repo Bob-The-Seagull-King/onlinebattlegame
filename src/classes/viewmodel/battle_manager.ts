@@ -13,6 +13,9 @@ class BattleManager {
 
     public funcReceiveResults   : any;  // method from the Page for receiving battle messages
     public funcReceiveOptions   : any;  // method from the Page for receiving battle options
+
+    public SidePosition : number = 0;
+    public BattlePosition : number = 0;
     
     public MessageLog   : MessageSet[]; // Collection of all messages sent by the battle
     public ChoicesLog   : { action : TurnChoices, pos : number}[]; // Collection of choices to be made
@@ -27,6 +30,11 @@ class BattleManager {
         this.MessageLog = [];
         this.ChoicesLog = [];
         this.TranslatedLog = [];
+    }
+
+    public SetUserInfo(_sidepos : number, _battlepos : number) {
+        this.SidePosition = _sidepos;
+        this.BattlePosition = _battlepos;
     }
 
     /**
