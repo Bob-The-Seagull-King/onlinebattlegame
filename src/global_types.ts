@@ -88,8 +88,7 @@ export type BotOptions = BotBehaviourWeight[]
  * Base interface for possible actions that can be taken.
  */
 export interface SelectedAction {
-    type    : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE',    // What kind of action is being taken
-    trainer : TrainerBase   // The trainer selecting this action
+    type    : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE',    // What kind of action is being taken
 }
 
 /**
@@ -244,7 +243,7 @@ export interface ChoiceTarget {
  * all options components of the interfaces that ineherit them.
  */
 export interface CallEvents {
-    onCanUseMove? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect: ActiveAction, relayVar: any, messageList: MessageSet, fromSource: boolean) => true | false; // If a monster is able to use a move
+    /*onCanUseMove? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect: ActiveAction, relayVar: any, messageList: MessageSet, fromSource: boolean) => true | false; // If a monster is able to use a move
     onCanUseItem? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, source : TrainerBase, sourceEffect: ActiveItem, relayVar: any, messageList: MessageSet, fromSource: boolean) => true | false; // If a trainer is able to use an item
     onAttemptSwitch? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster, source : FieldedMonster, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the monster is prevented from switching for any reason
     onAttemptItemAtAll? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item cannot be used at all, because of any one target
@@ -300,7 +299,7 @@ export interface CallEvents {
     onGetStatFinalac? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
     onGetStatFinalsk? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
     onGetStatFinalrs? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatFinalpt? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
+    onGetStatFinalpt? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number*/
 }
 
 /**

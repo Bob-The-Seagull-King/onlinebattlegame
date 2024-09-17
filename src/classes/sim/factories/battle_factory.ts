@@ -17,7 +17,7 @@ class BattleFactory {
         return battle;
     }
 
-    static CreateNewBattle(_trainers : ITrainer[][], _scene : IScene, _manager : any) {
+    static CreateNewBattle(_trainers : ITrainer[][], _scene : IScene, _manager : any, _turns : number) {
         const sides : IBattleSide[] = []
 
         // Assumes Only Two Sets Of Trainers
@@ -47,7 +47,8 @@ class BattleFactory {
 
         const _battle : IBattle = {
             sides       : sides,
-            scene       : _scene        // The interface form of the battle Scene
+            scene       : _scene,        // The interface form of the battle Scene
+            turns       : _turns
         }
 
         return BattleFactory.CreateBattle(_battle, _manager);

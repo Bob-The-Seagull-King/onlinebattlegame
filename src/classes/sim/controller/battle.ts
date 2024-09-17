@@ -35,13 +35,15 @@ interface EventHolder {
 interface IBattle {
     sides       : IBattleSide[]
     scene       : IScene        // The interface form of the battle Scene
+    turns       : number // the number of turns a player gets per round
 }
 
 class Battle {
     public Sides        : BattleSide[];    // All trainers involved in the battle
     public Scene        : Scene;            // The battlefield
-    public Manager  : any;              // The object that connects to the Battle and received its messages.
+    public Manager      : any;              // The object that connects to the Battle and received its messages.
     public Events       : BattleEvents;     // The Event running object that handles performing actions
+    public Turns        : number;
 
     /**
      * Simple constructor
@@ -54,6 +56,7 @@ class Battle {
         this.Sides = this.SideGenerator(_data.sides)
         this.Manager = _manager;
         this.Events = new BattleEvents(this);
+        this.Turns = _data.turns;
 
         // Initial Plot Map
         this.Manager.UpdateState(this.ConvertToInterface())
@@ -89,7 +92,8 @@ class Battle {
             
         const _interface : IBattle = {
             sides: _side,
-            scene: this.Scene.ConvertToInterface()
+            scene: this.Scene.ConvertToInterface(),
+            turns: this.Turns
         }
         return _interface;
     }

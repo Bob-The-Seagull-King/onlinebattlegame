@@ -52,7 +52,7 @@ class OfflineBattleManager extends BattleManager {
         Trainers.push([myTrainer]);
         Trainers.push([otherTrainer]);
 
-        const newBattle : Battle = BattleFactory.CreateNewBattle(Trainers, newScene, this);
+        const newBattle : Battle = BattleFactory.CreateNewBattle(Trainers, newScene, this, 2);
         this.Trainer = newBattle.Sides[0].Trainers[0] as TrainerLocal;
         return newBattle;
     }

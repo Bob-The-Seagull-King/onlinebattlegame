@@ -195,7 +195,7 @@ class RoomHold {
             Trainers.push([newTrainer]);
         }
         
-        this.GameRoom = BattleFactory.CreateNewBattle(Trainers, newScene, this);
+        this.GameRoom = BattleFactory.CreateNewBattle(Trainers, newScene, this, 2);
 
         this.GameRoom.Sides.forEach(element => {
             element.Trainers.forEach((item) => {
