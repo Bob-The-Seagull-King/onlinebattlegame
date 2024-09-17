@@ -9,6 +9,8 @@ import { Scene } from "./classes/sim/models/terrain/terrain_scene";
 import { Plot } from "./classes/sim/models/terrain/terrain_plot";
 import { Battle, IBattle } from "./classes/sim/controller/battle";
 import { TrainerBot } from "./classes/sim/controller/trainer/trainer_bot";
+import { FieldEffect } from "./classes/sim/models/Effects/field_effect";
+import { WeatherEffect } from "./classes/sim/models/Effects/weather_effect";
 
 // ----------------------------------- Types ---------------------------------------------
 
@@ -47,7 +49,7 @@ export type BaseStats = {
  */
 export type TurnSelect = {
     Choices     : TurnChoices,  // List of available choices
-    Position    : number,       // The index of the monster these actions represent
+    Position    : number,       // The index of the monster these actions represent (-1 means trainer)
     Battle      : IBattle       // The current state of the battle
 }
 
@@ -91,38 +93,36 @@ export interface SelectedAction {
     type    : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE',    // What kind of action is being taken
 }
 
-/**
- * Grouping of possible action choices for a user to select from.
- * Cannot be returned to the battle as a valid course of action.
- */
-export interface SubSelectAction extends SelectedAction {
-    choice  : ActiveMonster | ActiveItem | ActiveAction | FieldedMonster,    // The basic component the actions are derived from
-    options : SelectedAction[]    // Collection of possible actions to take
+export interface ChosenAction extends SelectedAction {
+    type_index : number, // The index within the array of X-Type actions (ie 1 === the second X type action)
+    hypo_index? : number // The index within the options selector (ie for ACTION, 0 would be the first action item)
+    hype_index? : number // The index within a suboption (ie for ACTION, 3 would be the 4th position item)
 }
 
-/**
- * Action type for switching out one monster for another
- */
-export interface SwitchAction extends SelectedAction {
-    current : FieldedMonster,    // The monster currently in play to switch out
-    newmon : ActiveMonster  // The monster to replace the currently in play monster with
+export interface PlaceAction extends SelectedAction { // Determines how a PLACE action occurs
+    monster_id : number, // The index of the Monster to be placed within the trainer's team
+    positions: number[][] // The coordinates to be chosen
 }
 
-/**
- * Action type for using an item
- */
+export interface SwapAction extends SelectedAction {
+    monster_id : number, // The index of the monster to swap in
+    fielded_ids : number[] // The index of the fielded monster to swap out
+}
+
 export interface ItemAction extends SelectedAction {
-    item    : ActiveItem,   // The item to use
-    target  : number[][]    // The position(s) on the field to target with the item
+    item    : number,   // The index of the item in the trainer's bag
+    target  : number[][] // The coordinates to be chosen
 }
 
-/**
- * Action type for a monster using an action
- */
 export interface ActionAction extends SelectedAction {
-    source : FieldedMonster,     // The monster taking the action
-    action : ActiveAction,  // The action to take
-    target : number[][]     // The position(s) on the field to target with the action
+    source_id : number,     // The index of the monster in the fielded options
+    action_id : number,     // The index of the action in the fielded monster
+    target_id : number[][]  // The coordinates to be chosen
+}
+
+export interface MoveAction extends SelectedAction {
+    source_id : number,     // The index of the monster in the fielded options
+    paths : number[][][]  // The possible paths a monster can travel
 }
 
 // --------------------------------- Database Item ---------------------------------------
@@ -269,63 +269,7 @@ export interface ChoiceTarget {
  * all options components of the interfaces that ineherit them.
  */
 export interface CallEvents {
-    /*onCanUseMove? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect: ActiveAction, relayVar: any, messageList: MessageSet, fromSource: boolean) => true | false; // If a monster is able to use a move
-    onCanUseItem? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, source : TrainerBase, sourceEffect: ActiveItem, relayVar: any, messageList: MessageSet, fromSource: boolean) => true | false; // If a trainer is able to use an item
-    onAttemptSwitch? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster, source : FieldedMonster, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the monster is prevented from switching for any reason
-    onAttemptItemAtAll? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item cannot be used at all, because of any one target
-    onAttemptItem? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item can be used generally, but not on the specific target
-    onAttemptActionAtAll? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the item cannot be used at all, because of any one target
-    onAttemptAction? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the action can be used generally, but not on the specific target
-    onGetHitMaximum? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => boolean; // Modify the highest number of times a move can hit
-    onGetHitMinimum? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => boolean; // Modify the lowest number of times a move can hit   
-    onSkipDamageMods? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Check if you can skip the regular damage modifiers
-    onSkipDamageChanges? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Check if you can skip all other damage modifiers  
-    onSkipDamageDealProtection? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Check if you can skip the damage dealt protection mod
-    onSkipDamageDealModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Check if you can skip the damage dealt modifiers
-    onSkipDamageDealAll? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Check if you can skip the changes to damage dealt
-    onSkipHealModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Check if you can skip the damage healed modifiers
-    onSkipHealAll? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Check if you can skip the changes to damage recovered
-    onModifyDrainVal? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the percentage of damage dealt that a monster recovers
-    onReturnHealVal? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Return the amount of HP to heal
-    onAfterDealingDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, trackVal: number, messageList: MessageSet, fromSource: boolean) => void; // After Dealing Damage
-    onAfterKnockOut? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, trackVal: number, messageList: MessageSet, fromSource: boolean) => void; // When a foe is knocked out by a move
-    onAfterHealingDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, trackVal: number, messageList: MessageSet, fromSource: boolean) => void; // After Healing Damage
-    onGetActionAccuracy? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // Get the modified accuracy of the action   
-    onGetAccuracyModifier? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get a mulitplier to modify the final accuracy
-    onActionMiss? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) => boolean; // Triggers when an action misses
-    onEffectApply? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, trackVal: string, messageList: MessageSet, fromSource: boolean) => void; // Triggers when an effect applies
-    onDealCustomDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) => number; // Get total damage to deal when the action uses a special case
-    onConsumeActionUses? : (this: Battle, eventSource : any, trainer : TrainerBase, source : FieldedMonster, sourceEffect : ActiveAction, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => boolean; // If the action can be used generally, but not on the specific target
-    onItemOnApply? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : TrainerBase, sourceEffect : ActiveItem, relayVar: boolean, messageList: MessageSet, fromSource: boolean) => void; // Starts the action by applying it to one of the targets
-    onGetProtectionModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase | FieldedMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's protection
-    onGetDamageTakenModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the defending monster's incoming damage
-    onGetDamageRangeModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase | FieldedMonster, sourceEffect : ActiveAction, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the attacking modifiers range of damage
-    onGetDamageDealtModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the attacking monster's damage dealt
-    onGetSkillBaseModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase | FieldedMonster, sourceEffect : ActiveAction, relayVar: number, trackVal: string, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the action's base effect chance
-    onGetSkillAllModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase | FieldedMonster, sourceEffect : ActiveAction, relayVar: number, trackVal: string, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the skills effect chance
-    onGetSkillResistModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase | FieldedMonster, sourceEffect : ActiveAction, relayVar: number, trackVal: string, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the chance to resist
-    onModifyFinalSkillChance? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase | FieldedMonster, sourceEffect : ActiveAction, relayVar: number, trackVal: string, messageList: MessageSet, fromSource: boolean) => number; // Modify the final chance for a skill to trigger
-    onGetFinalDamage? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final damage taken
-    onWhenKnockedOut? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase, messageList: MessageSet, fromSource: boolean) => void; // If the target is knocked out by damage (generic)
-    onGetFinalDamageDealt? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : FieldedMonster, sourceEffect : ActiveAction | ActiveItem, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final damage outputted
-    onGetDamageRecoveredModifiers? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Get any additional modifiers for the recovering monster's incoming hp
-    onGetFinalRecovery? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | Scene | Plot, source : TrainerBase, relayVar: number, messageList: MessageSet, fromSource: boolean) => number; // Modify the final hp recovered
-    onRunActionEvents? : (this: Battle, eventSource : any, trainer : TrainerBase, trainerTarget : TrainerBase, target : ActiveMonster | FieldedMonster | Scene | Plot, source : TrainerBase | FieldedMonster, sourceEffect : ActiveAction, messageList: MessageSet, fromSource: boolean) => void; // Run any Effects that an action has
-    onSwitchOut? : (this: Battle, eventSource : any, trainer : TrainerBase, source : FieldedMonster, messageList: MessageSet, fromSource: boolean) => void;
-    onSwitchIn? : (this: Battle, eventSource : any, trainer : TrainerBase, source : FieldedMonster, messageList: MessageSet, fromSource: boolean) => void
-    onRoundEnd? : (this: Battle, eventSource : any, trainer : TrainerBase, source : FieldedMonster, messageList: MessageSet, fromSource: boolean) => void
-    onGetStatModdl? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatModdh? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatModpt? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatModsp? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatModsk? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatModrs? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatModac? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatFinalsp? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatFinalac? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatFinalsk? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatFinalrs? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number
-    onGetStatFinalpt? : (this: Battle, eventSource : any, trainer : TrainerBase, source : ActiveMonster, relayVar: number, messageList: MessageSet, fromSource: boolean) => number*/
+    onGenericEvent? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, target : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | null, sourceEffect : ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, relayVar : any, trackVal : any, messageList : MessageSet, fromSource : boolean) => void;
 }
 
 /**

@@ -3,7 +3,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { ActionAction, BotBehaviourWeight, BotOptions, ItemAction, MessageSet, SelectedAction, SubSelectAction, SwitchAction, TurnChoices, TurnSelectReturn } from "../../../global_types";
+import { BotBehaviourWeight, BotOptions, MessageSet, TurnChoices, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { FieldedMonster, Team } from "../models/team";
@@ -149,10 +149,7 @@ class Battle {
         sourceEffect?: ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, 
         relayVar?: any, 
         trackVal?: any,
-        messageList? : MessageSet,
-        onEffect?: boolean, 
-        fastExit?: boolean,
-        eventdepth?: number
+        messageList? : MessageSet
     ) {
 
         // Gather all event functions to call
@@ -216,13 +213,7 @@ class Battle {
             if ((relay_variable !== undefined) && (relay_variable !== null)) { args[i] = relay_variable; i += 1; }
             if ((trackVal !== undefined) && (trackVal !== null)) { args[i] = trackVal; i += 1; }
             if ((messageList !== undefined) && (messageList !== null)) { args[i] = messageList; i += 1; }
-            if ((onEffect !== undefined) && (onEffect !== null)) { args[i] = onEffect; i += 1; }
-            if ((fastExit !== undefined) && (fastExit !== null)) { args[i] = fastExit; i += 1; }
             if ((_event.fromsource !== undefined) && (_event.fromsource !== null)) { args[i] = _event.fromsource; i += 1; }
-            if ((eventdepth !== undefined) && (eventdepth !== null)) {
-                args[i] = eventdepth;
-                i += 1;
-            }
 
             // Run the event
             returnVal = _event.callback.apply(this, args);
