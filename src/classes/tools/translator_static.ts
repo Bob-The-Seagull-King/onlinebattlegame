@@ -1,6 +1,6 @@
 import { ActionInfoDex } from "../../data/static/action/action_inf";
 import { ItemInfoDex } from "../../data/static/item/item_inf";
-import { ActionAction, ItemAction, SelectedAction, SwitchAction } from "../../global_types";
+import { ActionAction, ItemAction, SelectedAction } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
 
 /**
@@ -32,28 +32,28 @@ export const ActionTranslateDex : ActionTranslateTable = {
     item : {
         // Using an Item
         selectOption(_switch : ItemAction, _battle : IBattle) {
-            return  "Use the item " + ItemInfoDex[_switch.item.Item].name + " on " + GetTargetName(_battle, _switch.target) + ".";
+            return  "Use the item " + " on " + ".";
         },
         performedOption(_switch : ItemAction, _battle : IBattle) {
-            return  _switch.trainer.Name + " used the item " + ItemInfoDex[_switch.item.Item].name + " on " + GetTargetName(_battle, _switch.target) + ".";
+            return  " used the item " + " on " + ".";
         }
     },
     action : {
         // Having a Monster use an Action
         selectOption(_switch : ActionAction, _battle : IBattle) {
-            return "Have " + _switch.source.Monster.Nickname + " use the move " + ActionInfoDex[_switch.action.Action].name + " on " + GetTargetName(_battle, _switch.target) + ".";
+            return "Have  use the move " + " on " + ".";
         },
         performedOption(_switch : ActionAction, _battle : IBattle) {
-            return  _switch.trainer.Name + " had " + _switch.source.Monster.Nickname + " use the move " + ActionInfoDex[_switch.action.Action].name + " on " + GetTargetName(_battle, _switch.target) + ".";
+            return  " had " + " use the move " + " on " + ".";
         }
     },
     switch : {
         // Swapping one Monster for another Monster
-        selectOption(_switch : SwitchAction, _battle : IBattle) {
-            return "Switch out " + _switch.current.Monster.Nickname + " for " + _switch.newmon.Nickname;
+        selectOption(_switch : SelectedAction, _battle : IBattle) {
+            return "Switch out "
         },
-        performedOption(_switch : SwitchAction, _battle : IBattle) {
-            return _switch.trainer.Name + " had " + _switch.current.Monster.Nickname + " switch out for " + _switch.newmon.Nickname;
+        performedOption(_switch : SelectedAction, _battle : IBattle) {
+            return " had  switch out for " 
         }
     },
     none : {
@@ -62,7 +62,7 @@ export const ActionTranslateDex : ActionTranslateTable = {
             return "Skip your turn.";
         },
         performedOption(_switch : SelectedAction, _battle : IBattle) {
-            return _switch.trainer.Name + " skipped their turn.";
+            return " skipped their turn.";
         }
     }
 }

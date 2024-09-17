@@ -3,7 +3,6 @@ import React from 'react';
 import '../../resources/styles/App.css';
 import { useState } from "react";
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
-import OptionsMonsterDisplay from '../Components/Options/OptionMonsterDisplay';
 
 const PlotsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager; // The manager running this battle

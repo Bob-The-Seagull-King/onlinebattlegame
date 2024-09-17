@@ -24,6 +24,7 @@ class BattleManager {
 
     public BattleState  : IBattle = {
         sides       : [],
+        turns       : 0,
         scene       : {            
                 weather     : [],
                 field       : [],

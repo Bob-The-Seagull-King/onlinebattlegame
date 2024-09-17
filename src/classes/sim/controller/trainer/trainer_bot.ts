@@ -1,4 +1,4 @@
-import { BotBehaviourWeight, BotOptions, IDEntry, SelectedAction, SubSelectAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
+import { BotBehaviourWeight, BotOptions, IDEntry, SelectedAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
 import { BattleSide } from "../../models/battle_side";
 import { Battle } from "../battle";
 import { ITrainer, TrainerBase } from "./trainer_basic";
@@ -39,21 +39,6 @@ class TrainerBot extends TrainerBase {
         })*/
         
         const chosenOption : BotBehaviourWeight = this.SelectedMoveWeighted(_weightedoptions, _battle )
-
-        if ((chosenOption.action.type === "SWITCH") ||
-            (chosenOption.action.type === "ITEM") ||
-            (chosenOption.action.type === "ACTION")) {
-
-            ReturnedAction.actiontype = chosenOption.action.type
-            ReturnedAction.itemIndex = _options.Choices[chosenOption.action.type].indexOf(chosenOption.action)
-
-            const _weightedsuboptions = this.ConvertSubOptionsToWeightedArray((chosenOption.action as SubSelectAction).options, chosenOption, _battle)
-                        
-            const chosenSubOption = this.SelectedMoveWeighted(_weightedsuboptions, _battle);
-
-            ReturnedAction.subItemIndex = (chosenOption.action as SubSelectAction).options.indexOf(chosenSubOption.action)
-            return ReturnedAction
-        }
 
         return ReturnedAction
     }
@@ -125,7 +110,7 @@ class TrainerBot extends TrainerBase {
         }
 
         // Emergency return
-        const noneoption : BotBehaviourWeight = {action: {type: "NONE", trainer: this}, weight: 1}
+        const noneoption : BotBehaviourWeight = {action: {type: "NONE"}, weight: 1}
         return noneoption
     }
 

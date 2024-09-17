@@ -3,7 +3,6 @@ import React from 'react';
 import '../../resources/styles/App.css';
 import { useState } from "react";
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
-import OptionsMonsterDisplay from '../Components/Options/OptionMonsterDisplay';
 
 const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager; // The manager running this battle
@@ -31,7 +30,6 @@ const OptionsDisplay = (props: any) => {
               {/** Display each suite of choices */}
               {optionsReceived.map(item => (
                 <div key={"choice" + optionsReceived.indexOf(item)}>
-                  <OptionsMonsterDisplay manager={Manager} turns={item.action} position={item.pos}/>
                 </div> ))}
             </div>
           </div>

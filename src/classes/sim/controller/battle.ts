@@ -3,7 +3,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { BotBehaviourWeight, BotOptions, MessageSet, TurnChoices, TurnSelectReturn } from "../../../global_types";
+import { BotBehaviourWeight, BotOptions, MessageSet, PlaceAction, TurnChoices, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { FieldedMonster, Team } from "../models/team";
@@ -50,6 +50,7 @@ class Battle {
     public Manager      : any;              // The object that connects to the Battle and received its messages.
     public Events       : BattleEvents;     // The Event running object that handles performing actions
     public Turns        : number;
+    public MessageList  : MessageSet;
 
     /**
      * Simple constructor
@@ -63,6 +64,7 @@ class Battle {
         this.Manager = _manager;
         this.Events = new BattleEvents(this);
         this.Turns = _data.turns;
+        this.MessageList = [];
 
         // Initial Plot Map
         this.Manager.UpdateState(this.ConvertToInterface())
@@ -120,10 +122,43 @@ class Battle {
     public async StartBattle() {
         let cont = true;
         while(cont) {
+            this.Sides.forEach(_side => {
+                _side.Trainers.forEach(_trainer => {
+                    this.MessageList.push({ "generic" : JSON.stringify( this.findPlaceOptions(_trainer))})
+                })
+            })
+            this.SendOutMessage(this.MessageList);
             cont = false
         }
     }
 
+    public findPlaceOptions(sourceTrainer : TrainerBase): PlaceAction[] {
+        const _placeactions : PlaceAction[] = [];
+
+        for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
+            let MonsterAvailable = true;
+            for (let j = 0; j < sourceTrainer.Team.Leads.length; j++) {
+                if (sourceTrainer.Team.Leads[j].Monster === sourceTrainer.Team.Monsters[i]) {
+                    MonsterAvailable = false;
+                    break;
+                }
+            }
+
+            if (MonsterAvailable === true) {
+                const plotpositions : number[][] = []
+
+                sourceTrainer.Owner.Plots.forEach(_plot => {
+                    if (_plot.IsPlaceable() === true) {
+                        plotpositions.push([_plot.Column, _plot.Row])
+                    } })
+
+                const _place : PlaceAction = { type: "PLACE", monster_id: i, positions: plotpositions }
+                _placeactions.push(_place);
+            }            
+        }
+
+        return _placeactions;
+    }
     
     /**
      * Super important method that handles events. When an event is run, any relevant objects which

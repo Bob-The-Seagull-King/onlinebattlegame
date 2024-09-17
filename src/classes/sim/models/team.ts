@@ -2,7 +2,7 @@ import { ActionBattleDex } from "../../../data/static/action/action_btl";
 import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { IDEntry, SwitchAction } from "../../../global_types";
+import { IDEntry } from "../../../global_types";
 import { TrainerBase } from "../controller/trainer/trainer_basic";
 import { ItemFactory } from "../factories/item_factory";
 import { MonsterFactory } from "../factories/monster_factory";
@@ -50,9 +50,9 @@ class FieldedMonster {
         this.Owner = _team;
     }
 
-    public SwapMon(_action : SwitchAction) {
+    /*public SwapMon(_action : SwitchAction) {
         this.Monster = this.Owner.Monsters[_action.trainer.Team.Monsters.indexOf(_action.newmon)];
-    }
+    }*/
 
     public ConvertToInterface() {
         const _interface : IFieldedMonster = {

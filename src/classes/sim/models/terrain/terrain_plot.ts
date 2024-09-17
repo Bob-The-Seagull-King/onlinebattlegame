@@ -52,6 +52,23 @@ class Plot {
     public AddFieldEffect(_effect : FieldEffect) {
         this.FieldEffects.push(_effect);
     }
+
+    public IsPlaceable() {
+        let HasMonster = false;
+
+        this.Scene.Owner.Sides.forEach( _side => {
+            _side.Trainers.forEach(_trainer => {
+                _trainer.Team.Leads.forEach( _lead => {
+                    if (_lead.Plot === this) {
+                        HasMonster = true;
+                    }
+                })
+            })
+        })
+
+        const IsPlacable = this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
+        return IsPlacable;
+    }
     
     public RemoveFieldEffect(_effect : FieldEffect) {
         for (let i = 0; i < this.FieldEffects.length; i++) {
