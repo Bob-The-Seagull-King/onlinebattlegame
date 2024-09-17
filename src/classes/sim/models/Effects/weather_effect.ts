@@ -7,7 +7,8 @@ import { Scene } from "../terrain/terrain_scene";
  */
 interface IWeatherEffect {
     tokens      : IDEntry[],        // Tokens held by the plot
-    trackers    : InfoSetGeneric    // Misc trackers used by plot tokens
+    trackers    : InfoSetGeneric,    // Misc trackers used by plot tokens
+    weatherEffect : IDEntry
 }
 
 class WeatherEffect {
@@ -15,6 +16,7 @@ class WeatherEffect {
     public Tokens   : IDEntry[];        // Tokens held by the plot
     public Trackers : InfoSetGeneric;   // Misc trackers used by plot tokens
     public Owner    : Scene;
+    public Weather  : IDEntry;
 
     /**
      * Simple constructor
@@ -24,6 +26,7 @@ class WeatherEffect {
         this.Tokens = _data.tokens;
         this.Trackers = _data.trackers;
         this.Owner = _owner;
+        this.Weather = _data.weatherEffect;
     }
 
     /**
@@ -33,7 +36,8 @@ class WeatherEffect {
     public ConvertToInterface() {
         const _interface : IWeatherEffect = {
             tokens      : this.Tokens,        // Tokens held by the plot
-            trackers    : this.Trackers    // Misc trackers used by plot tokens
+            trackers    : this.Trackers,    // Misc trackers used by plot tokens
+            weatherEffect : this.Weather
         }
         return _interface;
     }

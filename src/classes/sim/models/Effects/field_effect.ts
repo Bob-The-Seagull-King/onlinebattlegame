@@ -9,7 +9,8 @@ import { Scene } from "../terrain/terrain_scene";
 interface IFieldEffect {
     tokens      : IDEntry[],        // Tokens held by the plot
     trackers    : InfoSetGeneric,    // Misc trackers used by plot tokens
-    plots       : number[][]
+    plots       : number[][],
+    fieldEffect : IDEntry
 }
 
 class FieldEffect {
@@ -18,6 +19,7 @@ class FieldEffect {
     public Trackers : InfoSetGeneric;   // Misc trackers used by plot tokens
     public Plots    : Plot[]
     public Owner    : Scene;
+    public Field    : IDEntry;
 
     /**
      * Simple constructor
@@ -28,6 +30,7 @@ class FieldEffect {
         this.Trackers = _data.trackers;
         this.Plots = this.PlotGenerator(_data.plots)
         this.Owner = _owner;
+        this.Field = _data.fieldEffect;
     }
 
     private PlotGenerator(_data : number[][]) {
@@ -54,7 +57,8 @@ class FieldEffect {
         const _interface : IFieldEffect = {
             tokens      : this.Tokens,        // Tokens held by the plot
             trackers    : this.Trackers,    // Misc trackers used by plot tokens
-            plots       : _plots
+            plots       : _plots,
+            fieldEffect : this.Field
         }
         return _interface;
     }

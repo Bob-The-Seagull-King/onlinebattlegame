@@ -1,5 +1,5 @@
 import { MonsterType } from "./data/enum/types";
-import { ActionCategory, ItemCategory, TokenCategory, TraitCategory } from "./data/enum/categories";
+import { ActionCategory, FieldCategory, ItemCategory, TokenCategory, TraitCategory, WeatherCategory } from "./data/enum/categories";
 import { TrainerBase } from "./classes/sim/controller/trainer/trainer_basic";
 import { ActiveMonster } from "./classes/sim/models/active_monster";
 import { ActiveItem } from "./classes/sim/models/active_item";
@@ -192,6 +192,32 @@ export interface ITraitInfo {
     description : DescBlock[]   // Formattable description of the trait
 }
 
+// Weather
+export interface IWeatherBattle extends CallEvents {
+    id          : number,           // Numerical ID of the effect
+    category    : WeatherCategory[],  // Category of this trait
+    events      : InfoSetGeneric    // Tags for move use
+}
+
+export interface IWeatherInfo {
+    id          : number,       // Numerical ID of the trait
+    name        : string,       // Name of the trait
+    description : DescBlock[]   // Formattable description of the trait
+}
+
+// Field
+export interface IFieldBattle extends CallEvents {
+    id          : number,           // Numerical ID of the effect
+    category    : FieldCategory[],  // Category of this trait
+    events      : InfoSetGeneric    // Tags for move use
+}
+
+export interface IFieldInfo {
+    id          : number,       // Numerical ID of the trait
+    name        : string,       // Name of the trait
+    description : DescBlock[]   // Formattable description of the trait
+}
+
 // Battle Item
 export interface IItemBattle extends CallEvents, ChoiceTarget {
     id          : number,           // Numerical ID of the item
@@ -329,6 +355,10 @@ export interface ActionBattleTable {[actionid: IDEntry]: IActionBattle}
 export interface ActionInfoTable {[actionid: IDEntry]: IActionInfo}
 export interface TraitBattleTable {[traitid: IDEntry]: ITraitBattle}
 export interface TraitInfoTable {[traitid: IDEntry]: ITraitInfo}
+export interface WeatherBattleTable {[weatherid: IDEntry]: IWeatherBattle}
+export interface WeatherInfoTable {[weatherid: IDEntry]: IWeatherInfo}
+export interface FieldBattleTable {[fieldid: IDEntry]: IFieldBattle}
+export interface FieldInfoTable {[fieldid: IDEntry]: IFieldInfo}
 export interface ItemBattleTable {[itemid: IDEntry]: IItemBattle}
 export interface ItemInfoTable {[itemid: IDEntry]: IItemInfo}
 export interface TokenBattleTable {[tokenid: IDEntry]: ITokenBattle}

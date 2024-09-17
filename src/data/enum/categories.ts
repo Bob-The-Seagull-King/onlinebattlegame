@@ -31,6 +31,14 @@ enum TraitCategory {
     Debuff = "Debuff" // Reduces a monster's efficiency
 }
 
+enum WeatherCategory {
+    None = "", // No special category
+}
+
+enum FieldCategory {
+    None = "", // No special category
+}
+
 enum ItemCategory {
     None = "", // No special category
     Restoration = "Restoration", // Recovers the HP or removes negative tokens from a monster
@@ -50,4 +58,4 @@ enum TokenCategory {
     Debuff = "Debuff" // Reduces the effectiveness of a monster / their team
 }
 
-export {ActionCategory, TraitCategory, ItemCategory, TokenCategory}
+export {ActionCategory, TraitCategory, ItemCategory, TokenCategory, WeatherCategory, FieldCategory}
