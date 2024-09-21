@@ -34,7 +34,7 @@ class TrainerLocal extends TrainerBase {
      * @returns Returns a SelectedAction object describing what action(s) the trainer takes this turn
      */
     public async SelectChoice(_options: TurnSelect)  {
-        const SelectedAction = await this.Manager.ReceiveOptions(_options.Choices, _options.Position, _options.Battle);
+        const SelectedAction = await this.Manager.ReceiveOptions(_options);
         return SelectedAction;
     }
 

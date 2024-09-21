@@ -32,14 +32,6 @@ class TrainerBot extends TrainerBase {
     public async SelectChoice(_options: TurnSelect, _room : any, _battle : Battle) {
         let ReturnedAction : TurnSelectReturn = { actiontype: "NONE", itemIndex: 0 }
 
-        const _weightedoptions = this.ConvertToWeightedArray(_options.Choices, _battle);
-        
-        /*_weightedoptions.forEach(item =>{
-            item.weight = _battle.runBehaviour("Modify" + item.action.type + "Chance", this, _weightedoptions, item, item.weight)
-        })*/
-        
-        const chosenOption : BotBehaviourWeight = this.SelectedMoveWeighted(_weightedoptions, _battle )
-
         return ReturnedAction
     }
 
@@ -50,7 +42,7 @@ class TrainerBot extends TrainerBase {
      * @param _battle the battle the bot it a part of
      * @returns array of weighted options (BotOptions)
      */
-    public ConvertToWeightedArray(_choices : TurnChoices, _battle : Battle) {
+    public ConvertToWeightedArray(_choices : TurnSelect, _battle : Battle) {
         const _botoptions : BotOptions = [];
 
         Object.keys(_choices).forEach(_key => {

@@ -46,7 +46,7 @@ class TrainerUser extends TrainerBase {
     public async SelectChoice(_options: TurnSelect, _room : RoomHold) {
         _room.GetUserTurn(this, _options)     
         return new Promise<TurnSelectReturn>((resolve) => {
-            eventEmitter.once('user' + this.Name + 'position' + this.Position + 'selectAction' + _options.Position, (action: TurnSelectReturn) => {
+            eventEmitter.once('user' + this.Name + 'position' + this.Position + 'selectAction', (action: TurnSelectReturn) => {
                 resolve(action);
             });
         });
@@ -59,7 +59,7 @@ class TrainerUser extends TrainerBase {
      * @param refID the 
      */
     public SendOptions(_option : TurnSelectReturn, refPos : string) {
-        eventEmitter.emit('user' + this.Name + 'position' + this.Position + 'selectAction' + refPos, _option);
+        eventEmitter.emit('user' + this.Name + 'position' + this.Position + 'selectAction', _option);
     }
     
 }

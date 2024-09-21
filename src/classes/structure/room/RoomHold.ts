@@ -95,6 +95,7 @@ class RoomHold {
         // If the room is full, generate and start a new battle
         if (this.MyMembers.length >= this.MaxMembers) {
             this.GenerateBattle();
+            this.GameRoom.BattleBegin();
         }
         return MemberResultVal;
     }
@@ -188,7 +189,7 @@ class RoomHold {
     public GenerateBattle() {
         const Trainers : ITrainerUser[][] = [];
         const newScene : IScene = TerrainFactory.CreateIScene(6,6)
-        
+    
         let i = 0
         for (i = 0; i < this.MyMembers.length; i++) {
             const newTrainer : ITrainerUser = {type : "user", user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i, name: this.MyMembers[i].user.Name.toString()};
@@ -206,6 +207,7 @@ class RoomHold {
     }
 
     public UpdateState(_battle : IBattle) {
+
         this.GameRoom.Sides.forEach(element => {
             element.Trainers.forEach((item) => {
                 (item as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_battle_state", {battle: _battle});

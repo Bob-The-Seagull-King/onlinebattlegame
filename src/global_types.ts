@@ -48,9 +48,13 @@ export type BaseStats = {
  * Given to a trainer to choose a course of action from
  */
 export type TurnSelect = {
+    Options     : TurnCharacter[]
+    Battle      : IBattle       // The current state of the battle
+}
+
+export type TurnCharacter = {
     Choices     : TurnChoices,  // List of available choices
     Position    : number,       // The index of the monster these actions represent (-1 means trainer)
-    Battle      : IBattle       // The current state of the battle
 }
 
 /**

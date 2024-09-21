@@ -1,4 +1,4 @@
-import { SelectedAction, TurnChoices, TurnSelectReturn } from "../../global_types";
+import { ChosenAction, SelectedAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../global_types";
 import { Battle, IBattle } from "../sim/controller/battle";
 import { ITrainer } from "../sim/controller/trainer/trainer_basic";
 import { ITrainerBot, TrainerBot } from "../sim/controller/trainer/trainer_bot";
@@ -29,6 +29,7 @@ class OfflineBattleManager extends BattleManager {
     public StartBattle() {
         if (this.GameBattle === null) {
             this.GameBattle = this.GenerateBattle();
+            this.GameBattle.BattleBegin();
             this.ReceiveMessages([{"generic" : "Battle Generated"}])
         } else {
             this.ReceiveMessages([{"generic" : "Battle Already In Place"}])
@@ -93,17 +94,20 @@ class OfflineBattleManager extends BattleManager {
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      * @param _battle current state of the battle
      */
-    public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) {
-        this.BattleState = _battle;
-        this.ChoicesLog.push({ action : _options, pos : _position})
+    public ReceiveOptions(_options : TurnSelect) {
+        console.log(_options)
+        this.BattleState = _options.Battle;
+        _options.Options.forEach(item => {
+            this.ChoicesLog.push({ action : item.Choices, pos : item.Position})
+        })
         this.funcReceiveOptions();
         return new Promise((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {
               resolve(event.detail.payload);
-              document.removeEventListener('selectAction'+_position, handleEvent as EventListener);
+              document.removeEventListener('selectAction', handleEvent as EventListener);
             };
         
-            document.addEventListener('selectAction'+_position, handleEvent as EventListener);
+            document.addEventListener('selectAction', handleEvent as EventListener);
           });
     }
 
@@ -117,9 +121,9 @@ class OfflineBattleManager extends BattleManager {
      * @param _option the SelectedAction chosen
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      */
-    public SendOptions(_type : string, _index : number, _element: number, _position : number) {
-        const TempMandatory : TurnSelectReturn = {actiontype : _type, itemIndex: _index, subItemIndex: _element}
-        const event = new CustomEvent<EventAction>('selectAction'+_position, { detail: {type : "CHOICE", payload: TempMandatory} });
+    public SendOptions(_type : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE', _index : number, _element: number, _position : number) {
+        const TempMandatory : ChosenAction = {type : _type, type_index: _index, hypo_index: _element, hype_index: _position}
+        const event = new CustomEvent<EventAction>('selectAction', { detail: {type : "CHOICE", payload: TempMandatory} });
         document.dispatchEvent(event);
         this.ChoicesLog = this.ChoicesLog.filter(item => item.pos !== _position)
         this.funcReceiveOptions();

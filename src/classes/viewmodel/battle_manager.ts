@@ -1,4 +1,4 @@
-import { MessageSet, SelectedAction, TurnChoices } from "../../global_types";
+import { MessageSet, SelectedAction, TurnChoices, TurnSelect } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
 import { MessageTranslator } from "../tools/translator";
 
@@ -86,7 +86,7 @@ class BattleManager {
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      * @param _battle current state of the battle
      */
-    public ReceiveOptions(_options : TurnChoices, _position : number, _battle: IBattle) {
+    public ReceiveOptions(_options : TurnSelect) {
         undefined;
     }
 

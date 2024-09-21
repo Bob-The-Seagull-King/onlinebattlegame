@@ -3,7 +3,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { BotBehaviourWeight, BotOptions, MessageSet, PlaceAction, TurnChoices, TurnSelectReturn } from "../../../global_types";
+import { BotBehaviourWeight, BotOptions, ChosenAction, MessageSet, PlaceAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { FieldedMonster, Team } from "../models/team";
@@ -65,7 +65,9 @@ class Battle {
         this.Events = new BattleEvents(this);
         this.Turns = _data.turns;
         this.MessageList = [];
+    }
 
+    public BattleBegin() {    
         // Initial Plot Map
         this.Manager.UpdateState(this.ConvertToInterface())
 
@@ -121,15 +123,50 @@ class Battle {
      */
     public async StartBattle() {
         let cont = true;
+        this.SetStartingPositions();
+
         while(cont) {
-            this.Sides.forEach(_side => {
-                _side.Trainers.forEach(_trainer => {
-                    this.MessageList.push({ "generic" : JSON.stringify( this.findPlaceOptions(_trainer))})
-                })
-            })
             this.SendOutMessage(this.MessageList);
             cont = false
         }
+    }
+
+    public async SetStartingPositions() {
+        this.Sides.forEach(_side => {
+            _side.Trainers.forEach(async _trainer => {
+                const positions : PlaceAction[] = await this.GetTrainerStartingPositions(_trainer)
+                if (positions) {                    
+                    this.MessageList.push({ "generic" : JSON.stringify( positions )})
+                }
+            })
+        })
+    }
+    
+    public async GetTrainerStartingPositions(_trainer : TrainerBase) : Promise<PlaceAction[]> {
+        let i = 0;
+        const positions : PlaceAction[] = []
+
+        console.log("StartPositions")
+        while (i < this.Turns) {
+            const possibleActions = this.findPlaceOptions(_trainer);
+            const _choices : TurnChoices = {}
+            _choices["PLACE"] = possibleActions
+            const _battle : IBattle = this.ConvertToInterface()
+            const _TurnSelect : TurnSelect = {Options: [{Choices: _choices, Position: -1}], Battle: _battle}
+            
+            const Turn : ChosenAction = await (_trainer.SelectChoice(_TurnSelect, this.Manager, this))
+
+            if (Turn) {
+                i++;
+                const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as PlaceAction)
+                ChosenTurn.positions = [ChosenTurn.positions[Turn.hype_index]]
+                positions.push(ChosenTurn)
+            }
+        }
+        
+        console.log("EndPositions")
+        
+        return positions
     }
 
     public findPlaceOptions(sourceTrainer : TrainerBase): PlaceAction[] {

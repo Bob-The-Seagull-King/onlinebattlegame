@@ -50,7 +50,7 @@ class BattleFactory {
             scene       : _scene,        // The interface form of the battle Scene
             turns       : _turns
         }
-
+        
         return BattleFactory.CreateBattle(_battle, _manager);
     }
 
