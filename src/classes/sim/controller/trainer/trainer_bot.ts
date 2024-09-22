@@ -1,4 +1,4 @@
-import { BotBehaviourWeight, BotOptions, IDEntry, SelectedAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
+import { BotBehaviourWeight, BotOptions, ChosenAction, IDEntry, SelectedAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
 import { BattleSide } from "../../models/battle_side";
 import { Battle } from "../battle";
 import { ITrainer, TrainerBase } from "./trainer_basic";
@@ -30,7 +30,13 @@ class TrainerBot extends TrainerBase {
      * @returns Returns a SelectedAction object describing what action(s) the trainer takes this turn
      */
     public async SelectChoice(_options: TurnSelect, _room : any, _battle : Battle) {
-        let ReturnedAction : TurnSelectReturn = { actiontype: "NONE", itemIndex: 0 }
+        console.log(_options);
+        let ReturnedAction : ChosenAction = { 
+            type: "PLACE",
+            type_index : 0, 
+            hypo_index : 0,
+            hype_index : 0
+         }
 
         return ReturnedAction
     }
