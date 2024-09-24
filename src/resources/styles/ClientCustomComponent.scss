@@ -42,3 +42,33 @@
     margin-left: 0.5em;
     margin-right: 0.5em;
 }
+
+.tab-pane {
+
+    border-left: 3px solid var(--colour_main_blue);
+    border-right: 3px solid var(--colour_main_blue);
+    border-bottom: 3px solid var(--colour_main_blue);
+    border-radius: 0px 0px 0.5em 0.5em;
+    padding: 10px;
+}
+
+.nav-tabs {
+    margin-bottom: 0;
+    border-bottom: 3px solid var(--colour_main_blue);
+}
+
+.nav-link.active {
+
+    border-left: 3px solid var(--colour_main_blue) !important;
+    border-right: 3px solid var(--colour_main_blue) !important;
+    border-top: 3px solid var(--colour_main_blue) !important;
+    margin-bottom: -3px !important;
+}
+
+.nav-link.hover {
+
+    border-left: 3px solid var(--colour_main_blue) !important;
+    border-right: 3px solid var(--colour_main_blue) !important;
+    border-top: 3px solid var(--colour_main_blue) !important;
+    margin-bottom: -3px !important;
+}

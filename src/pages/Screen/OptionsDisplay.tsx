@@ -1,8 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
+import Nav from 'react-bootstrap/Nav';
+import Row from 'react-bootstrap/Row';
+import Tab from 'react-bootstrap/Tab';
+
 import '../../resources/styles/App.css';
 import { useState } from "react";
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
+import PlotsDisplay from './PlotsDisplay';
 
 const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager; // The manager running this battle
@@ -13,6 +18,7 @@ const OptionsDisplay = (props: any) => {
   // Update the state of options to match the manager
   const receiveOptions = () => {
     const options =  Object.assign([], Manager.ChoicesLog);
+    console.log(options);
     setOptionsReceived(options);
   }
 
@@ -20,20 +26,27 @@ const OptionsDisplay = (props: any) => {
   Manager.setOptionsFuncs(receiveOptions)
   
   return (
-    <div>      
-      <h1 className="BigText"> BATTLE OPTIONS</h1>
-
-      <div className="BasicElementContainer overflow-auto">
-        <div className='row justify-content-center'>
-          <div className='col-11'>
-            <div className="ForceHeight20" style={{width:"100%", justifyContent:"center"}}>
-              {/** Display each suite of choices */}
-              {optionsReceived.map(item => (
-                <div key={"choice" + optionsReceived.indexOf(item)}>
-                </div> ))}
-            </div>
-          </div>
-        </div>
+    <div className="row">
+      <div className="col-6">
+            <Tab.Container id="left-tabs-example" defaultActiveKey={(optionsReceived.length > 0)? optionsReceived[0].pos: 0}>
+           
+                  <Nav  variant="tabs" >
+                    {optionsReceived.map(item => 
+                      <Nav.Item >
+                        <Nav.Link eventKey={item.pos}>{(item.pos < 0)? "TRAINER" : Manager.BattleState.sides[Manager.BattlePosition].trainers[Manager.SidePosition].team.monsters[item.pos].nickname}</Nav.Link>
+                      </Nav.Item>
+                    ) }
+                  </Nav>
+                  
+                  <Tab.Content>
+                    {optionsReceived.map(item => 
+                        <Tab.Pane  eventKey={item.pos}>Content</Tab.Pane>
+                    ) }
+                  </Tab.Content>
+            </Tab.Container>
+      </div>
+      <div className="col-6">
+        <PlotsDisplay  manager={Manager}/>
       </div>
     </div>
   );

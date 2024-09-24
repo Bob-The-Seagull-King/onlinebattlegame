@@ -20,11 +20,9 @@ const MessagesDisplay = (props: any) => {
   Manager.setResultFuncs(receiveMessage)
   
   return (
-    <div>
-      <h1 className="BigText"> BATTLE MESSAGES</h1>
-      
+    <div>      
       <div className="BasicElementContainer overflow-auto flex-grow-1">
-        <div className="ForceHeight20">
+        <div className="ForceHeight15">
             {/** Display each message in human readable format */}
             {messageReceived.map(item => (
               <div key={"messageset"+messageReceived.indexOf(item)}>

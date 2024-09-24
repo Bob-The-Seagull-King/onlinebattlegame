@@ -10,6 +10,11 @@
     padding: 1em;
 }
 
+.ForceHeight15 {
+    max-height: calc(15vh);
+    min-height: calc(15vh);
+}
+
 .ForceHeight20 {
     max-height: calc(20vh);
     min-height: calc(20vh);
