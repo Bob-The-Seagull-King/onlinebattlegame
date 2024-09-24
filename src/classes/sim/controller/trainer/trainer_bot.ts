@@ -30,7 +30,6 @@ class TrainerBot extends TrainerBase {
      * @returns Returns a SelectedAction object describing what action(s) the trainer takes this turn
      */
     public async SelectChoice(_options: TurnSelect, _room : any, _battle : Battle) {
-        console.log(_options);
         let ReturnedAction : ChosenAction = { 
             type: "PLACE",
             type_index : 0, 

@@ -72,3 +72,17 @@
     border-top: 3px solid var(--colour_main_blue) !important;
     margin-bottom: -3px !important;
 }
+
+.AccordianCustom {
+    border: 3px solid var(--colour_main_blue) !important;
+    border-radius: 0.5em;
+}
+
+.AccordianCustomHeader {
+    border-bottom: 2px solid var(--colour_main_blue) !important;
+
+}
+
+.accordion-button {
+    border-radius: 0.25em !important;
+}

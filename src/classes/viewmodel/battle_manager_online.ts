@@ -30,7 +30,6 @@ class OnlineBattleManager extends BattleManager {
      * @param _battle current state of the battle
      */
     public ReceiveOptions(_options : TurnSelect) : Promise<ChosenAction> {
-        console.log(_options)
         this.BattleState = _options.Battle;  
         _options.Options.forEach(item => {
             this.ChoicesLog.push({ action : item.Choices, pos : item.Position})

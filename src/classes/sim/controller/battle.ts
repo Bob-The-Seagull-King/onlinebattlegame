@@ -146,7 +146,6 @@ class Battle {
         let i = 0;
         const positions : PlaceAction[] = []
 
-        console.log("StartPositions")
         while (i < this.Turns) {
             const possibleActions = this.findPlaceOptions(_trainer);
             const _choices : TurnChoices = {}
@@ -163,8 +162,6 @@ class Battle {
                 positions.push(ChosenTurn)
             }
         }
-        
-        console.log("EndPositions")
         
         return positions
     }

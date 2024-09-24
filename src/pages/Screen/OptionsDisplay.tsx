@@ -8,6 +8,7 @@ import '../../resources/styles/App.css';
 import { useState } from "react";
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
 import PlotsDisplay from './PlotsDisplay';
+import TurnCharacterDisplay from '../Components/Options/TurnCharacter';
 
 const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager; // The manager running this battle
@@ -18,7 +19,6 @@ const OptionsDisplay = (props: any) => {
   // Update the state of options to match the manager
   const receiveOptions = () => {
     const options =  Object.assign([], Manager.ChoicesLog);
-    console.log(options);
     setOptionsReceived(options);
   }
 
@@ -40,7 +40,9 @@ const OptionsDisplay = (props: any) => {
                   
                   <Tab.Content>
                     {optionsReceived.map(item => 
-                        <Tab.Pane  eventKey={item.pos}>Content</Tab.Pane>
+                        <Tab.Pane  eventKey={item.pos}>
+                          <TurnCharacterDisplay manager={Manager} position={item.pos} turn={item}/>
+                        </Tab.Pane>
                     ) }
                   </Tab.Content>
             </Tab.Container>
