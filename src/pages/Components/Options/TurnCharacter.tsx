@@ -10,12 +10,6 @@ const TurnCharacterDisplay = (props: any) => {
     const Position  : number = props.position           // The ID val of this set of choices (used for when multiple monsters are on the field)
     const TurnChar = props.turn;
 
-    // Sends a selected objct to the viewmodel manager as the chosen action
-    const SendSingleOption = (_pos : number) => {
-        Manager.SendOptions("NONE", 0, -1, _pos)
-    }
-
-
     return (
         <div>
             <Accordion>

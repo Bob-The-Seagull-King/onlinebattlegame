@@ -97,31 +97,31 @@ export interface SelectedAction {
     type    : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE',    // What kind of action is being taken
 }
 
+export interface TargetAction extends SelectedAction {    
+    target_id : number[][]  // The coordinates to be chosen
+}
+
 export interface ChosenAction extends SelectedAction {
     type_index : number, // The index within the array of X-Type actions (ie 1 === the second X type action)
     hypo_index? : number // The index within the options selector (ie for ACTION, 0 would be the first action item)
     hype_index? : number // The index within a suboption (ie for ACTION, 3 would be the 4th position item)
 }
 
-export interface PlaceAction extends SelectedAction { // Determines how a PLACE action occurs
+export interface PlaceAction extends TargetAction { // Determines how a PLACE action occurs
     monster_id : number, // The index of the Monster to be placed within the trainer's team
-    positions: number[][] // The coordinates to be chosen
 }
 
-export interface SwapAction extends SelectedAction {
+export interface SwapAction extends TargetAction {
     monster_id : number, // The index of the monster to swap in
-    fielded_ids : number[] // The index of the fielded monster to swap out
 }
 
-export interface ItemAction extends SelectedAction {
+export interface ItemAction extends TargetAction {
     item    : number,   // The index of the item in the trainer's bag
-    target  : number[][] // The coordinates to be chosen
 }
 
-export interface ActionAction extends SelectedAction {
+export interface ActionAction extends TargetAction {
     source_id : number,     // The index of the monster in the fielded options
     action_id : number,     // The index of the action in the fielded monster
-    target_id : number[][]  // The coordinates to be chosen
 }
 
 export interface MoveAction extends SelectedAction {

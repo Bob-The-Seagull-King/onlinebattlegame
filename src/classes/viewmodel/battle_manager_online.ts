@@ -51,11 +51,11 @@ class OnlineBattleManager extends BattleManager {
      * @param _option the SelectedAction chosen
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      */
-    public SendOptions(_type : string, _index : number, _element: number, _position : number) {
-      const TempMandatory : TurnSelectReturn = {actiontype : _type, itemIndex: _index, subItemIndex: _element}
-      const event = new CustomEvent<EventAction>('selectAction', { detail: {type : "CHOICE", payload: TempMandatory} });
+    public SendOptions(_action : ChosenAction) {
+      const event = new CustomEvent<EventAction>('selectAction', { detail: {type : "CHOICE", payload: _action} });
         document.dispatchEvent(event);
-        this.ChoicesLog = this.ChoicesLog.filter(item => item.pos !== _position)
+        this.ChoicesLog = []
+        this.ClearSelectShow();
         this.funcReceiveOptions();
     }
 

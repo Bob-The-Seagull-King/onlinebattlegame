@@ -95,10 +95,10 @@ class OfflineBattleManager extends BattleManager {
      * @param _battle current state of the battle
      */
     public ReceiveOptions(_options : TurnSelect) {
-        this.BattleState = _options.Battle;
         _options.Options.forEach(item => {
             this.ChoicesLog.push({ action : item.Choices, pos : item.Position})
         })
+        this.UpdateBattleState(_options.Battle);
         this.funcReceiveOptions();
         return new Promise((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {
@@ -120,11 +120,11 @@ class OfflineBattleManager extends BattleManager {
      * @param _option the SelectedAction chosen
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      */
-    public SendOptions(_type : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE', _index : number, _element: number, _position : number) {
-        const TempMandatory : ChosenAction = {type : _type, type_index: _index, hypo_index: _element, hype_index: _position}
-        const event = new CustomEvent<EventAction>('selectAction', { detail: {type : "CHOICE", payload: TempMandatory} });
+    public SendOptions(_action : ChosenAction) {
+        const event = new CustomEvent<EventAction>('selectAction', { detail: {type : "CHOICE", payload: _action} });
         document.dispatchEvent(event);
-        this.ChoicesLog = this.ChoicesLog.filter(item => item.pos !== _position)
+        this.ChoicesLog = []
+        this.ClearSelectShow();
         this.funcReceiveOptions();
     }
 

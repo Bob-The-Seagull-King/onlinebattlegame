@@ -40,6 +40,7 @@ class SocketManager {
         // Used when the battle provides possible actions and awaits a user response
         this.ActiveSocket.on("receive_battle_position", async (data : any) => {
             this.BattleManager.SetUserInfo(data.sidepos, data.battlepos)
+            this.BattleManager.UpdateBattleState(data.battle)
         });
 
         // Used when the battle provides possible actions and awaits a user response

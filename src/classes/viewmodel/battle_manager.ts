@@ -1,6 +1,8 @@
-import { MessageSet, SelectedAction, TurnChoices, TurnSelect } from "../../global_types";
+import { ChosenAction, MessageSet, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
 import { MessageTranslator } from "../tools/translator";
+import { GamePlot } from "./game_plot";
+import { GameScene } from "./game_scene";
 
 /**
  * Battle Manager interface, currently empty
@@ -21,6 +23,8 @@ class BattleManager {
     public MessageLog   : MessageSet[]; // Collection of all messages sent by the battle
     public ChoicesLog   : { action : TurnChoices, pos : number}[]; // Collection of choices to be made
     public TranslatedLog : string[];
+    public CurrentScene : GameScene = null;
+    public CurrentPlots : GamePlot[][] = [];
 
     public BattleState  : IBattle = {
         sides       : [],
@@ -75,7 +79,7 @@ class BattleManager {
      * @param _option the SelectedAction chosen
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      */
-    public SendOptions(_type : string, _index : number, _element: number, _position : number) {
+    public SendOptions(_action : ChosenAction) {
         undefined;
     }
 
@@ -100,6 +104,16 @@ class BattleManager {
 
     public UpdateBattleState(_battle : IBattle) {
         this.BattleState = _battle;
+        this.CurrentScene = null;
+        this.CurrentPlots = [];
+        this.CurrentScene = new GameScene( _battle.scene);
+        for(let i = 0; i < this.CurrentScene.Scene.plots.length; i++) {
+            const newRow : GamePlot[] = []
+            for (let j = 0; j < this.CurrentScene.Scene.plots[i].length; j++) {
+                newRow.push(new GamePlot(this.CurrentScene.Scene.plots[i][j]))
+            }
+            this.CurrentPlots.push(newRow);
+        }
         this.funcReceivePlots();
     }
 
@@ -122,6 +136,57 @@ class BattleManager {
      */
     public TranslateMessages(_messages : MessageSet) : string[] {
         return MessageTranslator.TranslateMessages(_messages, this.BattleState)
+    }
+
+    public UpdatePlotsPlace(_action : PlaceAction, _pos : number, _turnchar : any) {
+        for(let i = 0; i < this.CurrentPlots.length; i++) {
+            for (let j = 0; j < this.CurrentPlots[i].length; j++) {
+                const relevantPlot = this.CurrentPlots[i][j]
+                
+                let _active = false;
+                let _index = null;
+
+                _action.target_id.forEach(id => 
+                {
+                    if ( (id[0] === relevantPlot.Plot.position[0]) && (id[1] === relevantPlot.Plot.position[1])) {
+                        _active = true;
+                        _index = _action.target_id.indexOf(id);
+                        let _charindex = -1
+                        for(let k = 0; k < this.ChoicesLog.length; k++) {
+                            if (this.ChoicesLog[k].pos === _pos) {
+                                _charindex = k;
+                            }
+                        }
+                        const Action : ChosenAction = {
+                            type: "PLACE",
+                            type_index : _turnchar.action["PLACE"].indexOf(_action),
+                            hypo_index : _charindex, 
+                            hype_index : _index
+                        }
+    
+                        relevantPlot.setClickableState(_active, false, _index, Action);
+                        relevantPlot.funcUpdateVals();
+                    }
+                }
+                )
+                
+            }
+        }
+    }
+
+    public ClearSelectShow() {
+        this.CurrentPlots.forEach(_plotlist => {
+            _plotlist.forEach(_plot => {                
+                _plot.IsActive = false;
+                _plot.IsSubActive = false;
+                _plot.ValIndex = null;
+                _plot.TurnVal = null;
+                _plot.funcUpdateVals();
+            })
+        })
+
+        this.CurrentScene.IsActive = false
+        this.CurrentScene.TurnVal = null
     }
 
 }

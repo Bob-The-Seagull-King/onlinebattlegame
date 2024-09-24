@@ -158,7 +158,7 @@ class Battle {
             if (Turn) {
                 i++;
                 const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as PlaceAction)
-                ChosenTurn.positions = [ChosenTurn.positions[Turn.hype_index]]
+                ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
                 positions.push(ChosenTurn)
             }
         }
@@ -186,7 +186,7 @@ class Battle {
                         plotpositions.push([_plot.Column, _plot.Row])
                     } })
 
-                const _place : PlaceAction = { type: "PLACE", monster_id: i, positions: plotpositions }
+                const _place : PlaceAction = { type: "PLACE", monster_id: i, target_id: plotpositions }
                 _placeactions.push(_place);
             }            
         }
