@@ -85,7 +85,23 @@ class Battle {
         for (i = 0; i < _items.length; i++) {
             ItemList.push(new BattleSide(_items[i], this))
         }
-        return ItemList;
+        return this.shuffleArray(ItemList);
+    }
+    
+    /**
+     * Given an array of objects, randomise their order
+     * @param array the array to shuffle
+     * @returns the array, with objects randomly swapped around
+     */
+    public shuffleArray(array: any[]): any[] {
+        const newArray = array.slice();
+    
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+    
+        return newArray;
     }
 
     /**
@@ -134,6 +150,25 @@ class Battle {
     }
 
     public async SetStartingPositions() {
+
+        for (let i = 0; i < this.Sides.length; i++) {
+            const curSide = this.Sides[i];
+            const PlacePromise = curSide.Trainers.map(async _trainer => {
+                const positions : PlaceAction[] = await this.GetTrainerStartingPositions(_trainer)
+                if (positions) {                    
+                    this.MessageList.push({ "generic" : JSON.stringify( positions )})
+                }
+            })
+            await Promise.all(PlacePromise);
+            if (PlacePromise) {continue;}
+        }
+        return true;
+    }
+
+    /*
+    
+
+    public async SetStartingPositions() {
         const TurnPromise = this.Sides.map(async (_side) => {
             const PlacePromise = _side.Trainers.map(async _trainer => {
                 const positions : PlaceAction[] = await this.GetTrainerStartingPositions(_trainer)
@@ -147,6 +182,8 @@ class Battle {
         await Promise.all(TurnPromise);
         if (TurnPromise) { return true; }
     }
+
+    */
     
     public async GetTrainerStartingPositions(_trainer : TrainerBase) : Promise<PlaceAction[]> {
         let i = 0;
