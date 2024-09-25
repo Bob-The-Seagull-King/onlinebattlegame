@@ -86,3 +86,96 @@
 .accordion-button {
     border-radius: 0.25em !important;
 }
+
+.scenebasic {
+    background-color: var(--colour_sub_blue);
+    border-radius: 0.5rem;
+    padding:1.25rem;
+    padding-bottom:0.5rem;
+    padding-top:0.5rem;
+}
+
+.plotbasic {
+    background-color: var(--colour_main_blue);
+    height:100%;
+    width: 100%;
+    border-radius: 0.5rem;
+}
+
+.example-4 {
+    outline-width: 1px;
+    outline-offset: 0;
+    outline-color: rgba(0, 130, 206, 0.75);
+    outline-style: solid;
+    animation: animateStartOutline 0.5s ease;
+    animation-fill-mode: forwards;
+  }
+
+
+.example-4:hover {
+    outline-width: 1px;
+    outline-offset: 0;
+    outline-color: rgba(0, 130, 206, 0.75);
+    outline-style: solid;
+    animation: animateOutline 1s ease infinite;
+  }
+  
+
+  @keyframes animateOutline {
+    0% {
+      outline-width: 4px;
+      outline-offset: 0;
+      outline-color: var(--colour_main_grey);
+    }
+  
+    20% {
+      outline-color:var(--colour_main_starpower);
+    }
+  
+    /* The animation finishes at 50% */
+    50% {
+      outline-width: 7px;
+      outline-color: var(--colour_main_starpower);
+    }
+  
+    80% {
+        outline-color:var(--colour_main_grey);
+      }
+
+      
+    100% {
+        outline-width: 4px;
+        outline-offset: 0;
+        outline-color: var(--colour_main_grey);
+      }
+  }
+
+  @keyframes animateStartOutline {
+    0% {
+      outline-width: 0px;
+      outline-offset: 0;
+      outline-color: rgba(0, 130, 206, 0);
+    }
+    50% {
+      outline-width: 4px;
+      outline-offset: 0;
+      outline-color: var(--colour_main_grey);
+    }
+    100% {
+      outline-width: 4px;
+      outline-offset: 0;
+      outline-color: var(--colour_main_grey);
+    }
+  }
+  
+
+  .TempMonPlotName {
+    width:100%;
+    height:100%;
+    font-weight: 600;
+    display: grid;
+    align-items: center;
+    color: var(--colour_text_bright);
+    text-align: center;
+    text-justify: center;
+}

@@ -28,9 +28,9 @@ const PlotsDisplay = (props: any) => {
   return (
     <div>
       {scene != null &&
-        <div style={{minWidth:"calc(50vw)",minHeight:"calc(50vw)",maxWidth:"calc(50vw)",maxHeight:"calc(50vw)",padding:"1rem"}}>
+        <div style={{width:"fit-content",height:"fit-content"}} className="scenebasic">
           {plotsReceived.map(item => 
-            <div className="row">
+            <div className="row" style={{width:"fit-content",height:"fit-content"}}>
               {item.map(_plot => 
                 <GamePlotDisplay key={_plot.Plot.position.toString() + key} manager={Manager} plot={_plot}/>
               )}
