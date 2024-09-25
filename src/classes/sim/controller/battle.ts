@@ -128,6 +128,7 @@ class Battle {
 
         while(cont) {
             this.SendOutMessage(this.MessageList);
+            this.Manager.UpdateState(this.ConvertToInterface())
             cont = false
         }
     }

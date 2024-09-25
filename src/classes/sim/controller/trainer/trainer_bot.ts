@@ -1,4 +1,4 @@
-import { BotBehaviourWeight, BotOptions, ChosenAction, IDEntry, SelectedAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
+import { BotBehaviourWeight, BotOptions, ChosenAction, IDEntry, MoveAction, SelectedAction, TargetAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
 import { BattleSide } from "../../models/battle_side";
 import { Battle } from "../battle";
 import { ITrainer, TrainerBase } from "./trainer_basic";
@@ -30,11 +30,29 @@ class TrainerBot extends TrainerBase {
      * @returns Returns a SelectedAction object describing what action(s) the trainer takes this turn
      */
     public async SelectChoice(_options: TurnSelect, _room : any, _battle : Battle) {
+        
+        const randomCharValue = Math.floor( Math.random() * (_options.Options.length));
+        const TurnChar = _options.Options[randomCharValue];
+
+        const randomTypeValue = Math.floor( Math.random() * (Object.keys(TurnChar.Choices).length));
+        const TypeVal : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE' = Object.keys(TurnChar.Choices)[randomTypeValue] as 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE'
+
+        const randomTypeIndexVal =  Math.floor( Math.random() * (TurnChar.Choices[TypeVal].length));
+
+        let randomHypeVal = 0;
+
+        if ((TypeVal === 'SWITCH') || (TypeVal === 'ITEM') || (TypeVal === 'ACTION') || (TypeVal === 'PLACE')) {
+            randomHypeVal = Math.floor(  Math.random() * ((TurnChar.Choices[TypeVal][randomTypeIndexVal] as TargetAction).target_id.length));
+        }
+        if (TypeVal === 'MOVE') {
+            randomHypeVal =  Math.floor( Math.random() * ((TurnChar.Choices[TypeVal][randomTypeIndexVal] as MoveAction).paths.length));
+        }
+
         let ReturnedAction : ChosenAction = { 
-            type: "PLACE",
-            type_index : 0, 
-            hypo_index : 0,
-            hype_index : 0
+            type: TypeVal,
+            type_index : randomTypeIndexVal, 
+            hypo_index : randomCharValue,
+            hype_index : randomHypeVal
          }
 
         return ReturnedAction

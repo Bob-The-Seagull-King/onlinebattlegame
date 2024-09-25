@@ -18,9 +18,11 @@ const GamePlotDisplay = (props: any) => {
     const size = (Manager.CurrentScene != null)? Math.floor(50/(Manager.CurrentScene.Scene.plots.length)) : "50";
     
     const [active, setActive] = useState(Plot.IsActive);
+    const [mon, setMon] = useState(Plot.CheckForMon());
 
     // Update the state of options to match the manager
     const receivePlots = () => {
+        setMon(Plot.CheckForMon())
         setActive(Plot.IsActive);
     }
 
@@ -33,6 +35,7 @@ const GamePlotDisplay = (props: any) => {
                 {Plot.Plot.position}
                 {active &&
                 <p>ACTIVE</p>}
+                <p key={mon}>{mon}</p>
             </div>
         </div>
     )

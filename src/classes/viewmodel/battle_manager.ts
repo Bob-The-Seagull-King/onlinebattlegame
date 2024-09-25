@@ -110,7 +110,7 @@ class BattleManager {
         for(let i = 0; i < this.CurrentScene.Scene.plots.length; i++) {
             const newRow : GamePlot[] = []
             for (let j = 0; j < this.CurrentScene.Scene.plots[i].length; j++) {
-                newRow.push(new GamePlot(this.CurrentScene.Scene.plots[i][j]))
+                newRow.push(new GamePlot(this.CurrentScene.Scene.plots[i][j], this))
             }
             this.CurrentPlots.push(newRow);
         }
