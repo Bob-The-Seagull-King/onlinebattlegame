@@ -2,7 +2,7 @@ import { SocketHold } from "../socket/SocketHold";
 import { UserHold } from "../user/UserHold";
 import { ConnectionReports } from "../server/SocketConnectionEnum";
 import { RoomStore } from "./RoomStore";
-import { MessageSet, SelectedAction, TurnSelect, TurnSelectReturn } from "../../../global_types";
+import { ChosenAction, MessageSet, SelectedAction, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ITeam } from "../../sim/models/team";
 import { Battle, IBattle } from "../../sim/controller/battle";
 import { TerrainFactory } from "../../sim/factories/terrain_factory";
@@ -166,7 +166,7 @@ class RoomHold {
     }
 
     public SetUserPosition(_user : TrainerUser, _sidepos : number, _battlepos : number) {
-        _user.User.socket.MySocket.emit("receive_battle_position", {sidepos: _sidepos, battlepos: _battlepos});
+        _user.User.socket.MySocket.emit("receive_battle_position", {sidepos: _sidepos, battlepos: _battlepos, battle : _user.Owner.Owner.ConvertToInterface()});
     }
     
     /**
@@ -175,9 +175,9 @@ class RoomHold {
      * @param _option the option chosen
      * @param refID the 
      */
-    public SendOptions(_option : TurnSelectReturn, refID : string, refPos : string) {
+    public SendOptions(_option : ChosenAction, refID : string, refPos : string) {
         this.MyMembers.forEach(member => {
-            if ((member.user.MySocket.MyID === refID) && (member.trainer)) {
+            if ((member.user.MySocket.MyID === refID) && (member.trainer != null)) {
                 member.trainer.SendOptions(_option, refPos)
             }
         })
@@ -200,6 +200,7 @@ class RoomHold {
 
         this.GameRoom.Sides.forEach(element => {
             element.Trainers.forEach((item) => {
+                (item as TrainerUser).User.trainer = (item as TrainerUser);
                 (item as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_message", {message: [{ "generic" : "Battle Room Made For Room" + this.MyID}]});
                 item.SendPositionInfo(this);
             })
@@ -207,7 +208,6 @@ class RoomHold {
     }
 
     public UpdateState(_battle : IBattle) {
-
         this.GameRoom.Sides.forEach(element => {
             element.Trainers.forEach((item) => {
                 (item as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_battle_state", {battle: _battle});

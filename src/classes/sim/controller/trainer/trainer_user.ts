@@ -1,4 +1,4 @@
-import { TurnSelect, TurnSelectReturn } from "../../../../global_types";
+import { ChosenAction, TurnSelect, TurnSelectReturn } from "../../../../global_types";
 import { IRoomMember, RoomHold } from "../../../structure/room/RoomHold";
 import { BattleSide } from "../../models/battle_side";
 import { ITrainer, TrainerBase } from "./trainer_basic";
@@ -58,7 +58,7 @@ class TrainerUser extends TrainerBase {
      * @param _option the option chosen
      * @param refID the 
      */
-    public SendOptions(_option : TurnSelectReturn, refPos : string) {
+    public SendOptions(_option : ChosenAction, refPos : string) {
         eventEmitter.emit('user' + this.Name + 'position' + this.Position + 'selectAction', _option);
     }
     

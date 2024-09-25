@@ -1,7 +1,7 @@
 import { UserHold } from "../user/UserHold";
 import { ServerHold } from "../server/ServerHold";
 import { RoomHold } from "../room/RoomHold";
-import { SelectedAction, TurnSelectReturn } from "../../../global_types";
+import { ChosenAction, SelectedAction, TurnSelectReturn } from "../../../global_types";
 
 class SocketHold {
 
@@ -48,7 +48,7 @@ class SocketHold {
             // Send a response to the room providing a chosen SelectedAction
             const RoomVal = Number(data.room)
             const Room = this.GetRoom(RoomVal)
-            const Action : TurnSelectReturn = data.option;
+            const Action : ChosenAction = data.option;
             if (Room) {
                 Room.SendOptions(Action, data.myID, data.position);
             }
