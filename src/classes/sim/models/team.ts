@@ -43,11 +43,11 @@ class FieldedMonster {
      * @param _data The interface representing the active monster's position
      */
     constructor(_data : IFieldedMonster, _team : Team) {
-        this.Monster = this.Owner.Monsters[_data.monster]
         this.Position = _data.position;
         this.Activated = _data.hasactivated;
         this.Plot = _team.Owner.Owner.Owner.Scene.ReturnGivenPlot(this.Position[0], this.Position[1])
         this.Owner = _team;
+        this.Monster = this.Owner.Monsters[_data.monster]
     }
 
     /*public SwapMon(_action : SwitchAction) {

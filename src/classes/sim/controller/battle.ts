@@ -115,6 +115,7 @@ class Battle {
      */
     public SendOutMessage(_messages : MessageSet) {
         this.Manager.ReceiveMessages(_messages);
+        _messages = [];
     }
 
     /**
@@ -123,7 +124,7 @@ class Battle {
      */
     public async StartBattle() {
         let cont = true;
-        this.SetStartingPositions();
+        cont = await this.SetStartingPositions();
 
         while(cont) {
             this.SendOutMessage(this.MessageList);
@@ -132,14 +133,18 @@ class Battle {
     }
 
     public async SetStartingPositions() {
-        this.Sides.forEach(_side => {
-            _side.Trainers.forEach(async _trainer => {
+        const TurnPromise = this.Sides.map(async (_side) => {
+            const PlacePromise = _side.Trainers.map(async _trainer => {
                 const positions : PlaceAction[] = await this.GetTrainerStartingPositions(_trainer)
                 if (positions) {                    
                     this.MessageList.push({ "generic" : JSON.stringify( positions )})
                 }
             })
-        })
+            await Promise.all(PlacePromise);
+        })       
+        
+        await Promise.all(TurnPromise);
+        if (TurnPromise) { return true; }
     }
     
     public async GetTrainerStartingPositions(_trainer : TrainerBase) : Promise<PlaceAction[]> {
@@ -159,6 +164,7 @@ class Battle {
                 i++;
                 const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as PlaceAction)
                 ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
+                this.Events.PerformActionPLACE(ChosenTurn, _trainer);
                 positions.push(ChosenTurn)
             }
         }
