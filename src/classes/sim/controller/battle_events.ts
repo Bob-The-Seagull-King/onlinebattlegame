@@ -4,7 +4,7 @@ import { ActionInfoDex } from "../../../data/static/action/action_inf";
 import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { ItemInfoDex } from "../../../data/static/item/item_inf";
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
-import { ActionAction, IDEntry, ItemAction, MessageSet, PlaceAction, SelectedAction, TargetSet } from "../../../global_types";
+import { ActionAction, IDEntry, ItemAction, MessageSet, PlaceAction, SelectedAction, SwapAction, TargetSet } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
@@ -36,6 +36,25 @@ class BattleEvents {
         _trainer.Team.Leads.push(NewFielded)
         
         this.Battle.MessageList.push({ "generic" : NewFielded.Monster.Nickname + " has been placed at " + NewFielded.Plot.returnCoordinates().toString()})
+    }
+
+    public PerformActionSWAP(_action : SwapAction, _trainer : TrainerBase) {
+        
+        let lead = null;
+
+        for(let i = 0; i < _trainer.Team.Leads.length; i++) {
+            if ((_trainer.Team.Leads[i].Position[0] === _action.target_id[0][0]) &&
+                (_trainer.Team.Leads[i].Position[1] === _action.target_id[0][1])) {
+                lead = _trainer.Team.Leads[i]
+            }
+        }
+
+        if (lead != null) {            
+            this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped out."})
+            lead.Monster = _trainer.Team.Monsters[_action.monster_id]            
+            this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped in."})
+        }
+        
     }
 
 }

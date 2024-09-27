@@ -3,7 +3,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { BotBehaviourWeight, BotOptions, ChosenAction, MessageSet, PlaceAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
+import { BotBehaviourWeight, BotOptions, ChosenAction, MessageSet, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { FieldedMonster, Team } from "../models/team";
@@ -130,8 +130,8 @@ class Battle {
      * @param _messages Array of messages to send to the users
      */
     public SendOutMessage(_messages : MessageSet) {
-        this.Manager.ReceiveMessages(_messages);
-        _messages = [];
+        this.Manager.ReceiveMessages(_messages);        
+        this.MessageList = [];
     }
 
     /**
@@ -141,12 +141,72 @@ class Battle {
     public async StartBattle() {
         let cont = true;
         cont = await this.SetStartingPositions();
+        let roundVar = 1;
 
         while(cont) {
+            this.MessageList.push({ "generic" : "Round " + roundVar})
             this.SendOutMessage(this.MessageList);
             this.Manager.UpdateState(this.ConvertToInterface())
-            cont = false
+            cont = await this.EnactRound();
+            roundVar ++;
         }
+    }
+
+    public async EnactRound() : Promise<boolean> {
+        
+        for (let i = 0; i < this.Turns; i++) {
+            for (let j = 0; j < this.Sides.length; j++) {
+                for (let k = 0; k < this.Sides[j].Trainers.length; k++) {
+                    await this.EnactTurn(this.Sides[j].Trainers[k])
+                }
+            }
+        }
+        return true;
+    }
+
+    public async EnactTurn(_trainer : TrainerBase) : Promise<boolean> {
+        
+        const _battle : IBattle = this.ConvertToInterface()
+        const _choices : TurnCharacter[] = []
+
+        _choices.push(this.GetTrainerOptions(_trainer))
+
+        for (let i = 0; i < _trainer.Team.Leads.length; i++) {
+            const LeadOptions = this.GetMonsterOptions(_trainer.Team.Leads[i])
+            if (LeadOptions != null) {
+                _choices.push(LeadOptions)
+            }
+        }
+
+        const _TurnSelect : TurnSelect = {Options: _choices, Battle: _battle}
+        
+        const Turn : ChosenAction = await (_trainer.SelectChoice(_TurnSelect, this.Manager, this))
+
+        if (Turn) {
+            
+            if (Turn.type === "SWITCH") {
+                const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as SwapAction)
+                ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
+                this.Events.PerformActionSWAP(ChosenTurn, _trainer);
+            }
+
+            return true;
+        }
+    }
+
+    public GetTrainerOptions(_trainer : TrainerBase) {
+
+        const _choices : TurnChoices = {}
+        
+        const swapActions = this.findSwapOptions(_trainer);
+        
+        _choices["SWITCH"] = swapActions
+
+        return { Choices: _choices, Position : -1}
+    }
+
+    public GetMonsterOptions(_monster : FieldedMonster) {
+        return null //{ Choices: {}, Position : _monster.Owner.Monsters.indexOf(_monster.Monster)}
     }
 
     public async SetStartingPositions() {
@@ -156,7 +216,7 @@ class Battle {
             const PlacePromise = curSide.Trainers.map(async _trainer => {
                 const positions : PlaceAction[] = await this.GetTrainerStartingPositions(_trainer)
                 if (positions) {                    
-                    this.MessageList.push({ "generic" : JSON.stringify( positions )})
+                    undefined;
                 }
             })
             await Promise.all(PlacePromise);
@@ -164,26 +224,6 @@ class Battle {
         }
         return true;
     }
-
-    /*
-    
-
-    public async SetStartingPositions() {
-        const TurnPromise = this.Sides.map(async (_side) => {
-            const PlacePromise = _side.Trainers.map(async _trainer => {
-                const positions : PlaceAction[] = await this.GetTrainerStartingPositions(_trainer)
-                if (positions) {                    
-                    this.MessageList.push({ "generic" : JSON.stringify( positions )})
-                }
-            })
-            await Promise.all(PlacePromise);
-        })       
-        
-        await Promise.all(TurnPromise);
-        if (TurnPromise) { return true; }
-    }
-
-    */
     
     public async GetTrainerStartingPositions(_trainer : TrainerBase) : Promise<PlaceAction[]> {
         let i = 0;
@@ -236,6 +276,32 @@ class Battle {
         }
 
         return _placeactions;
+    }
+    
+    public findSwapOptions(sourceTrainer : TrainerBase): PlaceAction[] {
+        const _swapactions : SwapAction[] = [];
+
+        for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
+            let MonsterAvailable = true;
+            for (let j = 0; j < sourceTrainer.Team.Leads.length; j++) {
+                if (sourceTrainer.Team.Leads[j].Monster === sourceTrainer.Team.Monsters[i]) {
+                    MonsterAvailable = false;
+                    break;
+                }
+            }
+
+            if (MonsterAvailable === true) {
+                const plotpositions : number[][] = []
+
+                sourceTrainer.Team.Leads.forEach(_plot => {
+                    plotpositions.push(_plot.Position)})
+
+                const _swap : SwapAction = { type: "SWITCH", monster_id: i, target_id: plotpositions }
+                _swapactions.push(_swap);
+            }            
+        }
+
+        return _swapactions;
     }
     
     /**

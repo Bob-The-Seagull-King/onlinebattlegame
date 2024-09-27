@@ -174,6 +174,42 @@ class BattleManager {
         }
     }
 
+    public UpdatePlotsSwap(_action : PlaceAction, _pos : number, _turnchar : any) {
+        for(let i = 0; i < this.CurrentPlots.length; i++) {
+            for (let j = 0; j < this.CurrentPlots[i].length; j++) {
+                const relevantPlot = this.CurrentPlots[i][j]
+                
+                let _active = false;
+                let _index = null;
+
+                _action.target_id.forEach(id => 
+                {
+                    if ( (id[0] === relevantPlot.Plot.position[0]) && (id[1] === relevantPlot.Plot.position[1])) {
+                        _active = true;
+                        _index = _action.target_id.indexOf(id);
+                        let _charindex = -1
+                        for(let k = 0; k < this.ChoicesLog.length; k++) {
+                            if (this.ChoicesLog[k].pos === _pos) {
+                                _charindex = k;
+                            }
+                        }
+                        const Action : ChosenAction = {
+                            type: "SWITCH",
+                            type_index : _turnchar.action["SWITCH"].indexOf(_action),
+                            hypo_index : _charindex, 
+                            hype_index : _index
+                        }
+    
+                        relevantPlot.setClickableState(_active, false, _index, Action);
+                        relevantPlot.funcUpdateVals();
+                    }
+                }
+                )
+                
+            }
+        }
+    }
+
     public ClearSelectShow() {
         this.CurrentPlots.forEach(_plotlist => {
             _plotlist.forEach(_plot => {                
