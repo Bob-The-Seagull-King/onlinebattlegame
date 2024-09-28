@@ -36,6 +36,9 @@ class BattleEvents {
         _trainer.Team.Leads.push(NewFielded)
         
         this.Battle.MessageList.push({ "generic" : NewFielded.Monster.Nickname + " has been placed at " + NewFielded.Plot.returnCoordinates().toString()})
+
+        this.Battle.runEvent( "SwitchInMonster", NewFielded.Monster, null, null, null, null, this.Battle.MessageList )
+        this.Battle.runEvent( "MonsterEntersField", NewFielded.Monster, null, null, null, null, this.Battle.MessageList )
     }
 
     public PerformActionSWAP(_action : SwapAction, _trainer : TrainerBase) {
@@ -49,10 +52,22 @@ class BattleEvents {
             }
         }
 
-        if (lead != null) {            
-            this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped out."})
-            lead.Monster = _trainer.Team.Monsters[_action.monster_id]            
-            this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped in."})
+        if (lead != null) {     
+            const CanSwap = this.Battle.runEvent( "CanSwapOut", lead.Monster, null, null, true, null, this.Battle.MessageList )
+
+            if (CanSwap) {
+                this.Battle.runEvent( "SwitchOutMonster", lead.Monster, null, null, null, null, this.Battle.MessageList )
+                this.Battle.runEvent( "MonsterExitsField", lead.Monster, null, null, null, null, this.Battle.MessageList )
+                this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped out."})
+
+                lead.Monster = _trainer.Team.Monsters[_action.monster_id]          
+                  
+                this.Battle.runEvent( "SwitchInMonster", lead.Monster, null, null, null, null, this.Battle.MessageList )
+                this.Battle.runEvent( "MonsterEntersField", lead.Monster, null, null, null, null, this.Battle.MessageList )
+                this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped in."})
+            } else {
+                this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " can't swap out."})
+            }
         }
         
     }

@@ -23,6 +23,8 @@ import { TokenFieldBattleDex } from "../../../data/static/token/t_field/token_fi
 import { TokenWeatherBattleDex } from "../../../data/static/token/t_weather/token_weather_btl";
 import { WeatherBattleDex } from "../../../data/static/weather/weather_btl";
 
+// this.runEvent( "", source, target, sourceEffect, relayVar, trackVal, this.MessageList )
+
 /**
  * Stores information on an event function that needs
  * to be run.
@@ -255,24 +257,28 @@ class Battle {
 
         for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
             let MonsterAvailable = true;
-            for (let j = 0; j < sourceTrainer.Team.Leads.length; j++) {
-                if (sourceTrainer.Team.Leads[j].Monster === sourceTrainer.Team.Monsters[i]) {
-                    MonsterAvailable = false;
-                    break;
+            
+            const CanPlace = this.runEvent( "CanPlaceMonster", sourceTrainer.Team.Monsters[i], null, null, true, null, this.MessageList )
+            if (CanPlace) {
+                for (let j = 0; j < sourceTrainer.Team.Leads.length; j++) {
+                    if (sourceTrainer.Team.Leads[j].Monster === sourceTrainer.Team.Monsters[i]) {
+                        MonsterAvailable = false;
+                        break;
+                    }
                 }
-            }
 
-            if (MonsterAvailable === true) {
-                const plotpositions : number[][] = []
+                if (MonsterAvailable === true) {
+                    const plotpositions : number[][] = []
 
-                sourceTrainer.Owner.Plots.forEach(_plot => {
-                    if (_plot.IsPlaceable() === true) {
-                        plotpositions.push([_plot.Column, _plot.Row])
-                    } })
+                    sourceTrainer.Owner.Plots.forEach(_plot => {
+                        if ((_plot.IsPlaceable() === true) && (this.runEvent( "CanUsePlot", _plot, null, null, true, null, this.MessageList ) === true)) {
+                            plotpositions.push([_plot.Column, _plot.Row])
+                        } })
 
-                const _place : PlaceAction = { type: "PLACE", monster_id: i, target_id: plotpositions }
-                _placeactions.push(_place);
-            }            
+                    const _place : PlaceAction = { type: "PLACE", monster_id: i, target_id: plotpositions }
+                    _placeactions.push(_place);
+                }   
+            }         
         }
 
         return _placeactions;
@@ -283,22 +289,32 @@ class Battle {
 
         for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
             let MonsterAvailable = true;
-            for (let j = 0; j < sourceTrainer.Team.Leads.length; j++) {
-                if (sourceTrainer.Team.Leads[j].Monster === sourceTrainer.Team.Monsters[i]) {
-                    MonsterAvailable = false;
-                    break;
+
+            const CanPlace = this.runEvent( "CanPlaceMonster", sourceTrainer.Team.Monsters[i], null, null, true, null, this.MessageList )
+
+            if (CanPlace) {
+                for (let j = 0; j < sourceTrainer.Team.Leads.length; j++) {
+                    if (sourceTrainer.Team.Leads[j].Monster === sourceTrainer.Team.Monsters[i]) {
+                        MonsterAvailable = false;
+                        break;
+                    }
                 }
-            }
 
-            if (MonsterAvailable === true) {
-                const plotpositions : number[][] = []
+                if (MonsterAvailable === true) {
+                    const plotpositions : number[][] = []
 
-                sourceTrainer.Team.Leads.forEach(_plot => {
-                    plotpositions.push(_plot.Position)})
+                    sourceTrainer.Team.Leads.forEach(_plot => {                        
+                        const CanSwap = this.runEvent( "CanSwapOut", _plot.Monster, null, null, true, null, this.MessageList )
+                        if (CanSwap) {
+                            plotpositions.push(_plot.Position)
+                        }})
 
-                const _swap : SwapAction = { type: "SWITCH", monster_id: i, target_id: plotpositions }
-                _swapactions.push(_swap);
-            }            
+                    if (plotpositions.length > 0) {
+                        const _swap : SwapAction = { type: "SWITCH", monster_id: i, target_id: plotpositions }
+                        _swapactions.push(_swap);
+                    }
+                }  
+            }          
         }
 
         return _swapactions;
