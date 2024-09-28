@@ -102,6 +102,10 @@ class BattleManager {
         undefined;
     }
 
+    /**
+     * Update the manager's view of the battle
+     * @param _battle the new state of the battle
+     */
     public UpdateBattleState(_battle : IBattle) {
         this.BattleState = _battle;
         this.CurrentScene = null;
@@ -138,6 +142,12 @@ class BattleManager {
         return MessageTranslator.TranslateMessages(_messages, this.BattleState)
     }
 
+    /**
+     * Update the state of the battle plots based on a given PLACE action
+     * @param _action the given action to select positions for
+     * @param _pos the position this action comes from
+     * @param _turnchar the turnchar object this action comes from
+     */
     public UpdatePlotsPlace(_action : PlaceAction, _pos : number, _turnchar : any) {
         for(let i = 0; i < this.CurrentPlots.length; i++) {
             for (let j = 0; j < this.CurrentPlots[i].length; j++) {
@@ -174,6 +184,12 @@ class BattleManager {
         }
     }
 
+    /**
+     * Update the state of the battle plots based on a given SWAP action
+     * @param _action the given action to select positions for
+     * @param _pos the position this action comes from
+     * @param _turnchar the turnchar object this action comes from
+     */
     public UpdatePlotsSwap(_action : PlaceAction, _pos : number, _turnchar : any) {
         for(let i = 0; i < this.CurrentPlots.length; i++) {
             for (let j = 0; j < this.CurrentPlots[i].length; j++) {
@@ -210,6 +226,9 @@ class BattleManager {
         }
     }
 
+    /**
+     * Reset the state of all plot objects
+     */
     public ClearSelectShow() {
         this.CurrentPlots.forEach(_plotlist => {
             _plotlist.forEach(_plot => {                

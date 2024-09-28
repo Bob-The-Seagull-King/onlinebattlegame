@@ -27,16 +27,25 @@ class GameScene {
         this.TurnVal = null;
     }    
 
+    /**
+     * Set the current state of the scene display
+     * @param _active if the scene is active
+     * @param _turn what turn, if any, should be returned
+     */
     public setClickableState(_active : boolean, _turn : ChosenAction) {
         this.IsActive = _active;
         this.TurnVal = _turn;
         this.funcUpdateVals();
     }
 
+    /**
+     * Set the function for this manager to
+     * trigger the scene update
+     * @param updateresults the react component function
+     */
     public setUpdateFuncs(updateresults : any) {
         this.funcUpdateVals = updateresults;
     }
-
 
 }
 

@@ -35,6 +35,13 @@ class GamePlot {
         this.Owner = _manager;
     }
 
+    /**
+     * Set the current state of the plot display
+     * @param _active if the plot is active
+     * @param _subactive if the plot isn't active, but still should be shown
+     * @param _index the index of the plot's position in the actions position array
+     * @param _turn what turn, if any, should be returned
+     */
     public setClickableState(_active : boolean, _subactive :boolean, _index : number, _turn : ChosenAction) {
         this.IsActive = _active;
         this.IsSubActive = _subactive;
@@ -43,6 +50,11 @@ class GamePlot {
         this.funcUpdateVals();
     }
 
+    /**
+     * Set the function for this manager to
+     * trigger the plot update
+     * @param updateresults the react component function
+     */
     public setUpdateFuncs(updateresults : any) {
         this.funcUpdateVals = updateresults;
     }

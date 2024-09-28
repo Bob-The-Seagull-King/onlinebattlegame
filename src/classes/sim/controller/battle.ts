@@ -154,6 +154,11 @@ class Battle {
         }
     }
 
+    /**
+     * Iterates through each trainer, giving
+     * them a turn, then assesses if things should continue.
+     * @returns If the battle is Over.
+     */
     public async EnactRound() : Promise<boolean> {
         
         for (let i = 0; i < this.Turns; i++) {
@@ -163,9 +168,26 @@ class Battle {
                 }
             }
         }
-        return true;
+        
+        this.runEvent( "EndRound", null, null, null, null, null, this.MessageList )
+        return this.ContinueBattle();
     }
 
+    /**
+     * Evaulates if a player has won
+     * @returns true if no winner is declared
+     */
+    public ContinueBattle() {
+        return this.runEvent( "ContinueBattle", null, null, null, true, null, this.MessageList )
+    }
+
+    /**
+     * Given a particular trainer, have
+     * them choose an action to take and then
+     * have the Events perform it.
+     * @param _trainer the trainer to have take their turn
+     * @returns true once the action has been chosen and performed
+     */
     public async EnactTurn(_trainer : TrainerBase) : Promise<boolean> {
         
         const _battle : IBattle = this.ConvertToInterface()
@@ -192,10 +214,17 @@ class Battle {
                 this.Events.PerformActionSWAP(ChosenTurn, _trainer);
             }
 
+            this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
             return true;
         }
     }
 
+    /**
+     * Get the possible choices a trainer has
+     * which do not relate to any one monster
+     * @param _trainer the trainer to select options for
+     * @returns the TurnCharacter suite of choices
+     */
     public GetTrainerOptions(_trainer : TrainerBase) {
 
         const _choices : TurnChoices = {}
@@ -207,10 +236,22 @@ class Battle {
         return { Choices: _choices, Position : -1}
     }
 
+    /**
+     * Get the possible choices a trainer can
+     * select relating to this one fielded monster
+     * @param _monster the active monster to select options for
+     * @returns the TurnCharacter suite of choices
+     */
     public GetMonsterOptions(_monster : FieldedMonster) {
         return null //{ Choices: {}, Position : _monster.Owner.Monsters.indexOf(_monster.Monster)}
     }
 
+    /**
+     * At the start of the battle, allow each player
+     * to set their starting lead monster on their
+     * portion of the battlefield.
+     * @returns true once all initial battles have been set
+     */
     public async SetStartingPositions() {
 
         for (let i = 0; i < this.Sides.length; i++) {
@@ -227,6 +268,12 @@ class Battle {
         return true;
     }
     
+    /**
+     * Given a trainer, get them to choose the
+     * initial starting positions of their monsters
+     * @param _trainer the trainer to have set their monsters
+     * @returns the suite of actions chosen.
+     */
     public async GetTrainerStartingPositions(_trainer : TrainerBase) : Promise<PlaceAction[]> {
         let i = 0;
         const positions : PlaceAction[] = []
@@ -252,6 +299,12 @@ class Battle {
         return positions
     }
 
+    /**
+     * Given a trainer, find all viable options for
+     * them to place their monsters
+     * @param sourceTrainer the trainer to find options for
+     * @returns a list of possible PLACE actions to take
+     */
     public findPlaceOptions(sourceTrainer : TrainerBase): PlaceAction[] {
         const _placeactions : PlaceAction[] = [];
 
@@ -284,7 +337,13 @@ class Battle {
         return _placeactions;
     }
     
-    public findSwapOptions(sourceTrainer : TrainerBase): PlaceAction[] {
+    /**
+     * Given a trainer, find all the possible
+     * SWAP options they can take
+     * @param sourceTrainer the trainer to search options for
+     * @returns the list of SWAP actions.
+     */
+    public findSwapOptions(sourceTrainer : TrainerBase): SwapAction[] {
         const _swapactions : SwapAction[] = [];
 
         for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
@@ -339,8 +398,8 @@ class Battle {
      */
     public runEvent(
         eventid: string,
-        source?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null,
-        target?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | null, 
+        source?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | TrainerBase | null,
+        target?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | TrainerBase | null, 
         sourceEffect?: ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, 
         relayVar?: any, 
         trackVal?: any,
@@ -351,8 +410,24 @@ class Battle {
         const Events : EventHolder[] = [];
         
         // If the relevant object exists, gather events from it
-        if (target) { this.getEvents(eventid, target, Events, false) }
-        if (source) { this.getEvents(eventid, source, Events, true) }
+        if (target) { 
+            if (target instanceof TrainerBase) {
+                target.Team.Leads.forEach(_lead => {
+                    this.getEvents(eventid, _lead, Events, false) 
+                })
+            } else {
+                this.getEvents(eventid, target, Events, false) 
+            }
+        }
+        if (source) { 
+            if (source instanceof TrainerBase) {
+                source.Team.Leads.forEach(_lead => {
+                    this.getEvents(eventid, _lead, Events, true) 
+                })
+            } else {
+                this.getEvents(eventid, source, Events, true) 
+            }
+        }
         if (sourceEffect) { this.getEvents(eventid, sourceEffect, Events, true) }
 
         // Get events from the battle's current scene, and the relevant trainer's sides

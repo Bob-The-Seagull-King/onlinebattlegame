@@ -23,6 +23,10 @@ class TrainerLocal extends TrainerBase {
         this.Manager = _trainer.manager;
     }
 
+    /**
+     * Sends the user information on where in
+     * the battle this trainer is located
+     */
     public SendPositionInfo() {         
         this.Manager.SetUserInfo(this.Position, this.Owner.Position)
     }

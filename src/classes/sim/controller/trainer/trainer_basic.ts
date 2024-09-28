@@ -45,6 +45,11 @@ class TrainerBase {
      */
     public async SelectChoice(_options: TurnSelect, _room? : any, _battle? : Battle) { return null; }
 
+    /**
+     * Sends the user information on where in
+     * the battle this trainer is located
+     * @param _room the room to have transmit this information
+     */
     public SendPositionInfo(_room? : RoomHold) { undefined; }
 
     /**

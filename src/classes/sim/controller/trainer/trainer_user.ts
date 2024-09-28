@@ -31,7 +31,11 @@ class TrainerUser extends TrainerBase {
         this.User = _trainer.user;
     }
 
-    
+    /**
+     * Sends the user information on where in
+     * the battle this trainer is located
+     * @param _room the room to have transmit this information
+     */
     public SendPositionInfo(_room : RoomHold) {         
         _room.SetUserPosition(this, this.Position, this.Owner.Position)
     }

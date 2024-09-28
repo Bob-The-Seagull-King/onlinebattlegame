@@ -110,6 +110,10 @@ class OfflineBattleManager extends BattleManager {
           });
     }
 
+    /**
+     * Update the manager's view of the battle
+     * @param _battle the new state of the battle
+     */
     public UpdateState(_battle : IBattle) {
         this.UpdateBattleState(_battle);
     }

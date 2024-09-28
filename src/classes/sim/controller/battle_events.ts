@@ -26,6 +26,13 @@ class BattleEvents {
         this.Battle = _battle;
     }
 
+    /**
+     * Given a PLACE action, perform it.
+     * Take a non-fielded monster and place it in
+     * an empty plot.
+     * @param _action the PLACE action to perform
+     * @param _trainer the trainer this action refers to
+     */
     public PerformActionPLACE(_action : PlaceAction, _trainer : TrainerBase) {
         const newActive : IFieldedMonster = {
             monster : _action.monster_id,
@@ -41,6 +48,13 @@ class BattleEvents {
         this.Battle.runEvent( "MonsterEntersField", NewFielded.Monster, null, null, null, null, this.Battle.MessageList )
     }
 
+    /**
+     * Given a SWAP action, perform it.
+     * Take a fielded monster and swap it out with
+     * a non fielded monster in the trainers team.
+     * @param _action the SWAP action to perform
+     * @param _trainer the trainer this action refers to
+     */
     public PerformActionSWAP(_action : SwapAction, _trainer : TrainerBase) {
         
         let lead = null;
