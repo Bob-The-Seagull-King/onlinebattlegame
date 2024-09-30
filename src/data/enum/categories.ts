@@ -37,6 +37,12 @@ enum WeatherCategory {
 
 enum FieldCategory {
     None = "", // No special category
+    Damage = "Damage", // Deals HP damage
+    Piercing = "Piercing", // Ignores protection
+    Enter = "Enter", // Triggers on moving into or switching into
+    Trap = "Trap", // Prevents switching
+    Block = "Block", // Prevents moving into or through
+    Object = "Object" // Created physical structures
 }
 
 enum ItemCategory {

@@ -8,6 +8,7 @@ import { BattleFactory } from "../sim/factories/battle_factory";
 import { MonsterFactory } from "../sim/factories/monster_factory";
 import { TeamFactory } from "../sim/factories/team_factory";
 import { TerrainFactory } from "../sim/factories/terrain_factory";
+import { IFieldEffect } from "../sim/models/Effects/field_effect";
 import { IFieldedMonster, FieldedMonster, Team, ITeam } from "../sim/models/team";
 import { IScene, Scene } from "../sim/models/terrain/terrain_scene";
 import { BattleManager } from "./battle_manager";
@@ -47,9 +48,16 @@ class OfflineBattleManager extends BattleManager {
         const otherTeam : ITeam = this.TempBotTeam();
         const otherTrainer : ITrainerBot = {type : 'bot', team: otherTeam, pos: 1, behaviour: ['random'], name: "Bot"};
 
+        const FieldEffectObstacle : IFieldEffect = {
+            tokens      : [],        // Tokens held by the plot
+            trackers    : {},    // Misc trackers used by plot tokens
+            plots       : [[2,2],[2,3],[3,2],[3,3],[4,3]],
+            fieldEffect : 'obstacle'
+        }
         
         const Trainers : ITrainer[][] = [];
         const newScene : IScene = TerrainFactory.CreateIScene(6,6)
+        newScene.field.push(FieldEffectObstacle);
         Trainers.push([myTrainer]);
         Trainers.push([otherTrainer]);
 

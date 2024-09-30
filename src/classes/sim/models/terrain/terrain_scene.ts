@@ -25,13 +25,13 @@ class Scene {
      * @param _data The interface representing the scene
      */
     constructor(_data : IScene, _owner : Battle) {
+        this.Owner = _owner;
         this.Plots = [];
         this.PlotGenerator(_data.plots)
         this.Weather = [];
         this.WeatherGenerator(_data.weather)
         this.Field = [];
         this.FieldGenerator(_data.field)
-        this.Owner = _owner;
     }
 
     /**

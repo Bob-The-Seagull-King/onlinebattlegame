@@ -28,8 +28,8 @@ class FieldEffect {
     constructor(_data : IFieldEffect, _owner : Scene) {
         this.Tokens = _data.tokens;
         this.Trackers = _data.trackers;
-        this.Plots = this.PlotGenerator(_data.plots)
         this.Owner = _owner;
+        this.Plots = this.PlotGenerator(_data.plots)
         this.Field = _data.fieldEffect;
     }
 
