@@ -21,6 +21,8 @@ class GamePlot {
     public TurnVal : ChosenAction;
     public Owner : BattleManager;
 
+    public Tooltip: string[] = []
+
     public funcUpdateVals   : any;
 
     /**
@@ -33,6 +35,8 @@ class GamePlot {
         this.ValIndex = null;
         this.TurnVal = null;
         this.Owner = _manager;
+        
+        this.UpdateTooltips();
     }
 
     /**
@@ -47,7 +51,22 @@ class GamePlot {
         this.IsSubActive = _subactive;
         this.ValIndex = _index;
         this.TurnVal = _turn;
+
+        this.UpdateTooltips();
+
         this.funcUpdateVals();
+    }
+
+    private UpdateTooltips() {
+        this.Tooltip = []
+        this.Tooltip.push("Position: " + this.Plot.position[0] + " - " + this.Plot.position[1])
+        if (this.IsActive) {
+            this.Tooltip.push("Selectable Plot")
+        }
+        const Mon = this.CheckForMon()
+        if (Mon != "") {
+            this.Tooltip.push("Features " + Mon)
+        }
     }
 
     /**

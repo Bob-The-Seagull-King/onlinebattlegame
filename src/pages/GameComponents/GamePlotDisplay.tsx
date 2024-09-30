@@ -3,6 +3,10 @@ import React from 'react';
 import '../../resources/styles/App.css';
 import { useState } from "react";
 
+
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+
 import { Button } from "react-bootstrap";
 import { BattleManager } from "../../classes/viewmodel/battle_manager";
 import { PlaceAction, SelectedAction, TurnCharacter } from "../../global_types";
@@ -37,9 +41,22 @@ const GamePlotDisplay = (props: any) => {
 
     return (
         <div style={{minWidth:"calc("+size+"vw)",minHeight:"calc("+size+"vw)",maxWidth:"calc("+size+"vw)",maxHeight:"calc("+size+"vw)",padding:"0.5rem"}}>
-            <div className={"plotbasic" + ((active)? " example-4" : "")} onClick={() => TrySend()}>
-                <div className="TempMonPlotName">{mon}</div>
-            </div>
+            <OverlayTrigger
+            key={"plot" + Plot.Plot.position}
+            placement={'auto'}
+            overlay={
+                <Tooltip>
+                    {Plot.Tooltip.map(_item => 
+                        <div>
+                            {_item}
+                        </div>
+                    )}
+                </Tooltip>
+            }>
+                <div className={"plotbasic" + ((active)? " example-4" : "")} onClick={() => TrySend()}>
+                    <div className="TempMonPlotName">{mon}</div>
+                </div>
+            </OverlayTrigger>            
         </div>
     )
 
