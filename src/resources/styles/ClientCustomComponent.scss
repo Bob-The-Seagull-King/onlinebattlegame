@@ -175,7 +175,12 @@
     font-weight: 600;
     display: grid;
     align-items: center;
-    color: var(--colour_text_bright);
+    color: var(--colour_text_bright) !important;
     text-align: center;
     text-justify: center;
+}
+
+.TempEffectPlotName {
+  font-size: 0.75em;
+  font-weight: 400;
 }

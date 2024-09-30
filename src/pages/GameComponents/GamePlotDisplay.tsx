@@ -23,10 +23,13 @@ const GamePlotDisplay = (props: any) => {
     
     const [active, setActive] = useState(Plot.IsActive);
     const [mon, setMon] = useState(Plot.CheckForMon());
+    const [field, setField] = useState(Plot.CheckEffects());
 
     // Update the state of options to match the manager
     const receivePlots = () => {
         setMon(Plot.CheckForMon())
+        console.log(Plot.CheckEffects());
+        setField(Plot.CheckEffects())
         setActive(Plot.IsActive);
     }
 
@@ -54,7 +57,11 @@ const GamePlotDisplay = (props: any) => {
                 </Tooltip>
             }>
                 <div className={"plotbasic" + ((active)? " example-4" : "")} onClick={() => TrySend()}>
-                    <div className="TempMonPlotName">{mon}</div>
+                    <div className="TempMonPlotName">
+                        {mon}
+                        {field && <div className="TempEffectPlotName">Field Effects</div>}
+                    </div>
+                    
                 </div>
             </OverlayTrigger>            
         </div>

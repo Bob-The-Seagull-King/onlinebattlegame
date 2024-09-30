@@ -1,3 +1,4 @@
+import { FieldInfoDex } from "../../data/static/field/field_inf";
 import { ChosenAction, MessageSet, SelectedAction, TurnChoices, TurnSelect } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
 import { IFieldedMonster } from "../sim/models/team";
@@ -20,6 +21,7 @@ class GamePlot {
     public ValIndex : number;
     public TurnVal : ChosenAction;
     public Owner : BattleManager;
+    public HasEffects: boolean;
 
     public Tooltip: string[] = []
 
@@ -35,7 +37,7 @@ class GamePlot {
         this.ValIndex = null;
         this.TurnVal = null;
         this.Owner = _manager;
-        
+        this.HasEffects = false;
         this.UpdateTooltips();
     }
 
@@ -57,6 +59,18 @@ class GamePlot {
         this.funcUpdateVals();
     }
 
+    public CheckEffects() {
+        let ValEffect = false;
+        for (let i = 0; i < this.Owner.BattleState.scene.field.length; i++) {
+            for (let j = 0; j <  this.Owner.BattleState.scene.field[i].plots.length; j++) {
+                if ((this.Owner.BattleState.scene.field[i].plots[j][1] === this.Plot.position[1]) && (this.Owner.BattleState.scene.field[i].plots[j][0] === this.Plot.position[0])) {
+                    ValEffect = true;
+                }
+            }
+        }
+        return ValEffect;
+    }
+
     private UpdateTooltips() {
         this.Tooltip = []
         this.Tooltip.push("Position: " + this.Plot.position[0] + " - " + this.Plot.position[1])
@@ -65,7 +79,15 @@ class GamePlot {
         }
         const Mon = this.CheckForMon()
         if (Mon != "") {
-            this.Tooltip.push("Features " + Mon)
+            this.Tooltip.push("Features: " + Mon)
+        }
+        for (let i = 0; i < this.Owner.BattleState.scene.field.length; i++) {
+            for (let j = 0; j <  this.Owner.BattleState.scene.field[i].plots.length; j++) {
+                if ((this.Owner.BattleState.scene.field[i].plots[j][1] === this.Plot.position[1]) && (this.Owner.BattleState.scene.field[i].plots[j][0] === this.Plot.position[0])) {
+                    this.HasEffects = true;
+                    this.Tooltip.push("Effect: " + FieldInfoDex[this.Owner.BattleState.scene.field[i].fieldEffect].name)
+                }
+            }
         }
     }
 
