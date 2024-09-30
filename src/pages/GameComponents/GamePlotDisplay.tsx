@@ -49,13 +49,16 @@ const GamePlotDisplay = (props: any) => {
             <OverlayTrigger
             key={"plot" + Plot.Plot.position}
             placement={'auto'}
+            delay={{ show: 250, hide: 0 }}
             overlay={
-                <Tooltip>
-                    {Plot.Tooltip.map(_item => 
-                        <div>
-                            {_item}
-                        </div>
-                    )}
+                <Tooltip  className="overcomeTooltip">
+                    <div className="previewborder basebackground plottooltip" style={{opacity:"100%"}}>
+                        {Plot.Tooltip.map(_item => 
+                            <div >
+                                {_item}
+                            </div>
+                        )}
+                    </div>
                 </Tooltip>
             }>
                 <div className={"plotbasic" + ((active)? " example-4" : "")} onClick={() => TrySend()}>
