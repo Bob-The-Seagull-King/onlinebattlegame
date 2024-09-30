@@ -3,6 +3,8 @@ import React from 'react';
 import '../../resources/styles/App.css';
 import { useState } from "react";
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons'
 
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
@@ -59,7 +61,7 @@ const GamePlotDisplay = (props: any) => {
                 <div className={"plotbasic" + ((active)? " example-4" : "")} onClick={() => TrySend()}>
                     <div className="TempMonPlotName">
                         {mon}
-                        {field && <div className="TempEffectPlotName">Field Effects</div>}
+                        {field && <div className="TempEffectPlotName"><FontAwesomeIcon icon={faExclamationCircle} /></div>}
                     </div>
                     
                 </div>
