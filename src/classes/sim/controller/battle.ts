@@ -309,7 +309,7 @@ class Battle {
         const _placeactions : PlaceAction[] = [];
 
         for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
-            let MonsterAvailable = true;
+            let MonsterAvailable = (sourceTrainer.Team.Monsters[i].HP_Current > 0);
             
             const CanPlace = this.runEvent( "CanPlaceMonster", sourceTrainer.Team.Monsters[i], null, null, true, null, this.MessageList )
             if (CanPlace) {
@@ -347,7 +347,7 @@ class Battle {
         const _swapactions : SwapAction[] = [];
 
         for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
-            let MonsterAvailable = true;
+            let MonsterAvailable = (sourceTrainer.Team.Monsters[i].HP_Current > 0);
 
             const CanPlace = this.runEvent( "CanPlaceMonster", sourceTrainer.Team.Monsters[i], null, null, true, null, this.MessageList )
 
@@ -398,7 +398,7 @@ class Battle {
      */
     public runEvent(
         eventid: string,
-        source?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | TrainerBase | null,
+        source?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | TrainerBase | Scene | null,
         target?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | TrainerBase | null, 
         sourceEffect?: ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, 
         relayVar?: any, 
@@ -502,7 +502,7 @@ class Battle {
      * @param events the array of events to add to
      * @param _fromSource if the target is the thing that triggered this event in the first place.
      */
-    public getEvents( eventid: string, target: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | ActiveAction, events : EventHolder[], _fromSource : boolean ) {
+    public getEvents( eventid: string, target: FieldedMonster | ActiveMonster | Plot | Scene | WeatherEffect | FieldEffect | ActiveItem | ActiveAction, events : EventHolder[], _fromSource : boolean ) {
         if (target instanceof ActiveMonster) {
             // Search for Monster events
             let i = 0;

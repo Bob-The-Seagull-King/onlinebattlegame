@@ -20,12 +20,31 @@ export const FieldBattleDex : FieldBattleTable = {
     dangerousterrain: {
         id          : 1,    
         category    : [FieldCategory.Damage, FieldCategory.Piercing, FieldCategory.Enter],
-        events      : {} 
+        events      : {},
+        onSwitchInMonster(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+            let TypeVal = 0;
+            if (eventSource.Trackers["damagetype"]) {
+                TypeVal = eventSource.Trackers["damagetype"]
+            } else { TypeVal = 0 }
+            this.Events.DealDamage(5, TypeVal, eventSource, source, true, false, false)
+
+            messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Dangerous Terrain."})
+        }
     },
     harshterrain: {
         id          : 2,     
         category    : [FieldCategory.Damage, FieldCategory.Enter],
-        events      : {} 
+        events      : {},
+        onSwitchInMonster(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+            let TypeVal = 0;
+            if (eventSource.Trackers["damagetype"]) {
+                TypeVal = eventSource.Trackers["damagetype"]
+            } else { TypeVal = 0 }
+
+            this.Events.DealDamage(5, TypeVal, eventSource, source, false, false, false)
+
+            messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Harsh Terrain."})
+        }
     },
     thickterrain: {
         id          : 3,     
@@ -39,7 +58,7 @@ export const FieldBattleDex : FieldBattleTable = {
         id          : 4,   
         category    : [FieldCategory.Block, FieldCategory.Object],
         events      : {},
-        onCanUsePlot(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, messageList : MessageSet, fromSource : boolean) {
+        onCanUsePlot(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
             return false
         }
     }
