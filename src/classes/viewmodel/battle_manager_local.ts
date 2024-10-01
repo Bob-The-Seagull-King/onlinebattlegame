@@ -55,9 +55,17 @@ class OfflineBattleManager extends BattleManager {
             fieldEffect : 'obstacle'
         }
         
+        const FieldEffectThick : IFieldEffect = {
+            tokens      : [],        // Tokens held by the plot
+            trackers    : {},    // Misc trackers used by plot tokens
+            plots       : [[1,3],[1,4],[2,3],[2,4],[2,5],[3,4]],
+            fieldEffect : 'thickterrain'
+        }
+        
         const Trainers : ITrainer[][] = [];
         const newScene : IScene = TerrainFactory.CreateIScene(6,6)
         newScene.field.push(FieldEffectObstacle);
+        newScene.field.push(FieldEffectThick);
         Trainers.push([myTrainer]);
         Trainers.push([otherTrainer]);
 

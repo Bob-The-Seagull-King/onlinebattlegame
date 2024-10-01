@@ -30,7 +30,6 @@ const GamePlotDisplay = (props: any) => {
     // Update the state of options to match the manager
     const receivePlots = () => {
         setMon(Plot.CheckForMon())
-        console.log(Plot.CheckEffects());
         setField(Plot.CheckEffects())
         setActive(Plot.IsActive);
     }

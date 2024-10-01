@@ -30,7 +30,10 @@ export const FieldBattleDex : FieldBattleTable = {
     thickterrain: {
         id          : 3,     
         category    : [FieldCategory.Trap],
-        events      : {}  
+        events      : {},
+        onCanSwapOut(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
+            return false;
+        }
     },
     obstacle: {
         id          : 4,   

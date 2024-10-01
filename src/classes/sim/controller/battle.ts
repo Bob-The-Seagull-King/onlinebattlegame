@@ -363,7 +363,7 @@ class Battle {
                     const plotpositions : number[][] = []
 
                     sourceTrainer.Team.Leads.forEach(_plot => {                        
-                        const CanSwap = this.runEvent( "CanSwapOut", _plot.Monster, null, null, true, null, this.MessageList )
+                        const CanSwap = this.runEvent( "CanSwapOut", _plot, null, null, true, null, this.MessageList )
                         if (CanSwap) {
                             plotpositions.push(_plot.Position)
                         }})

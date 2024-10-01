@@ -275,6 +275,7 @@ export interface ChoiceTarget {
 export interface CallEvents {
     onGenericEvent? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, target : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | null, sourceEffect : ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, relayVar : any, trackVal : any, messageList : MessageSet, fromSource : boolean) => void;
     onCanUsePlot? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, messageList : MessageSet, fromSource : boolean) => boolean;
+    onCanSwapOut? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => boolean;
 }
 
 /**
