@@ -26,7 +26,7 @@ export const FieldBattleDex : FieldBattleTable = {
             if (eventSource.Trackers["damagetype"]) {
                 TypeVal = eventSource.Trackers["damagetype"]
             } else { TypeVal = 0 }
-            await this.Events.DealDamage(20, TypeVal, eventSource, source, true, false, false)
+            await this.Events.DealDamage(5, TypeVal, eventSource, source, true, false, false)
 
             messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Dangerous Terrain."})
         }
