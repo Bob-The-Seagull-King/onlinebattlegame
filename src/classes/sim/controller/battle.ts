@@ -214,8 +214,38 @@ class Battle {
                 this.Events.PerformActionSWAP(ChosenTurn, _trainer);
             }
 
+
+
             this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
             return true;
+        }
+    }
+
+    public async AutoSwapMonster(_monster : ActiveMonster) {
+
+        const _trainer = _monster.Owner.Owner
+        
+        const _battle : IBattle = this.ConvertToInterface()
+        const _choices : TurnCharacter[] = []
+
+        const TrainerSwapOptions = this.GetTrainerAutoSwapOptions(_trainer, _monster)
+
+        console.log(TrainerSwapOptions);
+        if (TrainerSwapOptions != null) {
+            _choices.push(TrainerSwapOptions)
+            const _TurnSelect : TurnSelect = {Options: _choices, Battle: _battle}
+            const Turn : ChosenAction = await (_trainer.SelectChoice(_TurnSelect, this.Manager, this))
+
+            if (Turn) {
+                
+                if (Turn.type === "SWITCH") {
+                    const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as SwapAction)
+                    ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
+                    this.Events.PerformActionSWAP(ChosenTurn, _trainer);
+                }
+
+                return true;
+            }
         }
     }
 
@@ -234,6 +264,26 @@ class Battle {
         _choices["SWITCH"] = swapActions
 
         return { Choices: _choices, Position : -1}
+    }
+
+    /**
+     * Get the possible choices a trainer has
+     * which do not relate to any one monster
+     * @param _trainer the trainer to select options for
+     * @returns the TurnCharacter suite of choices
+     */
+    public GetTrainerAutoSwapOptions(_trainer : TrainerBase, _monster : ActiveMonster) {
+
+        const _choices : TurnChoices = {}
+        
+        const swapActions = this.findAutoSwapOptions(_trainer, _monster);
+        if (swapActions.length > 0) {
+            _choices["SWITCH"] = swapActions
+            return { Choices: _choices, Position : -1}
+        } else {
+            return null;
+        }
+
     }
 
     /**
@@ -376,6 +426,47 @@ class Battle {
             }          
         }
 
+        return _swapactions;
+    }
+    
+    /**
+     * Given a trainer, find all the possible
+     * SWAP options they can take
+     * @param sourceTrainer the trainer to search options for
+     * @returns the list of SWAP actions.
+     */
+    public findAutoSwapOptions(sourceTrainer : TrainerBase, _monster : ActiveMonster): SwapAction[] {
+        const _swapactions : SwapAction[] = [];
+
+        for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
+            let MonsterAvailable = (sourceTrainer.Team.Monsters[i].HP_Current > 0);
+
+            const CanPlace = this.runEvent( "CanPlaceMonster", sourceTrainer.Team.Monsters[i], null, null, true, null, this.MessageList )
+
+            if (CanPlace) {
+                for (let j = 0; j < sourceTrainer.Team.Leads.length; j++) {
+                    if (sourceTrainer.Team.Leads[j].Monster === sourceTrainer.Team.Monsters[i]) {
+                        MonsterAvailable = false;
+                        break;
+                    }
+                }
+
+                if (MonsterAvailable === true) {
+                    const plotpositions : number[][] = []
+
+                    sourceTrainer.Team.Leads.forEach(_plot => {    
+                        if (_plot.Monster === _monster) {                    
+                            plotpositions.push(_plot.Position)
+                        }
+                    })
+
+                    if (plotpositions.length > 0) {
+                        const _swap : SwapAction = { type: "SWITCH", monster_id: i, target_id: plotpositions }
+                        _swapactions.push(_swap);
+                    }
+                }  
+            }          
+        }
         return _swapactions;
     }
     

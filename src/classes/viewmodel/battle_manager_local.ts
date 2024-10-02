@@ -125,6 +125,7 @@ class OfflineBattleManager extends BattleManager {
      * @param _battle current state of the battle
      */
     public ReceiveOptions(_options : TurnSelect) {
+        this.ChoicesLog = []
         _options.Options.forEach(item => {
             this.ChoicesLog.push({ action : item.Choices, pos : item.Position})
         })

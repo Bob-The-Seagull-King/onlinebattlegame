@@ -191,6 +191,8 @@ class BattleManager {
      * @param _turnchar the turnchar object this action comes from
      */
     public UpdatePlotsSwap(_action : PlaceAction, _pos : number, _turnchar : any) {
+        console.log("---------------")
+        console.log(_action);
         for(let i = 0; i < this.CurrentPlots.length; i++) {
             for (let j = 0; j < this.CurrentPlots[i].length; j++) {
                 const relevantPlot = this.CurrentPlots[i][j]
@@ -201,6 +203,7 @@ class BattleManager {
                 _action.target_id.forEach(id => 
                 {
                     if ( (id[0] === relevantPlot.Plot.position[0]) && (id[1] === relevantPlot.Plot.position[1])) {
+                        console.log("FOUND HIM")
                         _active = true;
                         _index = _action.target_id.indexOf(id);
                         let _charindex = -1
@@ -224,6 +227,7 @@ class BattleManager {
                 
             }
         }
+        console.log("---------------")
     }
 
     /**
@@ -236,7 +240,11 @@ class BattleManager {
                 _plot.IsSubActive = false;
                 _plot.ValIndex = null;
                 _plot.TurnVal = null;
+                try {
                 _plot.funcUpdateVals();
+                } catch(e) {
+                    console.log("FIRST ROUND");
+                }
             })
         })
 

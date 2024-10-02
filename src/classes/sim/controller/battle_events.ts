@@ -151,7 +151,7 @@ class BattleEvents {
         }
     }
 
-    public DealDamage(
+    public async DealDamage(
         _val : number, 
         _type : number,
         _source : FieldedMonster | ActiveMonster | ActiveItem | Plot | Scene | WeatherEffect | FieldEffect, 
@@ -185,6 +185,8 @@ class BattleEvents {
 
             if (_target.Monster.HP_Current <= 0) {
                 this.Battle.runEvent('WhenKnockedOut', _source, _target, null, null, null, this.Battle.MessageList )
+                const AwaitDeathSwap = await this.Battle.AutoSwapMonster(_target.Monster)
+                if (AwaitDeathSwap) {}
             }
 
             return dmg;
