@@ -81,6 +81,19 @@ class BattleSide {
         return _interface;
     }
 
+    public IsSideAlive() {
+        let IsAlive = false;
+
+        for (let i = 0; i < this.Trainers.length; i++) {
+            if (this.Trainers[i].Team.IsTeamAlive() === true) {
+                IsAlive = true;
+                break;
+            }
+        }
+
+        return IsAlive
+    }
+
 }
 
 export {IBattleSide, BattleSide}

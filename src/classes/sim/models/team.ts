@@ -208,6 +208,19 @@ class Team {
         }
     }
 
+    public IsTeamAlive() {
+        let IsAlive = false;
+
+        for (let i = 0; i < this.Monsters.length; i++) {
+            if (this.Monsters[i].HP_Current > 0) {
+                IsAlive = true;
+                break;
+            }
+        }
+
+        return IsAlive
+    }
+
 }
 
 export {Team, ITeam, IFieldedMonster, FieldedMonster}

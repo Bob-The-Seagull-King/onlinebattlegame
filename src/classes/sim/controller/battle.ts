@@ -152,6 +152,19 @@ class Battle {
             cont = await this.EnactRound();
             roundVar ++;
         }
+
+        // After Battle
+        let Victor = ""
+        for (let i = 0; i < this.Sides.length; i++) {
+            if (this.Sides[i].IsSideAlive() === true) {
+                for (let j = 0; j < this.Sides[i].Trainers.length; j++) {
+                    Victor += this.Sides[i].Trainers[j].Name + " ";
+                }
+            }
+        }
+        this.MessageList.push({ "generic" : "Battle Won By " + Victor})
+        this.SendOutMessage(this.MessageList);
+        this.Manager.UpdateState(this.ConvertToInterface())
     }
 
     /**
@@ -161,24 +174,41 @@ class Battle {
      */
     public async EnactRound() : Promise<boolean> {
 
+        let ContinueRound = true;
+
         for (let i = 0; i < this.Turns; i++) {
-            for (let j = 0; j < this.Sides.length; j++) {
-                for (let k = 0; k < this.Sides[j].Trainers.length; k++) {
-                    await this.EnactTurn(this.Sides[j].Trainers[k])
+            if (ContinueRound) {
+                for (let j = 0; j < this.Sides.length; j++) {
+                    if (this.Sides[i].IsSideAlive() === true) {
+                        for (let k = 0; k < this.Sides[j].Trainers.length; k++) {
+                            if (this.Sides[j].Trainers[k].Team.IsTeamAlive()) {
+                                await this.EnactTurn(this.Sides[j].Trainers[k])
+                            }
+                        }
+                    }                
                 }
+                ContinueRound = await this.ContinueBattle();
+            } else {
+                break;
             }
         }
         
         this.runEvent( "EndRound", null, null, null, null, null, this.MessageList )
-        return this.ContinueBattle();
+        return ContinueRound 
     }
 
     /**
      * Evaulates if a player has won
      * @returns true if no winner is declared
      */
-    public ContinueBattle() {
-        return this.runEvent( "ContinueBattle", null, null, null, true, null, this.MessageList )
+    public async ContinueBattle() : Promise<boolean> {
+        let CountSides = 0;
+        for (let i = 0; i < this.Sides.length; i++) {
+            if (this.Sides[i].IsSideAlive() === true) {
+                CountSides += 1;
+            }
+        }
+        return await this.runEvent( "ContinueBattle", null, null, null, (CountSides >= 2), null, this.MessageList )
     }
 
     /**
@@ -215,7 +245,7 @@ class Battle {
             }
 
             this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
-            return true;
+            return _trainer.Team.IsTeamAlive();
         }
     }
 
