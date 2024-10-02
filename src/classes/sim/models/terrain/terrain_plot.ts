@@ -53,7 +53,7 @@ class Plot {
         this.FieldEffects.push(_effect);
     }
 
-    public IsPlaceable() {
+    public async IsPlaceable() {
         let HasMonster = false;
 
         this.Scene.Owner.Sides.forEach( _side => {
@@ -66,7 +66,7 @@ class Plot {
             })
         })
 
-        const IsPlacable = this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
+        const IsPlacable : boolean = await this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
         return IsPlacable;
     }
     

@@ -21,12 +21,12 @@ export const FieldBattleDex : FieldBattleTable = {
         id          : 1,    
         category    : [FieldCategory.Damage, FieldCategory.Piercing, FieldCategory.Enter],
         events      : {},
-        onSwitchInMonster(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+        async onMonsterEntersField(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
             let TypeVal = 0;
             if (eventSource.Trackers["damagetype"]) {
                 TypeVal = eventSource.Trackers["damagetype"]
             } else { TypeVal = 0 }
-            this.Events.DealDamage(20, TypeVal, eventSource, source, true, false, false)
+            await this.Events.DealDamage(20, TypeVal, eventSource, source, true, false, false)
 
             messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Dangerous Terrain."})
         }
@@ -35,7 +35,7 @@ export const FieldBattleDex : FieldBattleTable = {
         id          : 2,     
         category    : [FieldCategory.Damage, FieldCategory.Enter],
         events      : {},
-        onSwitchInMonster(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+        async onMonsterEntersField(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
             let TypeVal = 0;
             if (eventSource.Trackers["damagetype"]) {
                 TypeVal = eventSource.Trackers["damagetype"]
@@ -50,7 +50,7 @@ export const FieldBattleDex : FieldBattleTable = {
         id          : 3,     
         category    : [FieldCategory.Trap],
         events      : {},
-        onCanSwapOut(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
+        async onCanSwapOut(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
             return false;
         }
     },
@@ -58,7 +58,7 @@ export const FieldBattleDex : FieldBattleTable = {
         id          : 4,   
         category    : [FieldCategory.Block, FieldCategory.Object],
         events      : {},
-        onCanUsePlot(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
+        async onCanUsePlot(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
             return false
         }
     }

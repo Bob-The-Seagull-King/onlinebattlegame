@@ -124,8 +124,7 @@ class OfflineBattleManager extends BattleManager {
      * @param _position the index of the choice made (for when multiple monsters are on the field at once)
      * @param _battle current state of the battle
      */
-    public ReceiveOptions(_options : TurnSelect) {
-        console.log(_options);
+    public ReceiveOptions(_options : TurnSelect) : Promise<ChosenAction> {
         this.ChoicesLog = []
         _options.Options.forEach(item => {
             this.ChoicesLog.push({ action : item.Choices, pos : item.Position})

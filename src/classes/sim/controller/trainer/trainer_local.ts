@@ -1,4 +1,4 @@
-import { TurnSelect } from "../../../../global_types";
+import { ChosenAction, TurnSelect } from "../../../../global_types";
 import { OfflineBattleManager } from "../../../viewmodel/battle_manager_local";
 import { BattleSide } from "../../models/battle_side";
 import { ITrainer, TrainerBase } from "./trainer_basic";

@@ -35,7 +35,7 @@ class BattleEvents {
      * @param _action the PLACE action to perform
      * @param _trainer the trainer this action refers to
      */
-    public PerformActionPLACE(_action : PlaceAction, _trainer : TrainerBase) {
+    public async PerformActionPLACE(_action : PlaceAction, _trainer : TrainerBase) : Promise<boolean> {
         const newActive : IFieldedMonster = {
             monster : _action.monster_id,
             position : _action.target_id[0],
@@ -46,8 +46,11 @@ class BattleEvents {
         
         this.Battle.MessageList.push({ "generic" : NewFielded.Monster.Nickname + " has been placed at " + NewFielded.Plot.returnCoordinates().toString()})
 
-        this.Battle.runEvent( "SwitchInMonster", NewFielded, null, null, null, null, this.Battle.MessageList )
-        this.Battle.runEvent( "MonsterEntersField", NewFielded, null, null, null, null, this.Battle.MessageList )
+        await this.Battle.runEvent( "SwitchInMonster", NewFielded, null, null, null, null, this.Battle.MessageList )
+        await this.Battle.runEvent( "MonsterEntersField", NewFielded, null, null, null, null, this.Battle.MessageList )
+
+        return true;
+
     }
 
     /**
@@ -57,7 +60,7 @@ class BattleEvents {
      * @param _action the SWAP action to perform
      * @param _trainer the trainer this action refers to
      */
-    public PerformActionSWAP(_action : SwapAction, _trainer : TrainerBase) {
+    public async PerformActionSWAP(_action : SwapAction, _trainer : TrainerBase) {
         
         let lead = null;
 
@@ -69,22 +72,24 @@ class BattleEvents {
         }
 
         if (lead != null) {     
-            const CanSwap = this.Battle.runEvent( "CanSwapOut", lead.Monster, null, null, true, null, this.Battle.MessageList )
+            const CanSwap = await this.Battle.runEvent( "CanSwapOut", lead.Monster, null, null, true, null, this.Battle.MessageList )
 
             if (CanSwap) {
-                this.Battle.runEvent( "SwitchOutMonster", lead, null, null, null, null, this.Battle.MessageList )
-                this.Battle.runEvent( "MonsterExitsField", lead, null, null, null, null, this.Battle.MessageList )
+                await this.Battle.runEvent( "SwitchOutMonster", lead, null, null, null, null, this.Battle.MessageList )
+                await this.Battle.runEvent( "MonsterExitsField", lead, null, null, null, null, this.Battle.MessageList )
                 this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped out."})
 
                 lead.Monster = _trainer.Team.Monsters[_action.monster_id]          
                   
-                this.Battle.runEvent( "SwitchInMonster", lead, null, null, null, null, this.Battle.MessageList )
-                this.Battle.runEvent( "MonsterEntersField", lead, null, null, null, null, this.Battle.MessageList )
+                await this.Battle.runEvent( "SwitchInMonster", lead, null, null, null, null, this.Battle.MessageList )
+                await this.Battle.runEvent( "MonsterEntersField", lead, null, null, null, null, this.Battle.MessageList )
                 this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped in."})
             } else {
                 this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " can't swap out."})
             }
         }
+
+        return true;
         
     }
 
@@ -96,7 +101,7 @@ class BattleEvents {
      * @param _target the target who's effectiveness is being calculated
      * @returns a number reflecting the type matchup
      */
-    public CalculateTypeEffectiveness(
+    public async CalculateTypeEffectiveness(
         _type : number,
         _source : FieldedMonster | ActiveMonster | ActiveItem | Plot | Scene | FieldEffect | WeatherEffect | null , 
         _target: FieldedMonster
@@ -114,15 +119,15 @@ class BattleEvents {
         const TypeArray : number[] = SpeciesBattleDex[_target.Monster.GetSpecies()].type
 
         for (let i = 0; i < TypeArray.length; i++) {
-            const Matchup = this.Battle.runEvent( "CalculateTypeMatchup", null, _target, null, TypeMatchup[_type][TypeArray[i]], null, this.Battle.MessageList );
+            const Matchup = await this.Battle.runEvent( "CalculateTypeMatchup", null, _target, null, TypeMatchup[_type][TypeArray[i]], null, this.Battle.MessageList );
             if (Matchup === 3) { TypeVal = 0; break; }
             if (Matchup === 2) { TypeVal -= 1; }
             if (Matchup === 1) { TypeVal += 1; }
         }
 
-        let FinalTypeVal = this.Battle.runEvent( "ModifyFinalTypeMatchupTarget", null, _target, null, TypeVal, null, this.Battle.MessageList );
+        let FinalTypeVal = await this.Battle.runEvent( "ModifyFinalTypeMatchupTarget", null, _target, null, TypeVal, null, this.Battle.MessageList );
         if (_source != null) {
-            FinalTypeVal = this.Battle.runEvent( "ModifyFinalTypeMatchupSource", _source, null, null, FinalTypeVal, null, this.Battle.MessageList );
+            FinalTypeVal = await this.Battle.runEvent( "ModifyFinalTypeMatchupSource", _source, null, null, FinalTypeVal, null, this.Battle.MessageList );
         }
         return FinalTypeVal;
     }
@@ -158,7 +163,7 @@ class BattleEvents {
         _target: FieldedMonster,
         _skipProt : boolean,
         _skipType : boolean,
-        _skipMods : boolean) {
+        _skipMods : boolean) : Promise<number> {
 
             let ProtectionModifier = 0;
             let TypeMatchupModifier = 0;
@@ -166,51 +171,56 @@ class BattleEvents {
             // This means the protection of the monster will be considered
             if (!_skipProt) {
                 const Protection = this.GetStatValue(_target, "pt", false, false)
-                ProtectionModifier = this.Battle.runEvent( "GetTotalProtectionMod", _source, _target, null, Protection, _val, this.Battle.MessageList );
+                ProtectionModifier = await this.Battle.runEvent( "GetTotalProtectionMod", _source, _target, null, Protection, _val, this.Battle.MessageList );
             }
             // This means type modifiers will be considered
             if (!_skipType) {
-                TypeMatchupModifier = this.returnTypeDamageMod( this.CalculateTypeEffectiveness(_type, _source , _target) );
+                TypeMatchupModifier = this.returnTypeDamageMod( await this.CalculateTypeEffectiveness(_type, _source , _target) );
             }
             // This means additional % based modifiers will be considered
             if (!_skipMods) {
-                DamageTakenModifier = this.Battle.runEvent( "GetTotalDamageMod", _source, _target, null, 1, _val, this.Battle.MessageList );
+                DamageTakenModifier = await this.Battle.runEvent( "GetTotalDamageMod", _source, _target, null, 1, _val, this.Battle.MessageList );
             }
 
             const ModifiedDamage = Math.floor( (_val - (_val * ( ( Math.min(90, ProtectionModifier * DamageTakenModifier))/100))) * TypeMatchupModifier)
 
             let dmg = 0;
-            const FinalDamage = this.Battle.runEvent('GetFinalDamage', _source, _target, null, ModifiedDamage, null, this.Battle.MessageList )
-            dmg = _target.Monster.TakeDamage(FinalDamage, this.Battle.MessageList);
+            const FinalDamage = await this.Battle.runEvent('GetFinalDamage', _source, _target, null, ModifiedDamage, null, this.Battle.MessageList )
+            dmg = await _target.Monster.TakeDamage(FinalDamage, this.Battle.MessageList);
 
             if (_target.Monster.HP_Current <= 0) {
                 this.Battle.runEvent('WhenKnockedOut', _source, _target, null, null, null, this.Battle.MessageList )
                 let IsDead = true;
-
                 while (IsDead) {
-                    const AwaitDeathSwap = this.Battle.AutoSwapMonster(_target.Monster)
-                    if (AwaitDeathSwap) {IsDead = false}
+
+                    const AwaitDeathSwap = await this.Battle.AutoSwapMonster(_target.Monster)
+                    if (AwaitDeathSwap === true) {IsDead = false}
+                    if (AwaitDeathSwap === false) {
+                        IsDead = false
+                        _target.Owner.RemoveFielded(_target);
+                        this.Battle.Manager.UpdateState(this.Battle.ConvertToInterface())
+                    }
                 }
             }
 
             return dmg;
     }
 
-    public GetStatValue(_monster : FieldedMonster | ActiveMonster, _stat : string, _skipMods : boolean, _skipBoosts : boolean) {
+    public async GetStatValue(_monster : FieldedMonster | ActiveMonster, _stat : string, _skipMods : boolean, _skipBoosts : boolean) {
         
         const _mon : ActiveMonster = (_monster instanceof ActiveMonster)? _monster : _monster.Monster;
-        const BaseStat = this.Battle.runEvent(('GetStatBase'+_stat), _mon, null, null, _mon.GetStat(_stat), null, this.Battle.MessageList)
-        let StatMod = 1;
-        let FinalStat = BaseStat;
+        const BaseStat = await this.Battle.runEvent(('GetStatBase'+_stat), _mon, null, null, _mon.GetStat(_stat), null, this.Battle.MessageList)
+        let StatMod : number = 1;
+        let FinalStat : number = BaseStat;
 
         if (!_skipBoosts) {
-            StatMod = this.Battle.runEvent(('GetStatMod'+_stat), _mon, null, null, _mon.GetStatBoost(_stat), null, this.Battle.MessageList)
+            StatMod = await this.Battle.runEvent(('GetStatMod'+_stat), _mon, null, null, _mon.GetStatBoost(_stat), null, this.Battle.MessageList)
         }
 
-        FinalStat = (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4)))))
+        FinalStat = await (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4)))))
 
         if (!_skipMods) {
-            FinalStat *= this.Battle.runEvent(('GetStatFinal'+_stat), _mon, null, null, 1, (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4))))), this.Battle.MessageList)
+            FinalStat *= await this.Battle.runEvent(('GetStatFinal'+_stat), _mon, null, null, 1, (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4))))), this.Battle.MessageList)
         }
         
         return FinalStat;

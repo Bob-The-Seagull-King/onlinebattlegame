@@ -49,8 +49,8 @@ class TrainerUser extends TrainerBase {
      */
     public async SelectChoice(_options: TurnSelect, _room : RoomHold) {
         _room.GetUserTurn(this, _options)     
-        return new Promise<TurnSelectReturn>((resolve) => {
-            eventEmitter.once('user' + this.Name + 'position' + this.Position + 'selectAction' + this.User.socket.MyID, (action: TurnSelectReturn) => {
+        return new Promise<ChosenAction>((resolve) => {
+            eventEmitter.once('user' + this.Name + 'position' + this.Position + 'selectAction' + this.User.socket.MyID, (action: ChosenAction) => {
                 resolve(action);
             });
         });

@@ -196,6 +196,18 @@ class Team {
         return _interface;
     }
 
+    public RemoveFielded(_fielded : FieldedMonster) {
+        
+        let i = 0;
+        for (i = 0; i < this.Leads.length; i++) {
+            if (_fielded == this.Leads[i]) {
+                delete this.Leads[i]
+                this.Leads.splice(i, 1);
+                break;
+            }
+        }
+    }
+
 }
 
 export {Team, ITeam, IFieldedMonster, FieldedMonster}

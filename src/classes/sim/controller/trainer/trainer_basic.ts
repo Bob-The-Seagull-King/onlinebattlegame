@@ -1,4 +1,4 @@
-import { IDEntry, TurnSelect } from "../../../../global_types";
+import { ChosenAction, IDEntry, SelectedAction, TurnSelect } from "../../../../global_types";
 import { RoomHold } from "../../../structure/room/RoomHold";
 import { TeamFactory } from "../../factories/team_factory";
 import { BattleSide } from "../../models/battle_side";

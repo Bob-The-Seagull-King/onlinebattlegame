@@ -193,7 +193,7 @@ class Battle {
         const _battle : IBattle = this.ConvertToInterface()
         const _choices : TurnCharacter[] = []
 
-        _choices.push(this.GetTrainerOptions(_trainer))
+        _choices.push( await this.GetTrainerOptions(_trainer))
 
         for (let i = 0; i < _trainer.Team.Leads.length; i++) {
             const LeadOptions = this.GetMonsterOptions(_trainer.Team.Leads[i])
@@ -211,7 +211,7 @@ class Battle {
             if (Turn.type === "SWITCH") {
                 const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as SwapAction)
                 ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
-                this.Events.PerformActionSWAP(ChosenTurn, _trainer);
+                await this.Events.PerformActionSWAP(ChosenTurn, _trainer);
             }
 
             this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
@@ -219,16 +219,15 @@ class Battle {
         }
     }
 
-    public async AutoSwapMonster(_monster : ActiveMonster) {
+    public async AutoSwapMonster(_monster : ActiveMonster): Promise<boolean> {
 
         const _trainer = _monster.Owner.Owner
         
         const _battle : IBattle = this.ConvertToInterface()
         const _choices : TurnCharacter[] = []
 
-        const TrainerSwapOptions = this.GetTrainerAutoSwapOptions(_trainer, _monster)
+        const TrainerSwapOptions = await this.GetTrainerAutoSwapOptions(_trainer, _monster)
 
-        console.log(TrainerSwapOptions);
         if (TrainerSwapOptions != null) {
             _choices.push(TrainerSwapOptions)
             const _TurnSelect : TurnSelect = {Options: _choices, Battle: _battle}
@@ -245,7 +244,7 @@ class Battle {
                 return true;
             }
         } else {
-            return true;
+            return false;
         }
     }
 
@@ -255,11 +254,11 @@ class Battle {
      * @param _trainer the trainer to select options for
      * @returns the TurnCharacter suite of choices
      */
-    public GetTrainerOptions(_trainer : TrainerBase) {
+    public async GetTrainerOptions(_trainer : TrainerBase) {
 
         const _choices : TurnChoices = {}
         
-        const swapActions = this.findSwapOptions(_trainer);
+        const swapActions = await this.findSwapOptions(_trainer);
         
         _choices["SWITCH"] = swapActions
 
@@ -272,11 +271,11 @@ class Battle {
      * @param _trainer the trainer to select options for
      * @returns the TurnCharacter suite of choices
      */
-    public GetTrainerAutoSwapOptions(_trainer : TrainerBase, _monster : ActiveMonster) {
+    public async GetTrainerAutoSwapOptions(_trainer : TrainerBase, _monster : ActiveMonster) {
 
         const _choices : TurnChoices = {}
         
-        const swapActions = this.findAutoSwapOptions(_trainer, _monster);
+        const swapActions = await this.findAutoSwapOptions(_trainer, _monster);
         if (swapActions.length > 0) {
             _choices["SWITCH"] = swapActions
             return { Choices: _choices, Position : -1}
@@ -329,20 +328,23 @@ class Battle {
         const positions : PlaceAction[] = []
 
         while (i < this.Turns) {
-            const possibleActions = this.findPlaceOptions(_trainer);
+            const possibleActions = await this.findPlaceOptions(_trainer);
             const _choices : TurnChoices = {}
             _choices["PLACE"] = possibleActions
             const _battle : IBattle = this.ConvertToInterface()
             const _TurnSelect : TurnSelect = {Options: [{Choices: _choices, Position: -1}], Battle: _battle}
-            
+            console.log(_TurnSelect)
             const Turn : ChosenAction = await (_trainer.SelectChoice(_TurnSelect, this.Manager, this))
+            
+            if (Turn) {       
 
-            if (Turn) {
                 i++;
-                const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as PlaceAction)
+                const ChosenTurn = await (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as PlaceAction)
                 ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
-                this.Events.PerformActionPLACE(ChosenTurn, _trainer);
-                positions.push(ChosenTurn)
+                const AwaitPlace = await this.Events.PerformActionPLACE(ChosenTurn, _trainer);
+                if (AwaitPlace) {
+                    positions.push(ChosenTurn)
+                }
             }
         }
         
@@ -355,13 +357,13 @@ class Battle {
      * @param sourceTrainer the trainer to find options for
      * @returns a list of possible PLACE actions to take
      */
-    public findPlaceOptions(sourceTrainer : TrainerBase): PlaceAction[] {
+    public async findPlaceOptions(sourceTrainer : TrainerBase): Promise<PlaceAction[]> {
         const _placeactions : PlaceAction[] = [];
 
         for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
             let MonsterAvailable = (sourceTrainer.Team.Monsters[i].HP_Current > 0);
             
-            const CanPlace = this.runEvent( "CanPlaceMonster", sourceTrainer.Team.Monsters[i], null, null, true, null, this.MessageList )
+            const CanPlace = await this.runEvent( "CanPlaceMonster", sourceTrainer.Team.Monsters[i], null, null, true, null, this.MessageList )
             if (CanPlace) {
                 for (let j = 0; j < sourceTrainer.Team.Leads.length; j++) {
                     if (sourceTrainer.Team.Leads[j].Monster === sourceTrainer.Team.Monsters[i]) {
@@ -373,8 +375,8 @@ class Battle {
                 if (MonsterAvailable === true) {
                     const plotpositions : number[][] = []
 
-                    sourceTrainer.Owner.Plots.forEach(_plot => {
-                        if ((_plot.IsPlaceable() === true) && (this.runEvent( "CanUsePlot", _plot, null, null, true, null, this.MessageList ) === true)) {
+                    sourceTrainer.Owner.Plots.forEach(async _plot => {
+                        if ((await _plot.IsPlaceable() === true) && (await this.runEvent( "CanUsePlot", _plot, null, null, true, null, this.MessageList ) === true)) {
                             plotpositions.push([_plot.Column, _plot.Row])
                         } })
 
@@ -393,7 +395,7 @@ class Battle {
      * @param sourceTrainer the trainer to search options for
      * @returns the list of SWAP actions.
      */
-    public findSwapOptions(sourceTrainer : TrainerBase): SwapAction[] {
+    public async findSwapOptions(sourceTrainer : TrainerBase): Promise<SwapAction[]> {
         const _swapactions : SwapAction[] = [];
 
         for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
@@ -435,7 +437,7 @@ class Battle {
      * @param sourceTrainer the trainer to search options for
      * @returns the list of SWAP actions.
      */
-    public findAutoSwapOptions(sourceTrainer : TrainerBase, _monster : ActiveMonster): SwapAction[] {
+    public async findAutoSwapOptions(sourceTrainer : TrainerBase, _monster : ActiveMonster): Promise<SwapAction[]> {
         const _swapactions : SwapAction[] = [];
 
         for (let i = 0; i < sourceTrainer.Team.Monsters.length; i++) {
@@ -487,7 +489,7 @@ class Battle {
      * @param eventdepth    ------------------------ Unused currently ------------------------    
      * @returns if relayVar is non null, it returns the value of the relayVar after each event has been run
      */
-    public runEvent(
+    public async runEvent(
         eventid: string,
         source?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | TrainerBase | Scene | null,
         target?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | TrainerBase | null, 
@@ -495,7 +497,7 @@ class Battle {
         relayVar?: any, 
         trackVal?: any,
         messageList? : MessageSet
-    ) {
+    ) : Promise<any> {
 
         // Gather all event functions to call
         const Events : EventHolder[] = [];
@@ -577,7 +579,7 @@ class Battle {
             if ((_event.fromsource !== undefined) && (_event.fromsource !== null)) { args[i] = _event.fromsource; i += 1; }
 
             // Run the event
-            returnVal = _event.callback.apply(this, args);
+            returnVal = await _event.callback.apply(this, args);
             relay_variable = returnVal;
         }
 
