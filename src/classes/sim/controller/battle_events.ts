@@ -185,8 +185,12 @@ class BattleEvents {
 
             if (_target.Monster.HP_Current <= 0) {
                 this.Battle.runEvent('WhenKnockedOut', _source, _target, null, null, null, this.Battle.MessageList )
-                const AwaitDeathSwap = await this.Battle.AutoSwapMonster(_target.Monster)
-                if (AwaitDeathSwap) {}
+                let IsDead = true;
+
+                while (IsDead) {
+                    const AwaitDeathSwap = this.Battle.AutoSwapMonster(_target.Monster)
+                    if (AwaitDeathSwap) {IsDead = false}
+                }
             }
 
             return dmg;

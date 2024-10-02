@@ -160,7 +160,7 @@ class Battle {
      * @returns If the battle is Over.
      */
     public async EnactRound() : Promise<boolean> {
-        
+
         for (let i = 0; i < this.Turns; i++) {
             for (let j = 0; j < this.Sides.length; j++) {
                 for (let k = 0; k < this.Sides[j].Trainers.length; k++) {
@@ -189,7 +189,7 @@ class Battle {
      * @returns true once the action has been chosen and performed
      */
     public async EnactTurn(_trainer : TrainerBase) : Promise<boolean> {
-        
+
         const _battle : IBattle = this.ConvertToInterface()
         const _choices : TurnCharacter[] = []
 
@@ -213,8 +213,6 @@ class Battle {
                 ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
                 this.Events.PerformActionSWAP(ChosenTurn, _trainer);
             }
-
-
 
             this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
             return true;
@@ -241,11 +239,13 @@ class Battle {
                 if (Turn.type === "SWITCH") {
                     const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as SwapAction)
                     ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
-                    this.Events.PerformActionSWAP(ChosenTurn, _trainer);
+                    await this.Events.PerformActionSWAP(ChosenTurn, _trainer);
                 }
 
                 return true;
             }
+        } else {
+            return true;
         }
     }
 
