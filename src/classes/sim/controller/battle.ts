@@ -223,7 +223,11 @@ class Battle {
         const _battle : IBattle = this.ConvertToInterface()
         const _choices : TurnCharacter[] = []
 
-        _choices.push( await this.GetTrainerOptions(_trainer))
+        const TrainerOptions : TurnCharacter = await this.GetTrainerOptions(_trainer)
+
+        if (TrainerOptions != null) {
+            _choices.push(TrainerOptions)
+        }
 
         for (let i = 0; i < _trainer.Team.Leads.length; i++) {
             const LeadOptions = this.GetMonsterOptions(_trainer.Team.Leads[i])
@@ -231,21 +235,25 @@ class Battle {
                 _choices.push(LeadOptions)
             }
         }
-
-        const _TurnSelect : TurnSelect = {Options: _choices, Battle: _battle}
         
-        const Turn : ChosenAction = await (_trainer.SelectChoice(_TurnSelect, this.Manager, this))
-
-        if (Turn) {
+        if (_choices.length > 0) {
+            const _TurnSelect : TurnSelect = {Options: _choices, Battle: _battle}
             
-            if (Turn.type === "SWITCH") {
-                const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as SwapAction)
-                ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
-                await this.Events.PerformActionSWAP(ChosenTurn, _trainer);
-            }
+            const Turn : ChosenAction = await (_trainer.SelectChoice(_TurnSelect, this.Manager, this))
 
-            this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
-            return _trainer.Team.IsTeamAlive();
+            if (Turn) {
+                
+                if (Turn.type === "SWITCH") {
+                    const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as SwapAction)
+                    ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
+                    await this.Events.PerformActionSWAP(ChosenTurn, _trainer);
+                }
+
+                this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
+                return _trainer.Team.IsTeamAlive();
+            }
+        } else {
+            return false;
         }
     }
 
@@ -289,10 +297,12 @@ class Battle {
         const _choices : TurnChoices = {}
         
         const swapActions = await this.findSwapOptions(_trainer);
-        
-        _choices["SWITCH"] = swapActions
-
-        return { Choices: _choices, Position : -1}
+        if (swapActions.length > 0) {
+            _choices["SWITCH"] = swapActions
+            return { Choices: _choices, Position : -1}
+        } else {
+            return null;
+        }
     }
 
     /**
