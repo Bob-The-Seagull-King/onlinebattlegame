@@ -230,6 +230,42 @@ class BattleManager {
         }
     }
 
+    public UpdatePlotsSub(_plots : number[][]) {
+        for(let i = 0; i < this.CurrentPlots.length; i++) {
+            for (let j = 0; j < this.CurrentPlots[i].length; j++) {
+                const relevantPlot = this.CurrentPlots[i][j]               
+
+                _plots.forEach(id => 
+                {
+                    if ( (id[0] === relevantPlot.Plot.position[0]) && (id[1] === relevantPlot.Plot.position[1])) {
+                        relevantPlot.setSubState(true)
+                        relevantPlot.funcUpdateVals();
+                    }
+                }
+                )
+                
+            }
+        }
+    }
+
+    public ClearPlotsSub(_plots : number[][]) {
+        for(let i = 0; i < this.CurrentPlots.length; i++) {
+            for (let j = 0; j < this.CurrentPlots[i].length; j++) {
+                const relevantPlot = this.CurrentPlots[i][j]               
+
+                _plots.forEach(id => 
+                {
+                    if ( (id[0] === relevantPlot.Plot.position[0]) && (id[1] === relevantPlot.Plot.position[1])) {
+                        relevantPlot.setSubState(false)
+                        relevantPlot.funcUpdateVals();
+                    }
+                }
+                )
+                
+            }
+        }
+    }
+
     /**
      * Update the state of the battle plots based on a given MOVE action
      * @param _action the given action to select positions for
@@ -263,7 +299,7 @@ class BattleManager {
                             hype_index : _index
                         }
     
-                        relevantPlot.setClickableState(_active, false, _index, Action);
+                        relevantPlot.setClickableState(_active, false, id, Action);
                         relevantPlot.funcUpdateVals();
                     }
                 }

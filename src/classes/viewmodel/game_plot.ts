@@ -19,7 +19,7 @@ class GamePlot {
     public Plot : IPlot;
     public IsActive : boolean;
     public IsSubActive : boolean;
-    public ValIndex : number;
+    public ValIndex : any;
     public TurnVal : ChosenAction;
     public Owner : BattleManager;
     public HasEffects: boolean;
@@ -49,7 +49,7 @@ class GamePlot {
      * @param _index the index of the plot's position in the actions position array
      * @param _turn what turn, if any, should be returned
      */
-    public setClickableState(_active : boolean, _subactive :boolean, _index : number, _turn : ChosenAction) {
+    public setClickableState(_active : boolean, _subactive :boolean, _index : any, _turn : ChosenAction) {
         this.IsActive = _active;
         this.IsSubActive = _subactive;
         this.ValIndex = _index;
@@ -58,6 +58,33 @@ class GamePlot {
         this.UpdateTooltips();
 
         this.funcUpdateVals();
+    }
+
+    public setSubState(_subactive :boolean) {
+
+        this.IsSubActive = _subactive;
+
+        this.UpdateTooltips();
+
+        this.funcUpdateVals();
+    }
+
+    public RunSubItemCheck() {
+        if (this.TurnVal) {
+            if (this.TurnVal.type === "MOVE") {
+                const myClonedArray  = Object.assign([], this.ValIndex);
+                this.Owner.UpdatePlotsSub(myClonedArray.slice(1))
+            }
+        }
+    }
+
+    public ClearSubItem() {
+        if (this.TurnVal) {
+            if (this.TurnVal.type === "MOVE") {
+                const myClonedArray  = Object.assign([], this.ValIndex);
+                this.Owner.ClearPlotsSub(myClonedArray.slice(1))
+            }
+        }
     }
 
     public CheckEffects() {

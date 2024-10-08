@@ -103,13 +103,22 @@
 }
 
 .example-4 {
-    outline-width: 1px;
-    outline-offset: 0;
-    outline-color: rgba(0, 130, 206, 0.75);
-    outline-style: solid;
-    animation: animateStartOutline 0.5s ease;
-    animation-fill-mode: forwards;
-  }
+  outline-width: 1px;
+  outline-offset: 0;
+  outline-color: rgba(0, 130, 206, 0.75);
+  outline-style: solid;
+  animation: animateStartOutline 0.5s ease;
+  animation-fill-mode: forwards;
+}
+
+.subselect {
+  outline-width: 1px;
+  outline-offset: 0;
+  outline-color: rgba(0, 130, 206, 0.75);
+  outline-style: solid;
+  animation: animateSubOutline 1s ease infinite;
+  animation-fill-mode: forwards;
+}
 
 
 .example-4:hover {
@@ -136,6 +145,36 @@
     50% {
       outline-width: 7px;
       outline-color: var(--colour_main_starpower);
+    }
+  
+    80% {
+        outline-color:var(--colour_main_grey);
+      }
+
+      
+    100% {
+        outline-width: 4px;
+        outline-offset: 0;
+        outline-color: var(--colour_main_grey);
+      }
+  }
+
+  
+  @keyframes animateSubOutline {
+    0% {
+      outline-width: 4px;
+      outline-offset: 0;
+      outline-color: var(--colour_main_grey);
+    }
+  
+    20% {
+      outline-color:var(--colour_sub_blue);
+    }
+  
+    /* The animation finishes at 50% */
+    50% {
+      outline-width: 7px;
+      outline-color: var(--colour_sub_blue);
     }
   
     80% {

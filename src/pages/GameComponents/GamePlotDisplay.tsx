@@ -24,6 +24,7 @@ const GamePlotDisplay = (props: any) => {
     const size = (Manager.CurrentScene != null)? Math.floor(45/(Manager.CurrentScene.Scene.plots.length)) : "45";
     
     const [active, setActive] = useState(Plot.IsActive);
+    const [subactive, setSubActive] = useState(Plot.IsSubActive);
     const [mon, setMon] = useState(Plot.CheckForMon());
     const [field, setField] = useState(Plot.CheckEffects());
 
@@ -32,6 +33,7 @@ const GamePlotDisplay = (props: any) => {
         setMon(Plot.CheckForMon())
         setField(Plot.CheckEffects())
         setActive(Plot.IsActive);
+        setSubActive(Plot.IsSubActive);
     }
 
     function TrySend() {
@@ -60,7 +62,7 @@ const GamePlotDisplay = (props: any) => {
                     </div>
                 </Tooltip>
             }>
-                <div className={"plotbasic" + ((active)? " example-4" : "")} onClick={() => TrySend()}>
+                <div className={"plotbasic" + ((subactive)? " subselect": (active)? " example-4" : "")} onClick={() => TrySend()} onMouseEnter={() => Plot.RunSubItemCheck()} onMouseLeave={() => Plot.ClearSubItem()}>
                     <div className="TempMonPlotName">
                         {mon}
                         {field && <div className="TempEffectPlotName"><FontAwesomeIcon icon={faExclamationCircle} /></div>}
