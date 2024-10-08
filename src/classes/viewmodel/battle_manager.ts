@@ -32,7 +32,9 @@ class BattleManager {
         scene       : {            
                 weather     : [],
                 field       : [],
-                plots       : []   
+                plots       : []  ,
+                width       : 0,
+                height      : 0 
         }   };  // The most recent evaluation of the battle's state sent from the battle
 
     /**

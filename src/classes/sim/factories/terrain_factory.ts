@@ -44,7 +44,9 @@ class TerrainFactory {
         const freshScene : IScene = {
             field: [],
             weather: [],
-            plots: Plots
+            plots: Plots,
+            width: _width,
+            height: _height
         }
 
         return TerrainFactory.CreateTerrain(freshScene, _owner);
@@ -72,7 +74,9 @@ class TerrainFactory {
         const freshScene : IScene = {
             field: [],
             weather: [],
-            plots: Plots
+            plots: Plots,
+            width: _width,
+            height: _height
         }
 
         return freshScene

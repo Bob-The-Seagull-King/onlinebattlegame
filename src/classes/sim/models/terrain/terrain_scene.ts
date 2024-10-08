@@ -2,7 +2,10 @@ import { IDEntry, InfoSetGeneric } from "../../../../global_types"
 import { Battle } from "../../controller/battle";
 import { FieldEffect, IFieldEffect } from "../Effects/field_effect";
 import { IWeatherEffect, WeatherEffect } from "../Effects/weather_effect";
-import { IPlot, Plot } from "./terrain_plot";
+import { FieldedMonster } from "../team";
+import { IPlot, Plot, IMovePlot } from "./terrain_plot";
+
+
 
 /**
  * Interface of the Scene object
@@ -10,7 +13,9 @@ import { IPlot, Plot } from "./terrain_plot";
 interface IScene {
     weather     : IWeatherEffect[],
     field       : IFieldEffect[],
-    plots       : IPlot[][]           // Array of plots within the scene
+    plots       : IPlot[][],           // Array of plots within the scene
+    width       : number,
+    height      : number
 }
 
 class Scene {
@@ -19,6 +24,8 @@ class Scene {
     public Field    : FieldEffect[]
     public Plots    : Plot[][];           // Array of plots within the scene
     public Owner    : Battle
+    public Width    : number
+    public Height   : number
 
     /**
      * Simple constructor
@@ -26,6 +33,8 @@ class Scene {
      */
     constructor(_data : IScene, _owner : Battle) {
         this.Owner = _owner;
+        this.Width = _data.width;
+        this.Height = _data.height;
         this.Plots = [];
         this.PlotGenerator(_data.plots)
         this.Weather = [];
@@ -102,15 +111,30 @@ class Scene {
         })
         this.Field.forEach(item => {
             _field.push(item.ConvertToInterface())
-        })
-            
+        })            
 
         const _interface : IScene = {
             plots: _plots,
             field: _field,
-            weather : _weather
+            weather : _weather,
+            width: this.Width,
+            height: this.Height
         }
         return _interface;
+    }
+
+    public async GenerateMovesetPlots(_sourceMonster : FieldedMonster): Promise<IMovePlot[]> {
+        const MovePlots : IMovePlot[] = []
+
+        for (let i = 0; i < this.Plots.length; i++) {
+            const MovePromise = this.Plots[i].map(async _plot => {
+                const moveplot : IMovePlot = await _plot.UpdateMovePlot(_sourceMonster)
+                if (moveplot) { MovePlots.push(moveplot); }})
+                    
+            await Promise.all(MovePromise);
+        }
+        
+        return MovePlots;
     }
 
 }

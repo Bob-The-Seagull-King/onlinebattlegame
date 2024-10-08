@@ -1,6 +1,17 @@
 import { IDEntry, InfoSetGeneric } from "../../../../global_types"
 import { FieldEffect } from "../Effects/field_effect";
+import { FieldedMonster } from "../team";
 import { Scene } from "./terrain_scene";
+
+interface IMovePlot {
+    self        : Plot,
+    cost_enter  : number,
+    cost_exit   : number,
+    cost_f      : number,
+    valid       : boolean,
+    parent      : Plot | null,
+    neighbours  : Plot[]
+}
 
 /**
  * Interface of the Plot object
@@ -18,6 +29,7 @@ class Plot {
     public Trackers : InfoSetGeneric;   // Misc trackers used by plot tokens
     public Scene    : Scene;            // The scene this plot is within
     public FieldEffects : FieldEffect[] = []
+    public MovePlot : IMovePlot = null;
     
     /**
      * Simple constructor
@@ -79,6 +91,31 @@ class Plot {
         }
     }
 
+    public async UpdateMovePlot(_sourceMonster : FieldedMonster) {
+
+
+        const NeighbourList : Plot[] = [];
+
+        if (this.Column < (this.Scene.Width - 1)) {  NeighbourList.push(this.Scene.Plots[this.Column + 1][this.Row]) }
+        if (this.Column > (0)) {  NeighbourList.push(this.Scene.Plots[this.Column - 1][this.Row]) }
+        if (this.Row < (this.Scene.Height - 1)) {  NeighbourList.push(this.Scene.Plots[this.Column][this.Row + 1]) }
+        if (this.Row > (0)) {  NeighbourList.push(this.Scene.Plots[this.Column][this.Row - 1]) }
+
+        const SelfPlot : IMovePlot = {
+            self        : this,
+            cost_enter  : await this.Scene.Owner.runEvent('PlotEnterCost', this, _sourceMonster, null, 1, null, this.Scene.Owner.MessageList),
+            cost_exit   : await this.Scene.Owner.runEvent('PlotExitCost', this, _sourceMonster, null, 0, null, this.Scene.Owner.MessageList),
+            cost_f      : null,
+            valid       : await this.IsPlaceable(),
+            parent      : null,
+            neighbours  : NeighbourList
+        }
+
+        this.MovePlot = SelfPlot;
+
+        return SelfPlot;
+    }
+
 }
 
-export {Plot, IPlot}
+export {Plot, IPlot, IMovePlot}

@@ -3,11 +3,11 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { BotBehaviourWeight, BotOptions, ChosenAction, MessageSet, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
+import { BotBehaviourWeight, BotOptions, ChosenAction, MessageSet, MoveAction, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { FieldedMonster, Team } from "../models/team";
-import { Plot } from "../models/terrain/terrain_plot";
+import { IMovePlot, Plot } from "../models/terrain/terrain_plot";
 import { IScene, Scene } from "../models/terrain/terrain_scene";
 import { ITrainer, TrainerBase } from "./trainer/trainer_basic";
 import { BattleEvents } from "./battle_events";
@@ -194,6 +194,9 @@ class Battle {
         }
         
         this.runEvent( "EndRound", null, null, null, null, null, this.MessageList )
+        
+        this.Sides.forEach(_side => {_side.Trainers.forEach(_trainer => {_trainer.Team.Leads.forEach(_lead => {_lead.Activated === false})})})
+
         return ContinueRound 
     }
 
@@ -230,10 +233,12 @@ class Battle {
         }
 
         for (let i = 0; i < _trainer.Team.Leads.length; i++) {
-            const LeadOptions = this.GetMonsterOptions(_trainer.Team.Leads[i])
-            if (LeadOptions != null) {
-                _choices.push(LeadOptions)
-            }
+            if (_trainer.Team.Leads[i].Activated === false) {
+                const LeadOptions : TurnCharacter = await this.GetMonsterOptions(_trainer.Team.Leads[i])
+                if (LeadOptions != null) {
+                    _choices.push(LeadOptions)
+                }
+            }            
         }
         
         if (_choices.length > 0) {
@@ -331,8 +336,18 @@ class Battle {
      * @param _monster the active monster to select options for
      * @returns the TurnCharacter suite of choices
      */
-    public GetMonsterOptions(_monster : FieldedMonster) {
-        return null //{ Choices: {}, Position : _monster.Owner.Monsters.indexOf(_monster.Monster)}
+    public async GetMonsterOptions(_monster : FieldedMonster) {
+        
+        const _choices : TurnChoices = {}
+        
+        const moveActions = await this.findMoveOptions(_monster);
+
+        if (moveActions.length > 0) {
+            _choices["MOVE"] = moveActions
+            return { Choices: _choices, Position : _monster.Owner.Monsters.indexOf(_monster.Monster)}
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -511,6 +526,79 @@ class Battle {
         }
         return _swapactions;
     }
+
+    
+    /**
+     * Given a monster, find all the possible
+     * MOVE options they can take
+     * @param sourceMonster the monster to search options for
+     * @returns the list of MOVE actions.
+     */
+    public async findMoveOptions(sourceMonster : FieldedMonster): Promise<MoveAction[]> {
+        const _moveActions : MoveAction[] = [];
+
+        // Get monster speed (cap on speed)
+        const MaxDistance = await this.Events.GetStatValue(sourceMonster, "sp", false, false)
+
+        // Generate Sets of neighbours and paths and all that stuff
+        const MovePlots = await this.Scene.GenerateMovesetPlots(sourceMonster);
+        const SourcePlot = sourceMonster.Plot;
+
+        if (MovePlots) {
+            console.log(MovePlots);
+            // For each plot that a monster can end up on, run the path-finder and add it
+            for (let i = 0; i < MovePlots.length; i++) {
+                if ((MovePlots[i].self === SourcePlot) || (MovePlots[i].valid === false)) {
+                    continue;
+                }
+                const plotpath  = await this.findPathToPlot(SourcePlot, MovePlots[i].self, sourceMonster, MovePlots)
+                if (plotpath != null) {
+                    const _move : MoveAction = { type: "MOVE", source_id: sourceMonster.Owner.Leads.indexOf(sourceMonster), paths: plotpath }
+                    _moveActions.push(_move);
+                }
+            }
+        }
+
+        return _moveActions;
+    }
+
+    public async findPathToPlot(
+        _sourcePlot : Plot, 
+        _targetPlot : Plot, 
+        _sourceMonster : FieldedMonster, 
+        _movesets : IMovePlot[]
+    ): Promise<number[][][] | null> {
+        console.log("FINDING PATH TO PLOT")
+        return null;
+    }
+
+    /*
+        PSEUDO CODE FOR PATHFINDING REFERENCE
+
+        OPEN // Set of nodes to be evaluated
+        CLOSED // Set of nodes that have been evaluated
+
+        add the starting node to OPEN
+
+        loop
+            current = node in OPEN with lowest f_cost (distance of path to node + distance from node to target)
+            remove current from OPEN
+            add current to CLOSED
+
+            if current is the target node
+                return
+
+            foreach neighbour of the current node
+                if neighbour is not traversable or neighbour is in CLOSED
+                    skip to next neighbour
+                
+                if new path to neighbour is shorter or neighbour is not in OPEN
+                    set f_cost of neighbour
+                    set parent of neighbour to current
+                    if neighbour is not in OPEN
+                        add neighbour to OPEN
+    
+    */
     
     /**
      * Super important method that handles events. When an event is run, any relevant objects which
