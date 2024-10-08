@@ -4,7 +4,7 @@ import { ActionInfoDex } from "../../../data/static/action/action_inf";
 import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { ItemInfoDex } from "../../../data/static/item/item_inf";
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
-import { ActionAction, IDEntry, ItemAction, MessageSet, PlaceAction, SelectedAction, SwapAction, TargetSet } from "../../../global_types";
+import { ActionAction, IDEntry, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, SwapAction, TargetSet } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
@@ -87,6 +87,26 @@ class BattleEvents {
             } else {
                 this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " can't swap out."})
             }
+        }
+
+        return true;
+        
+    }
+
+    /**
+     * Given a SWAP action, perform it.
+     * Take a fielded monster and swap it out with
+     * a non fielded monster in the trainers team.
+     * @param _action the SWAP action to perform
+     * @param _trainer the trainer this action refers to
+     */
+    public async PerformActionMOVE(_action : MoveAction, _trainer : TrainerBase) {
+        
+        const TargetLead : FieldedMonster = _trainer.Team.Leads[_action.source_id];
+        const TargetPath : number[][] = _action.paths[0];
+
+        if (TargetLead && TargetPath) {
+            TargetLead.Activated = true;
         }
 
         return true;

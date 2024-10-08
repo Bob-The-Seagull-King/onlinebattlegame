@@ -195,7 +195,7 @@ class Battle {
         
         this.runEvent( "EndRound", null, null, null, null, null, this.MessageList )
         
-        this.Sides.forEach(_side => {_side.Trainers.forEach(_trainer => {_trainer.Team.Leads.forEach(_lead => {_lead.Activated === false})})})
+        this.Sides.forEach(_side => {_side.Trainers.forEach(_trainer => {_trainer.Team.Leads.forEach(_lead => {_lead.Activated = false})})})
 
         return ContinueRound 
     }
@@ -252,6 +252,12 @@ class Battle {
                     const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as SwapAction)
                     ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
                     await this.Events.PerformActionSWAP(ChosenTurn, _trainer);
+                }
+                
+                if (Turn.type === "MOVE") {
+                    const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as MoveAction)
+                    ChosenTurn.paths = [ChosenTurn.paths[Turn.hype_index]]
+                    await this.Events.PerformActionMOVE(ChosenTurn, _trainer);
                 }
 
                 this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
@@ -341,7 +347,6 @@ class Battle {
         const _choices : TurnChoices = {}
         
         const moveActions = await this.findMoveOptions(_monster);
-        console.log(moveActions)
         if (moveActions.length > 0) {
             _choices["MOVE"] = moveActions
             return { Choices: _choices, Position : _monster.Owner.Monsters.indexOf(_monster.Monster)}
@@ -555,8 +560,6 @@ class Battle {
                 
                 if (plotpath != null) {
                     Paths.push(this.MovePlotToPath(plotpath, SourcePlot));
-                } else {
-                    console.log("Path not found.")
                 }
             }
             const _move : MoveAction = { type: "MOVE", source_id: sourceMonster.Owner.Leads.indexOf(sourceMonster), paths: Paths }
@@ -575,7 +578,6 @@ class Battle {
     
         while (!ReachedStart) {
             if (visitedPlots.has(curPlot)) {
-                console.log("Detected loop, terminating path reconstruction.");
                 break;  // Loop detected, break out
             }
     
@@ -589,8 +591,7 @@ class Battle {
                 curPlot = curPlot.parent;
             }
     
-            if (PlotPath.length > 25) {
-                console.log("Emergency exit, path too long.");
+            if (PlotPath.length > 50) {
                 break;  // Prevent infinite loops
             }
         }
