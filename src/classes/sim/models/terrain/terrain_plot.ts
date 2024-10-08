@@ -8,8 +8,9 @@ interface IMovePlot {
     cost_enter  : number,
     cost_exit   : number,
     cost_f      : number,
+    cost_g      : number,
     valid       : boolean,
-    parent      : Plot | null,
+    parent      : IMovePlot | null,
     neighbours  : Plot[]
 }
 
@@ -81,6 +82,23 @@ class Plot {
         const IsPlacable : boolean = await this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
         return IsPlacable;
     }
+
+    public async IsValidPlace() {
+        let HasMonster = false;
+
+        this.Scene.Owner.Sides.forEach( _side => {
+            _side.Trainers.forEach(_trainer => {
+                _trainer.Team.Leads.forEach( _lead => {
+                    if (_lead.Plot === this) {
+                        HasMonster = true;
+                    }
+                })
+            })
+        })
+
+        const IsPlacable : boolean = await this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
+        return IsPlacable;
+    }
     
     public RemoveFieldEffect(_effect : FieldEffect) {
         for (let i = 0; i < this.FieldEffects.length; i++) {
@@ -106,7 +124,8 @@ class Plot {
             cost_enter  : await this.Scene.Owner.runEvent('PlotEnterCost', this, _sourceMonster, null, 1, null, this.Scene.Owner.MessageList),
             cost_exit   : await this.Scene.Owner.runEvent('PlotExitCost', this, _sourceMonster, null, 0, null, this.Scene.Owner.MessageList),
             cost_f      : null,
-            valid       : await this.IsPlaceable(),
+            cost_g      : null,
+            valid       : await this.IsValidPlace(),
             parent      : null,
             neighbours  : NeighbourList
         }

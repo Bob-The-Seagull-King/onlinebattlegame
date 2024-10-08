@@ -341,7 +341,7 @@ class Battle {
         const _choices : TurnChoices = {}
         
         const moveActions = await this.findMoveOptions(_monster);
-
+        console.log(moveActions)
         if (moveActions.length > 0) {
             _choices["MOVE"] = moveActions
             return { Choices: _choices, Position : _monster.Owner.Monsters.indexOf(_monster.Monster)}
@@ -388,7 +388,6 @@ class Battle {
             _choices["PLACE"] = possibleActions
             const _battle : IBattle = this.ConvertToInterface()
             const _TurnSelect : TurnSelect = {Options: [{Choices: _choices, Position: -1}], Battle: _battle}
-            console.log(_TurnSelect)
             const Turn : ChosenAction = await (_trainer.SelectChoice(_TurnSelect, this.Manager, this))
             
             if (Turn) {       
@@ -545,60 +544,145 @@ class Battle {
         const SourcePlot = sourceMonster.Plot;
 
         if (MovePlots) {
-            console.log(MovePlots);
             // For each plot that a monster can end up on, run the path-finder and add it
+            const Paths : number[][][] = [];
             for (let i = 0; i < MovePlots.length; i++) {
+                this.Scene.ResetMovePlots();
                 if ((MovePlots[i].self === SourcePlot) || (MovePlots[i].valid === false)) {
                     continue;
                 }
-                const plotpath  = await this.findPathToPlot(SourcePlot, MovePlots[i].self, sourceMonster, MovePlots)
+                const plotpath  = await this.findPathToPlot(SourcePlot, MovePlots[i].self, sourceMonster, MovePlots, MaxDistance)
+                
                 if (plotpath != null) {
-                    const _move : MoveAction = { type: "MOVE", source_id: sourceMonster.Owner.Leads.indexOf(sourceMonster), paths: plotpath }
-                    _moveActions.push(_move);
+                    Paths.push(this.MovePlotToPath(plotpath, SourcePlot));
+                } else {
+                    console.log("Path not found.")
                 }
             }
+            const _move : MoveAction = { type: "MOVE", source_id: sourceMonster.Owner.Leads.indexOf(sourceMonster), paths: Paths }
+            _moveActions.push(_move);
+            return _moveActions;
         }
 
-        return _moveActions;
+    }
+
+    public MovePlotToPath(_plotpath : IMovePlot, _sourcePlot : Plot): number[][] {
+        const PlotPath: number[][] = [];
+        let ReachedStart = false;
+    
+        let curPlot = _plotpath;
+        const visitedPlots = new Set<IMovePlot>();  // Keep track of visited plots to avoid loops
+    
+        while (!ReachedStart) {
+            if (visitedPlots.has(curPlot)) {
+                console.log("Detected loop, terminating path reconstruction.");
+                break;  // Loop detected, break out
+            }
+    
+            visitedPlots.add(curPlot);
+            PlotPath.push(curPlot.self.returnCoordinates());
+    
+            if (curPlot.self === _sourcePlot) {
+                ReachedStart = true;
+                return PlotPath;
+            } else {
+                curPlot = curPlot.parent;
+            }
+    
+            if (PlotPath.length > 25) {
+                console.log("Emergency exit, path too long.");
+                break;  // Prevent infinite loops
+            }
+        }
+    
+        return PlotPath;
     }
 
     public async findPathToPlot(
         _sourcePlot : Plot, 
         _targetPlot : Plot, 
         _sourceMonster : FieldedMonster, 
-        _movesets : IMovePlot[]
-    ): Promise<number[][][] | null> {
-        console.log("FINDING PATH TO PLOT")
+        _movesets : IMovePlot[],
+        _maxdistance : number
+    ): Promise<IMovePlot | null> {
+
+        const OpenPlots: IMovePlot[] = [];
+        const ClosedPlots: IMovePlot[] = [];
+        let PlotFound = false;
+
+        _sourcePlot.MovePlot.cost_f = this.GetPlot_F(_sourcePlot, _targetPlot);
+        _sourcePlot.MovePlot.cost_g = 0;
+        OpenPlots.push(_sourcePlot.MovePlot);
+
+        while (!PlotFound) {
+            if (OpenPlots.length <= 0) {
+                return null;  // No valid path found
+            }
+
+            const CurrentPlot: IMovePlot = this.GetLowest_F(OpenPlots);
+
+            if ((CurrentPlot.self === _targetPlot) && (CurrentPlot.cost_g <= _maxdistance)) {
+                return CurrentPlot;  // Path found
+            }
+
+            // Move current plot to closed list
+            ClosedPlots.push(CurrentPlot);
+            const index = OpenPlots.indexOf(CurrentPlot);
+            OpenPlots.splice(index, 1);
+
+            for (let i = 0; i < CurrentPlot.neighbours.length; i++) {
+                const neighbor = CurrentPlot.neighbours[i].MovePlot;
+
+                // Skip invalid, closed plots, or plots beyond max distance
+                if (!neighbor.valid || ClosedPlots.includes(neighbor) || neighbor.cost_g > _maxdistance) {
+                    continue;
+                }
+
+                const tentative_g = CurrentPlot.cost_g + CurrentPlot.cost_exit + neighbor.cost_enter;
+
+                if (tentative_g < neighbor.cost_g || !OpenPlots.includes(neighbor)) {
+                    // Only update parent and costs if new path is cheaper
+                    neighbor.parent = CurrentPlot;
+                    neighbor.cost_g = tentative_g;
+                    neighbor.cost_f = tentative_g + this.GetPlot_F(CurrentPlot.neighbours[i], _targetPlot);
+
+                    if (!OpenPlots.includes(neighbor)) {
+                        OpenPlots.push(neighbor);
+                    }
+                }
+            }
+        }
+
         return null;
     }
 
-    /*
-        PSEUDO CODE FOR PATHFINDING REFERENCE
+    public GetPlot_F( _sourcePlot : Plot, _targetPlot : Plot ) {
+        return (Math.abs(_sourcePlot.Row - _targetPlot.Row) + Math.abs(_sourcePlot.Column - _targetPlot.Column))
+    }
 
-        OPEN // Set of nodes to be evaluated
-        CLOSED // Set of nodes that have been evaluated
+    public GetLowest_F(_openPlots : IMovePlot[]) {
+        let CurrentPlot : IMovePlot = _openPlots[0]
+        let Current_F : number = _openPlots[0].cost_f
 
-        add the starting node to OPEN
+        for (let i = 1; i < _openPlots.length; i++) {
+            if (_openPlots[i].cost_f < Current_F) {
+                Current_F = _openPlots[i].cost_f
+                CurrentPlot = _openPlots[i]
+            }
+        }
 
-        loop
-            current = node in OPEN with lowest f_cost (distance of path to node + distance from node to target)
-            remove current from OPEN
-            add current to CLOSED
+        let i = 0;
+        for (i = 0; i < _openPlots.length; i++) {
+            if (CurrentPlot == _openPlots[i]) {
+                _openPlots.splice(i, 1);
+                break;
+            }
+        }
 
-            if current is the target node
-                return
+        return CurrentPlot;
+    }
 
-            foreach neighbour of the current node
-                if neighbour is not traversable or neighbour is in CLOSED
-                    skip to next neighbour
-                
-                if new path to neighbour is shorter or neighbour is not in OPEN
-                    set f_cost of neighbour
-                    set parent of neighbour to current
-                    if neighbour is not in OPEN
-                        add neighbour to OPEN
     
-    */
     
     /**
      * Super important method that handles events. When an event is run, any relevant objects which

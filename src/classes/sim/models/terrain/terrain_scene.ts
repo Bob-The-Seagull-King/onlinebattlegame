@@ -123,6 +123,26 @@ class Scene {
         return _interface;
     }
 
+    public PlotsAs1D() {
+        const PlotList : Plot[] = []
+
+        for (let i = 0; i < this.Plots.length; i++) {
+            for (let j = 0; j < this.Plots[i].length; j++) {
+                PlotList.push(this.Plots[i][j])
+            }
+        }
+
+        return PlotList;
+    }
+
+    public ResetMovePlots() {
+        this.PlotsAs1D().forEach(_plot => {
+            _plot.MovePlot.parent = null;
+            _plot.MovePlot.cost_g = null;
+            _plot.MovePlot.cost_f = null;
+        })
+    }
+
     public async GenerateMovesetPlots(_sourceMonster : FieldedMonster): Promise<IMovePlot[]> {
         const MovePlots : IMovePlot[] = []
 
