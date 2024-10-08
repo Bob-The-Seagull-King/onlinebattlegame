@@ -5,6 +5,7 @@ import { ActionTranslateDex } from "../../../classes/tools/translator_static";
 import Accordion from 'react-bootstrap/Accordion';
 import PlaceDisplay from "./OptionTypes/PlaceDisplay";
 import SwapDisplay from "./OptionTypes/SwapDisplay";
+import MoveDisplay from "./OptionTypes/MoveDisplay";
 
 const TurnCharacterDisplay = (props: any) => {
     const Manager   : BattleManager = props.manager;    // The viewmodel manager object
@@ -31,6 +32,14 @@ const TurnCharacterDisplay = (props: any) => {
                         <>
                             {TurnChar.action[item].map(_subitem =>
                                 <SwapDisplay manager={Manager} position={Position} turn={TurnChar} action={_subitem}/>
+                            )
+
+                            }
+                        </>}
+                        {item === 'MOVE' &&
+                        <>
+                            {TurnChar.action[item].map(_subitem =>
+                                <MoveDisplay manager={Manager} position={Position} turn={TurnChar} action={_subitem}/>
                             )
 
                             }

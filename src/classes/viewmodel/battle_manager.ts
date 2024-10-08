@@ -1,4 +1,4 @@
-import { ChosenAction, MessageSet, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
+import { ChosenAction, MessageSet, MoveAction, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
 import { MessageTranslator } from "../tools/translator";
 import { GamePlot } from "./game_plot";
@@ -151,6 +151,7 @@ class BattleManager {
      * @param _turnchar the turnchar object this action comes from
      */
     public UpdatePlotsPlace(_action : PlaceAction, _pos : number, _turnchar : any) {
+        this.ClearSelectShow();
         for(let i = 0; i < this.CurrentPlots.length; i++) {
             for (let j = 0; j < this.CurrentPlots[i].length; j++) {
                 const relevantPlot = this.CurrentPlots[i][j]
@@ -193,6 +194,7 @@ class BattleManager {
      * @param _turnchar the turnchar object this action comes from
      */
     public UpdatePlotsSwap(_action : PlaceAction, _pos : number, _turnchar : any) {
+        this.ClearSelectShow();
         for(let i = 0; i < this.CurrentPlots.length; i++) {
             for (let j = 0; j < this.CurrentPlots[i].length; j++) {
                 const relevantPlot = this.CurrentPlots[i][j]
@@ -214,6 +216,49 @@ class BattleManager {
                         const Action : ChosenAction = {
                             type: "SWITCH",
                             type_index : _turnchar.action["SWITCH"].indexOf(_action),
+                            hypo_index : _charindex, 
+                            hype_index : _index
+                        }
+    
+                        relevantPlot.setClickableState(_active, false, _index, Action);
+                        relevantPlot.funcUpdateVals();
+                    }
+                }
+                )
+                
+            }
+        }
+    }
+
+    /**
+     * Update the state of the battle plots based on a given MOVE action
+     * @param _action the given action to select positions for
+     * @param _pos the position this action comes from
+     * @param _turnchar the turnchar object this action comes from
+     */
+    public UpdatePlotsMove(_action : MoveAction, _pos : number, _turnchar : any) {
+        this.ClearSelectShow();
+        for(let i = 0; i < this.CurrentPlots.length; i++) {
+            for (let j = 0; j < this.CurrentPlots[i].length; j++) {
+                const relevantPlot = this.CurrentPlots[i][j]
+                
+                let _active = false;
+                let _index = null;
+
+                _action.paths.forEach(id => 
+                {
+                    if ( (id[0][0] === relevantPlot.Plot.position[0]) && (id[0][1] === relevantPlot.Plot.position[1])) {
+                        _active = true;
+                        _index = _action.paths.indexOf(id);
+                        let _charindex = -1
+                        for(let k = 0; k < this.ChoicesLog.length; k++) {
+                            if (this.ChoicesLog[k].pos === _pos) {
+                                _charindex = k;
+                            }
+                        }
+                        const Action : ChosenAction = {
+                            type: "MOVE",
+                            type_index : _turnchar.action["MOVE"].indexOf(_action),
                             hypo_index : _charindex, 
                             hype_index : _index
                         }
