@@ -21,7 +21,7 @@ export const FieldBattleDex : FieldBattleTable = {
         id          : 1,    
         category    : [FieldCategory.Damage, FieldCategory.Piercing, FieldCategory.Enter],
         events      : {},
-        async onMonsterEntersField(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+        async onMonsterEntersPlot(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
             let TypeVal = 0;
             if (eventSource.Trackers["damagetype"]) {
                 TypeVal = eventSource.Trackers["damagetype"]
@@ -35,7 +35,7 @@ export const FieldBattleDex : FieldBattleTable = {
         id          : 2,     
         category    : [FieldCategory.Damage, FieldCategory.Enter],
         events      : {},
-        async onMonsterEntersField(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+        async onMonsterEntersPlot(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
             let TypeVal = 0;
             if (eventSource.Trackers["damagetype"]) {
                 TypeVal = eventSource.Trackers["damagetype"]
@@ -44,6 +44,15 @@ export const FieldBattleDex : FieldBattleTable = {
             this.Events.DealDamage(5, TypeVal, eventSource, source, false, false, false)
 
             messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Harsh Terrain."})
+        }
+    },
+    difficultterrain: {
+        id          : 5,     
+        category    : [FieldCategory.Impede, FieldCategory.Enter],
+        events      : {},
+        async onPlotEnterCost(this : Battle, eventSource : any, source : Plot, taget: FieldedMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
+            
+            return relayVar + 1;
         }
     },
     thickterrain: {

@@ -77,12 +77,14 @@ class BattleEvents {
             if (CanSwap) {
                 await this.Battle.runEvent( "SwitchOutMonster", lead, null, null, null, null, this.Battle.MessageList )
                 await this.Battle.runEvent( "MonsterExitsField", lead, null, null, null, null, this.Battle.MessageList )
+                await this.Battle.runEvent( "MonsterExitsPlot", lead, null, null, null, null, this.Battle.MessageList )
                 this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped out."})
 
                 lead.Monster = _trainer.Team.Monsters[_action.monster_id]          
                   
                 await this.Battle.runEvent( "SwitchInMonster", lead, null, null, null, null, this.Battle.MessageList )
                 await this.Battle.runEvent( "MonsterEntersField", lead, null, null, null, null, this.Battle.MessageList )
+                await this.Battle.runEvent( "MonsterEntersPlot", lead, null, null, null, null, this.Battle.MessageList )
                 this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " has been swapped in."})
             } else {
                 this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " can't swap out."})
@@ -107,10 +109,47 @@ class BattleEvents {
 
         if (TargetLead && TargetPath) {
             TargetLead.Activated = true;
+
+            for (let i = TargetPath.length - 2; i >= 0; i--) {
+                const Coords = TargetPath[i];
+                const TargetPlot = this.Battle.Scene.Plots[Coords[0]][Coords[1]];
+                const SourcePlot = TargetLead.Plot;
+
+                const TakeStep = await this.MoveMonster(TargetLead, SourcePlot, TargetPlot, _trainer);
+                if (TakeStep === false) {
+                    break;
+                }
+            }
+            
+            this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " moved from Position " + TargetPath[TargetPath.length - 1] + " to Position " + TargetLead.Plot.returnCoordinates()})
         }
 
         return true;
         
+    }
+
+    public async MoveMonster(
+        _sourceMonster : FieldedMonster,
+        _sourcePlot : Plot,
+        _targetPlot : Plot,
+        _trainer : TrainerBase
+    ) {
+        const RefMonster = _sourceMonster.Monster;
+
+        await this.Battle.runEvent( "MonsterExitsPlot", _sourceMonster, null, null, null, null, this.Battle.MessageList )
+
+        if (_sourceMonster.Monster === RefMonster) {
+            _sourceMonster.Plot = _targetPlot;
+            _sourceMonster.Position = _targetPlot.returnCoordinates();
+            await this.Battle.runEvent( "MonsterEntersPlot", _sourceMonster, null, null, null, null, this.Battle.MessageList )
+            if (_sourceMonster.Monster === RefMonster) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -204,21 +243,23 @@ class BattleEvents {
 
             const ModifiedDamage = Math.floor( (_val - (_val * ( ( Math.min(90, ProtectionModifier * DamageTakenModifier))/100))) * TypeMatchupModifier)
 
-            let dmg = 0;
+            let dmg;
             const FinalDamage = await this.Battle.runEvent('GetFinalDamage', _source, _target, null, ModifiedDamage, null, this.Battle.MessageList )
             dmg = await _target.Monster.TakeDamage(FinalDamage, this.Battle.MessageList);
 
-            if (_target.Monster.HP_Current <= 0) {
-                this.Battle.runEvent('WhenKnockedOut', _source, _target, null, null, null, this.Battle.MessageList )
-                let IsDead = true;
-                while (IsDead) {
+            if (dmg) {
+                if (_target.Monster.HP_Current <= 0) {
+                    this.Battle.runEvent('WhenKnockedOut', _source, _target, null, null, null, this.Battle.MessageList )
+                    let IsDead = true;
+                    while (IsDead) {
 
-                    const AwaitDeathSwap = await this.Battle.AutoSwapMonster(_target.Monster)
-                    if (AwaitDeathSwap === true) {IsDead = false}
-                    if (AwaitDeathSwap === false) {
-                        IsDead = false
-                        _target.Owner.RemoveFielded(_target);
-                        this.Battle.Manager.UpdateState(this.Battle.ConvertToInterface())
+                        const AwaitDeathSwap = await this.Battle.AutoSwapMonster(_target.Monster)
+                        if (AwaitDeathSwap === true) {IsDead = false}
+                        if (AwaitDeathSwap === false) {
+                            IsDead = false
+                            _target.Owner.RemoveFielded(_target);
+                            this.Battle.Manager.UpdateState(this.Battle.ConvertToInterface())
+                        }
                     }
                 }
             }

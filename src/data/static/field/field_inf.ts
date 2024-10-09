@@ -27,6 +27,13 @@ export const FieldInfoDex : FieldInfoTable = {
             {cat: "general", text: "Prevents Monsters from switching out."}
         ]   
     },
+    difficultterrain: {
+        id          : 5,   
+        name        : "Difficult Terrain",   
+        description : [
+            {cat: "general", text: "Costs +1 SP to Enter."}
+        ]   
+    },
     obstacle: {
         id          : 4,   
         name        : "Obstacle",   

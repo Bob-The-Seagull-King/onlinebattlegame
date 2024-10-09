@@ -251,13 +251,13 @@ class Battle {
                 if (Turn.type === "SWITCH") {
                     const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as SwapAction)
                     ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
-                    await this.Events.PerformActionSWAP(ChosenTurn, _trainer);
+                    const TurnVal = await this.Events.PerformActionSWAP(ChosenTurn, _trainer);
                 }
                 
                 if (Turn.type === "MOVE") {
                     const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as MoveAction)
                     ChosenTurn.paths = [ChosenTurn.paths[Turn.hype_index]]
-                    await this.Events.PerformActionMOVE(ChosenTurn, _trainer);
+                    const TurnVal = await this.Events.PerformActionMOVE(ChosenTurn, _trainer);
                 }
 
                 this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )

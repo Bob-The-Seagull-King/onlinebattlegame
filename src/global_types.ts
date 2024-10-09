@@ -277,6 +277,10 @@ export interface CallEvents {
     onCanUsePlot? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>;
     onCanSwapOut? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>;
     onMonsterEntersField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
+    onMonsterExitsField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
+    onMonsterEntersPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
+    onMonsterExitsPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
+    onPlotEnterCost? : (this : Battle, eventSource : any, source : Plot, target : FieldedMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) => Promise<number>;
 }
 
 /**

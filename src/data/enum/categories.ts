@@ -42,7 +42,8 @@ enum FieldCategory {
     Enter = "Enter", // Triggers on moving into or switching into
     Trap = "Trap", // Prevents switching
     Block = "Block", // Prevents moving into or through
-    Object = "Object" // Created physical structures
+    Object = "Object", // Created physical structures
+    Impede = "Impede" // Slows and hinders movement
 }
 
 enum ItemCategory {

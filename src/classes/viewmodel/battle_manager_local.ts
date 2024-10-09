@@ -49,37 +49,16 @@ class OfflineBattleManager extends BattleManager {
         const otherTrainer : ITrainerBot = {type : 'bot', team: otherTeam, pos: 1, behaviour: ['random'], name: "Bot"};
 
         
-        const FieldEffectDangerousTypeless : IFieldEffect = {
+        const FieldEffectDifficult : IFieldEffect = {
             tokens      : [],        // Tokens held by the plot
             trackers    : {},    // Misc trackers used by plot tokens
-            plots       : [[1,1],[1,2],[1,3],[1,4],[1,5]],
-            fieldEffect : 'dangerousterrain'
-        }
-        const FieldEffectDangerousTyped : IFieldEffect = {
-            tokens      : [],        // Tokens held by the plot
-            trackers    : {"damagetype": 4},    // Misc trackers used by plot tokens
-            plots       : [[2,1],[2,2],[2,3],[2,4],[2,5]],
-            fieldEffect : 'dangerousterrain'
-        }
-        const FieldEffectHarshTypeless : IFieldEffect = {
-            tokens      : [],        // Tokens held by the plot
-            trackers    : {},    // Misc trackers used by plot tokens
-            plots       : [[3,1],[3,2],[3,3],[3,4],[3,5]],
-            fieldEffect : 'harshterrain'
-        }
-        const FieldEffectHarshTyped : IFieldEffect = {
-            tokens      : [],        // Tokens held by the plot
-            trackers    : {"damagetype": 4},    // Misc trackers used by plot tokens
-            plots       : [[4,1],[4,2],[4,3],[4,4],[4,5]],
-            fieldEffect : 'harshterrain'
+            plots       : [[4,1],[4,2],[4,3],[4,4],[4,5],[3,3],[3,4],[3,2],[2,2]],
+            fieldEffect : 'difficultterrain'
         }
         
         const Trainers : ITrainer[][] = [];
         const newScene : IScene = TerrainFactory.CreateIScene(6,6)
-        newScene.field.push(FieldEffectDangerousTypeless);
-        newScene.field.push(FieldEffectHarshTypeless);
-        newScene.field.push(FieldEffectDangerousTyped);
-        newScene.field.push(FieldEffectHarshTyped);
+        newScene.field.push(FieldEffectDifficult);
         Trainers.push([myTrainer]);
         Trainers.push([otherTrainer]);
 
