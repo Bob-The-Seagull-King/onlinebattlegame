@@ -50,8 +50,7 @@ export const FieldBattleDex : FieldBattleTable = {
         id          : 5,     
         category    : [FieldCategory.Impede, FieldCategory.Enter],
         events      : {},
-        async onPlotEnterCost(this : Battle, eventSource : any, source : Plot, taget: FieldedMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
-            
+        async onPlotEnterCost(this : Battle, eventSource : any, source : Plot, relayVar : number, messageList : MessageSet, fromSource : boolean) {
             return relayVar + 1;
         }
     },

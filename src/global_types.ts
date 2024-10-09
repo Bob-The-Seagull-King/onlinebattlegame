@@ -280,7 +280,7 @@ export interface CallEvents {
     onMonsterExitsField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
     onMonsterEntersPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
     onMonsterExitsPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
-    onPlotEnterCost? : (this : Battle, eventSource : any, source : Plot, target : FieldedMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) => Promise<number>;
+    onPlotEnterCost? : (this : Battle, eventSource : any, source : Plot, relayVar : number, messageList : MessageSet, fromSource : boolean) => Promise<number>;
 }
 
 /**

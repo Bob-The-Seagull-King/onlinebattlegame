@@ -121,8 +121,8 @@ class Plot {
 
         const SelfPlot : IMovePlot = {
             self        : this,
-            cost_enter  : await this.Scene.Owner.runEvent('PlotEnterCost', this, _sourceMonster, null, 1, null, this.Scene.Owner.MessageList),
-            cost_exit   : await this.Scene.Owner.runEvent('PlotExitCost', this, _sourceMonster, null, 0, null, this.Scene.Owner.MessageList),
+            cost_enter  : await this.Scene.Owner.runEvent('PlotEnterCost', this, null, null, 1, null, this.Scene.Owner.MessageList),
+            cost_exit   : await this.Scene.Owner.runEvent('PlotExitCost', this, null, null, 0, null, this.Scene.Owner.MessageList),
             cost_f      : null,
             cost_g      : null,
             valid       : await this.IsValidPlace(),

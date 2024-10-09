@@ -543,7 +543,6 @@ class Battle {
 
         // Get monster speed (cap on speed)
         const MaxDistance = await this.Events.GetStatValue(sourceMonster, "sp", false, false)
-
         // Generate Sets of neighbours and paths and all that stuff
         const MovePlots = await this.Scene.GenerateMovesetPlots(sourceMonster);
         const SourcePlot = sourceMonster.Plot;
@@ -559,7 +558,9 @@ class Battle {
                 const plotpath  = await this.findPathToPlot(SourcePlot, MovePlots[i].self, sourceMonster, MovePlots, MaxDistance)
                 
                 if (plotpath != null) {
-                    Paths.push(this.MovePlotToPath(plotpath, SourcePlot));
+                    if (plotpath.cost_g <= MaxDistance) {
+                        Paths.push(this.MovePlotToPath(plotpath, SourcePlot));
+                    }
                 }
             }
             const _move : MoveAction = { type: "MOVE", source_id: sourceMonster.Owner.Leads.indexOf(sourceMonster), paths: Paths }
@@ -622,7 +623,7 @@ class Battle {
 
             const CurrentPlot: IMovePlot = this.GetLowest_F(OpenPlots);
 
-            if ((CurrentPlot.self === _targetPlot) && (CurrentPlot.cost_g <= _maxdistance)) {
+            if ((CurrentPlot.self === _targetPlot)) {
                 return CurrentPlot;  // Path found
             }
 
@@ -635,7 +636,7 @@ class Battle {
                 const neighbor = CurrentPlot.neighbours[i].MovePlot;
 
                 // Skip invalid, closed plots, or plots beyond max distance
-                if (!neighbor.valid || ClosedPlots.includes(neighbor) || neighbor.cost_g > _maxdistance) {
+                if (!neighbor.valid || ClosedPlots.includes(neighbor)) {
                     continue;
                 }
 
