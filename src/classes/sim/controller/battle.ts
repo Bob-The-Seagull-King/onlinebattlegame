@@ -69,11 +69,17 @@ class Battle {
         this.MessageList = [];
     }
 
-    public BattleBegin() {    
+    public async BattleBegin() {    
         // Initial Plot Map
-        this.Manager.UpdateState(this.ConvertToInterface())
+        await this.UpdateBattleState();
 
         this.StartBattle();
+    }
+
+    
+    public async UpdateBattleState() {
+        
+        this.Manager.UpdateState(this.ConvertToInterface())
     }
     /**
      * Converts the IActiveItems to usable ActiveItem
@@ -148,7 +154,7 @@ class Battle {
         while(cont) {
             this.MessageList.push({ "generic" : "Round " + roundVar})
             this.SendOutMessage(this.MessageList);
-            this.Manager.UpdateState(this.ConvertToInterface())
+            await this.UpdateBattleState();
             cont = await this.EnactRound();
             roundVar ++;
         }
@@ -164,7 +170,7 @@ class Battle {
         }
         this.MessageList.push({ "generic" : "Battle Won By " + Victor})
         this.SendOutMessage(this.MessageList);
-        this.Manager.UpdateState(this.ConvertToInterface())
+        await this.UpdateBattleState();
     }
 
     /**

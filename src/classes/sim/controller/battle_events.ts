@@ -116,6 +116,10 @@ class BattleEvents {
                 const SourcePlot = TargetLead.Plot;
 
                 const TakeStep = await this.MoveMonster(TargetLead, SourcePlot, TargetPlot, _trainer);
+                
+                await this.Battle.UpdateBattleState();
+                const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+                await delay(500);
                 if (TakeStep === false) {
                     break;
                 }
@@ -258,7 +262,7 @@ class BattleEvents {
                         if (AwaitDeathSwap === false) {
                             IsDead = false
                             _target.Owner.RemoveFielded(_target);
-                            this.Battle.Manager.UpdateState(this.Battle.ConvertToInterface())
+                            await this.Battle.UpdateBattleState();
                         }
                     }
                 }

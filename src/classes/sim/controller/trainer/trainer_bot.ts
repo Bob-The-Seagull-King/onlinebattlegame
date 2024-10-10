@@ -55,6 +55,9 @@ class TrainerBot extends TrainerBase {
             hype_index : randomHypeVal
          }
 
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        await delay(500);
+
         return ReturnedAction
     }
 
