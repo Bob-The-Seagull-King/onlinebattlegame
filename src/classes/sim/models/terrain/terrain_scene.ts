@@ -85,6 +85,12 @@ class Scene {
         }
     }
 
+    /**
+     * Given a pair of coordinates, return the Plot in that position within the scene
+     * @param column 
+     * @param row 
+     * @returns the desired Plot object
+     */
     public ReturnGivenPlot(column : number, row : number) {
         return this.Plots[column][row]
     }
@@ -123,6 +129,12 @@ class Scene {
         return _interface;
     }
 
+    /**
+     * Returns all the plots in a scene as a single
+     * list, rather than a 2D array split by both rows
+     * and columns.
+     * @returns 1D array of all plots in a scene
+     */
     public PlotsAs1D() {
         const PlotList : Plot[] = []
 
@@ -135,6 +147,12 @@ class Scene {
         return PlotList;
     }
 
+    /**
+     * For each plot, reset their MovePlot
+     * stats that relate to searching / cost
+     * but keep the precalculated values that
+     * remain unchanged over the course of searching.
+     */
     public ResetMovePlots() {
         this.PlotsAs1D().forEach(_plot => {
             _plot.MovePlot.parent = null;
@@ -143,6 +161,13 @@ class Scene {
         })
     }
 
+    /**
+     * For a scene, prompt each plot to caulcatate their MovePlot
+     * for use in movement path searching, and return an array of
+     * all these MovePlots.
+     * @param _sourceMonster The monster these sources are being caulcated for
+     * @returns Array of MovePlot objects
+     */
     public async GenerateMovesetPlots(_sourceMonster : FieldedMonster): Promise<IMovePlot[]> {
         const MovePlots : IMovePlot[] = []
 

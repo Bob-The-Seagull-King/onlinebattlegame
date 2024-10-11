@@ -33,6 +33,13 @@ class FieldEffect {
         this.Field = _data.fieldEffect;
     }
 
+    /**
+     * Given the list of coordinates this field effect
+     * is in, find the relative plots in the parent scene
+     * and add them to an array.
+     * @param _data The list of plot coordinates
+     * @returns Array of plots a field effect is in
+     */
     private PlotGenerator(_data : number[][]) {
         const PlotList : Plot[] = [];
         let i = 0;

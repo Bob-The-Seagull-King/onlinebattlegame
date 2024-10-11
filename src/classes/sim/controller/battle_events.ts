@@ -96,10 +96,10 @@ class BattleEvents {
     }
 
     /**
-     * Given a SWAP action, perform it.
-     * Take a fielded monster and swap it out with
-     * a non fielded monster in the trainers team.
-     * @param _action the SWAP action to perform
+     * Given a MOVE action, perform it.
+     * Take a fielded monster and move it through
+     * each plot on the path
+     * @param _action the MOVE action to perform
      * @param _trainer the trainer this action refers to
      */
     public async PerformActionMOVE(_action : MoveAction, _trainer : TrainerBase) {
@@ -128,10 +128,17 @@ class BattleEvents {
             this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " moved from Position " + TargetPath[TargetPath.length - 1] + " to Position " + TargetLead.Plot.returnCoordinates()})
         }
 
-        return true;
-        
+        return true;        
     }
 
+    /**
+     * Move a plot across a single plot from their original position
+     * @param _sourceMonster The monster being moved
+     * @param _sourcePlot The plot this monster starts on
+     * @param _targetPlot The plot this monster will move onto
+     * @param _trainer The trainer associated with this action
+     * @returns True if the monster is still alive (false otherwise)
+     */
     public async MoveMonster(
         _sourceMonster : FieldedMonster,
         _sourcePlot : Plot,
@@ -195,6 +202,11 @@ class BattleEvents {
         return FinalTypeVal;
     }
 
+    /**
+     * Determines the impact a type interaction has on damage
+     * @param _typeval The value of the type interaction
+     * @returns The modifier on damage based on the type interaction
+     */
     public returnTypeDamageMod(_typeval : number) {
         switch (_typeval) {
             case 0 : {
@@ -219,6 +231,17 @@ class BattleEvents {
         }
     }
 
+    /**
+     * Deals damage to a monster
+     * @param _val How much damage is being applied to the target
+     * @param _type The type of the damage
+     * @param _source The source of the damage
+     * @param _target The monster taking the damage
+     * @param _skipProt If the target's protection modifier should be ignored
+     * @param _skipType If the target's type should be ignored
+     * @param _skipMods If other modifiers on damage should be ignored
+     * @returns the amount of damage dealt
+     */
     public async DealDamage(
         _val : number, 
         _type : number,
@@ -271,6 +294,14 @@ class BattleEvents {
             return dmg;
     }
 
+    /**
+     * Finds a given monster's stat value.
+     * @param _monster The monster who's stat is being looked for
+     * @param _stat The name of the stat to find
+     * @param _skipMods If modifiers of the stat should be skipped
+     * @param _skipBoosts If stat boosts should be ignored
+     * @returns The final value of the stat
+     */
     public async GetStatValue(_monster : FieldedMonster | ActiveMonster, _stat : string, _skipMods : boolean, _skipBoosts : boolean) {
         
         const _mon : ActiveMonster = (_monster instanceof ActiveMonster)? _monster : _monster.Monster;

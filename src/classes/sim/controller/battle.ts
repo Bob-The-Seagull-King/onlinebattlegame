@@ -69,6 +69,11 @@ class Battle {
         this.MessageList = [];
     }
 
+    /**
+     * Begin the battle by setting the
+     * initial battle state before starting
+     * things off.
+     */
     public async BattleBegin() {    
         // Initial Plot Map
         await this.UpdateBattleState();
@@ -76,11 +81,13 @@ class Battle {
         this.StartBattle();
     }
 
-    
-    public async UpdateBattleState() {
-        
+    /**
+     * Update the state of the battle
+     */
+    public async UpdateBattleState() {        
         this.Manager.UpdateState(this.ConvertToInterface())
     }
+
     /**
      * Converts the IActiveItems to usable ActiveItem
      * objects.
@@ -274,6 +281,12 @@ class Battle {
         }
     }
 
+    /**
+     * If a monster needs to be swapped out, such
+     * as if the monster dies, perform a swap.
+     * @param _monster the monster to be swapped out
+     * @returns true if a swap was found, false otherwise
+     */
     public async AutoSwapMonster(_monster : ActiveMonster): Promise<boolean> {
 
         const _trainer = _monster.Owner.Owner
@@ -498,7 +511,7 @@ class Battle {
     
     /**
      * Given a trainer, find all the possible
-     * SWAP options they can take
+     * SWAP options they can take to swap out a single monster
      * @param sourceTrainer the trainer to search options for
      * @returns the list of SWAP actions.
      */
@@ -576,6 +589,14 @@ class Battle {
 
     }
 
+    /**
+     * Given an end plot, return the array of coordinates
+     * from the end plot (start of array) to the original
+     * plot the monster starts at.
+     * @param _plotpath the MovePlot of the final plot
+     * @param _sourcePlot the original plot the monster starts at
+     * @returns array of coordinate values
+     */
     public MovePlotToPath(_plotpath : IMovePlot, _sourcePlot : Plot): number[][] {
         const PlotPath: number[][] = [];
         let ReachedStart = false;
@@ -606,6 +627,16 @@ class Battle {
         return PlotPath;
     }
 
+    /**
+     * Finds the shortest possible path from a source plot
+     * to a target plot, for a given monster.
+     * @param _sourcePlot the plot it starts at
+     * @param _targetPlot the plot it wants to reach
+     * @param _sourceMonster the monster paths are being found for
+     * @param _movesets set of MovePlots for the given scene
+     * @param _maxdistance the maximum length of a path's g_score
+     * @returns the end MovePlot, or null if none is found
+     */
     public async findPathToPlot(
         _sourcePlot : Plot, 
         _targetPlot : Plot, 
@@ -664,10 +695,24 @@ class Battle {
         return null;
     }
 
+    /**
+     * Gets the f_score modifier of a given plot
+     * @param _sourcePlot The plot being calculated
+     * @param _targetPlot The final target plot
+     * @returns The f score modifier of the source plot
+     */
     public GetPlot_F( _sourcePlot : Plot, _targetPlot : Plot ) {
         return (Math.abs(_sourcePlot.Row - _targetPlot.Row) + Math.abs(_sourcePlot.Column - _targetPlot.Column))
     }
 
+    /**
+     * Given an array of move plots, returns the
+     * one with the smallest f_score. If multiple
+     * have the same score, select the earliest one
+     * in the array.
+     * @param _openPlots the array of MovePlots
+     * @returns the MovePlot with the lowest f score
+     */
     public GetLowest_F(_openPlots : IMovePlot[]) {
         let CurrentPlot : IMovePlot = _openPlots[0]
         let Current_F : number = _openPlots[0].cost_f
@@ -688,9 +733,7 @@ class Battle {
         }
 
         return CurrentPlot;
-    }
-
-    
+    }    
     
     /**
      * Super important method that handles events. When an event is run, any relevant objects which

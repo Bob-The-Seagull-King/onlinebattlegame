@@ -273,14 +273,14 @@ export interface ChoiceTarget {
  * all options components of the interfaces that ineherit them.
  */
 export interface CallEvents {
-    onGenericEvent? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, target : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | null, sourceEffect : ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, relayVar : any, trackVal : any, messageList : MessageSet, fromSource : boolean) => Promise<void>;
-    onCanUsePlot? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>;
-    onCanSwapOut? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>;
-    onMonsterEntersField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
-    onMonsterExitsField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
-    onMonsterEntersPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
-    onMonsterExitsPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>;
-    onPlotEnterCost? : (this : Battle, eventSource : any, source : Plot, relayVar : number, messageList : MessageSet, fromSource : boolean) => Promise<number>;
+    onGenericEvent? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, target : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | null, sourceEffect : ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, relayVar : any, trackVal : any, messageList : MessageSet, fromSource : boolean) => Promise<void>; // Generic all-purpose event, avoid using if possible
+    onCanUsePlot? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>; // If a plot can be used as a valid monster location
+    onCanSwapOut? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>; // If a monster can be swapped out of the field
+    onMonsterEntersField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When a monster enters the battle
+    onMonsterExitsField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When a monster exits the battle
+    onMonsterEntersPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When a monster enters a given plot
+    onMonsterExitsPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When a monster exits a given plot
+    onPlotEnterCost? : (this : Battle, eventSource : any, source : Plot, relayVar : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Get the movement cost for entering a plot
 }
 
 /**

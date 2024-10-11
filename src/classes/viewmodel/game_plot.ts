@@ -60,15 +60,19 @@ class GamePlot {
         this.funcUpdateVals();
     }
 
+    /**
+     * Set if the plot should sub-display
+     * @param _subactive the sub-state of the plot
+     */
     public setSubState(_subactive :boolean) {
-
         this.IsSubActive = _subactive;
-
         this.UpdateTooltips();
-
         this.funcUpdateVals();
     }
 
+    /**
+     * Activates on mouseEnter, adds all relevant sub-selects
+     */
     public RunSubItemCheck() {
         if (this.TurnVal) {
             if (this.TurnVal.type === "MOVE") {
@@ -78,6 +82,9 @@ class GamePlot {
         }
     }
 
+    /**
+     * Activates on mouseExit, removes all relevant sub-selects
+     */
     public ClearSubItem() {
         if (this.TurnVal) {
             if (this.TurnVal.type === "MOVE") {
@@ -87,6 +94,10 @@ class GamePlot {
         }
     }
 
+    /**
+     * Checks if any terrain effects are on this plot
+     * @returns Bool of if any terrain effects share this plot
+     */
     public CheckEffects() {
         let ValEffect = false;
         for (let i = 0; i < this.Owner.BattleState.scene.field.length; i++) {
@@ -99,6 +110,11 @@ class GamePlot {
         return ValEffect;
     }
 
+    /**
+     * Updates the list of text-items to display when hovering
+     * over a plot based on the monsters on it, the terrain effects
+     * it has, and if it is selectable.
+     */
     private UpdateTooltips() {
         this.Tooltip = []
         this.Tooltip.push("Position: " + this.Plot.position[0] + " - " + this.Plot.position[1])
@@ -128,6 +144,10 @@ class GamePlot {
         this.funcUpdateVals = updateresults;
     }
 
+    /**
+     * Checks if any monster shares the space of this plot, if so it returns their nickname
+     * @returns String representing the nickname, if any, of a monster on this plot
+     */
     public CheckForMon() {
         let MonName = ""
         this.Owner.BattleState.sides.forEach(_side => 

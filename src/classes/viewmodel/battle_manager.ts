@@ -230,6 +230,11 @@ class BattleManager {
         }
     }
 
+    /**
+     * Updates a number of plots to activate them as
+     * sub-select plots.
+     * @param _plots list of plots to update
+     */
     public UpdatePlotsSub(_plots : number[][]) {
         for(let i = 0; i < this.CurrentPlots.length; i++) {
             for (let j = 0; j < this.CurrentPlots[i].length; j++) {
@@ -248,6 +253,11 @@ class BattleManager {
         }
     }
 
+    /**
+     * Updates a number of plots to deactivate them
+     * as sub-select plots.
+     * @param _plots list of plots to update
+     */
     public ClearPlotsSub(_plots : number[][]) {
         for(let i = 0; i < this.CurrentPlots.length; i++) {
             for (let j = 0; j < this.CurrentPlots[i].length; j++) {

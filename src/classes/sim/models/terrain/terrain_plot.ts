@@ -58,14 +58,28 @@ class Plot {
         return _interface;
     }
 
+    /**
+     * Gets the coordinates in a 2-length array
+     * @returns number array
+     */
     public returnCoordinates() {
         return [this.Column, this.Row]
     }
 
+    /**
+     * Appends a field effect to the plot's
+     * internal list.
+     * @param _effect The effect to add
+     */
     public AddFieldEffect(_effect : FieldEffect) {
         this.FieldEffects.push(_effect);
     }
 
+    /**
+     * Determines if this plot allows monsters to
+     * enter or move through them.
+     * @returns If a monster can enter this space (true) or not (false)
+     */
     public async IsPlaceable() {
         let HasMonster = false;
 
@@ -82,24 +96,12 @@ class Plot {
         const IsPlacable : boolean = await this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
         return IsPlacable;
     }
-
-    public async IsValidPlace() {
-        let HasMonster = false;
-
-        this.Scene.Owner.Sides.forEach( _side => {
-            _side.Trainers.forEach(_trainer => {
-                _trainer.Team.Leads.forEach( _lead => {
-                    if (_lead.Plot === this) {
-                        HasMonster = true;
-                    }
-                })
-            })
-        })
-
-        const IsPlacable : boolean = await this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
-        return IsPlacable;
-    }
     
+    /**
+     * Removes an effect from the plot, assuming
+     * that this plot has that effect.
+     * @param _effect The effect to remove
+     */
     public RemoveFieldEffect(_effect : FieldEffect) {
         for (let i = 0; i < this.FieldEffects.length; i++) {
             if (this.FieldEffects[i] === _effect) {
@@ -109,9 +111,14 @@ class Plot {
         }
     }
 
+    /**
+     * Creates a MovePlot for this plot, a MovePlot
+     * contains information needed for searching through
+     * possible paths.
+     * @param _sourceMonster The monster a move plot is being generated for
+     * @returns The move plot being created
+     */
     public async UpdateMovePlot(_sourceMonster : FieldedMonster) {
-
-
         const NeighbourList : Plot[] = [];
 
         if (this.Column < (this.Scene.Width - 1)) {  NeighbourList.push(this.Scene.Plots[this.Column + 1][this.Row]) }
@@ -125,13 +132,12 @@ class Plot {
             cost_exit   : await this.Scene.Owner.runEvent('PlotExitCost', this, null, null, 0, null, this.Scene.Owner.MessageList),
             cost_f      : null,
             cost_g      : null,
-            valid       : await this.IsValidPlace(),
+            valid       : await this.IsPlaceable(),
             parent      : null,
             neighbours  : NeighbourList
         }
 
         this.MovePlot = SelfPlot;
-
         return SelfPlot;
     }
 
