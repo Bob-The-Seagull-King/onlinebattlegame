@@ -23,7 +23,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     },
     terrain : {
         id          : 1,
-        type        : [MonsterType.Stonework, MonsterType.Poison],
+        type        : [MonsterType.Dungeon, MonsterType.Scum],
         stats       : {
             hp  : 55,
             dl  : 6,
@@ -39,7 +39,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     },
     nimble : {
         id          : 2,
-        type        : [MonsterType.Skirmish, MonsterType.Bizarro],
+        type        : [MonsterType.Rabid, MonsterType.Bizarro],
         stats       : {
             hp  : 40,
             dl  : 12,
@@ -55,7 +55,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     },
     bruiser : {
         id          : 3,
-        type        : [MonsterType.Pelagic],
+        type        : [MonsterType.Flooded],
         stats       : {
             hp  : 70,
             dl  : 9,
@@ -71,7 +71,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     },
     arcane : {
         id          : 4,
-        type        : [MonsterType.Gilded, MonsterType.Blaze],
+        type        : [MonsterType.Gilded, MonsterType.Charred],
         stats       : {
             hp  : 40,
             dl  : 9,
@@ -87,7 +87,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     },
     evolvea : {
         id          : 5,
-        type        : [MonsterType.Flowering],
+        type        : [MonsterType.Enchanted],
         stats       : {
             hp  : 25,
             dl  : 5,
@@ -103,7 +103,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     },
     evolveb : {
         id          : 6,
-        type        : [MonsterType.Flowering, MonsterType.Tempest],
+        type        : [MonsterType.Enchanted, MonsterType.Charred],
         stats       : {
             hp  : 25,
             dl  : 12,
