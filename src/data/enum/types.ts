@@ -101,7 +101,7 @@ export const TypeMatchup : TypeChartTable = {
         6 : 0, // Flooded
         7 : 0, // Gilded
         8 : 0, // Igor
-        9 : 0, // Knight
+        9 : 2, // Knight
         10: 0, // Rabid
         11: 0, // Scum
         12: 0  // Vampire
