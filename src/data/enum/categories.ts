@@ -51,7 +51,11 @@ enum ItemCategory {
     Restoration = "Restoration", // Recovers the HP or removes negative tokens from a monster
     Terraform = "Terraform", // Changes the field
     Boost = "Boost", // Improves a monster
-    Debuff = "Debuff" // Hinders a monster
+    Debuff = "Debuff", // Hinders a monster
+    Slow = "Slow", // Reduces movement
+    Damage = "Damage", // Deals damage
+    Obstacle = "Obstacle", // Stops movement
+    Trap = "Trap" // Prevents swapping
 }
 
 enum TokenCategory {

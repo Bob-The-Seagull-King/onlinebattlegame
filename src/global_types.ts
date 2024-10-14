@@ -266,7 +266,7 @@ export interface ChoiceTarget {
     target_type         : "ALL" | "TERRAIN" | "MONSTER", // If something targets the terrain, the monster on it, or both
     target_direction    : "ALL" | "CARDINAL" | "ORDINAL" | "BOTH", // If the possible range is X, +, both, or anywhere within range
     target_choice       : "ALL" | "TERRAIN" | "MONSTER", // If the player can select a space with a monster on it, a space without a monster on it, or either
-    target_range        : number // how many spaces from the source it can be
+    target_range        : number // how many spaces from the source it can be (no impact on Items)
 }
 
 /**
