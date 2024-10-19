@@ -78,6 +78,12 @@ class OfflineBattleManager extends BattleManager {
         _Team.AddFreshMonster("arcane");
         _Team.AddFreshMonster("evolvea");
 
+        _Team.AddFreshItem("greenherb");
+        _Team.AddFreshItem("blockofstone");
+        _Team.AddFreshItem("mudshot");
+        _Team.AddFreshItem("microbomb");
+        _Team.AddFreshItem("gunklauncher");
+
         const _teamfinal : ITeam =  _Team.ConvertToInterface();
         return _teamfinal;
     }
@@ -91,6 +97,12 @@ class OfflineBattleManager extends BattleManager {
         _Team.AddFreshMonster("bruiser");
         _Team.AddFreshMonster("arcane");
         _Team.AddFreshMonster("evolvea");
+
+        _Team.AddFreshItem("greenherb");
+        _Team.AddFreshItem("blockofstone");
+        _Team.AddFreshItem("mudshot");
+        _Team.AddFreshItem("microbomb");
+        _Team.AddFreshItem("gunklauncher");
         
         const _teamfinal : ITeam =  _Team.ConvertToInterface();
         return _teamfinal;

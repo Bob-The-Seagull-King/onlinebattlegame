@@ -81,6 +81,16 @@ class Plot {
      * @returns If a monster can enter this space (true) or not (false)
      */
     public async IsPlaceable() {
+        let HasMonster = await this.IsOccupied();
+
+        const IsPlacable : boolean = await this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
+        return IsPlacable;
+    }
+
+    /**
+     * @returns if a monster is in this plot
+     */
+    public async IsOccupied() {
         let HasMonster = false;
 
         this.Scene.Owner.Sides.forEach( _side => {
@@ -93,8 +103,7 @@ class Plot {
             })
         })
 
-        const IsPlacable : boolean = await this.Scene.Owner.runEvent('CanHaveOccupant', this, null, null, !HasMonster, HasMonster, this.Scene.Owner.MessageList);
-        return IsPlacable;
+        return HasMonster
     }
     
     /**

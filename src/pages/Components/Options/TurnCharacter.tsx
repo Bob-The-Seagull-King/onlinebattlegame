@@ -6,6 +6,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import PlaceDisplay from "./OptionTypes/PlaceDisplay";
 import SwapDisplay from "./OptionTypes/SwapDisplay";
 import MoveDisplay from "./OptionTypes/MoveDisplay";
+import ItemDisplay from "./OptionTypes/ItemDisplay";
 
 const TurnCharacterDisplay = (props: any) => {
     const Manager   : BattleManager = props.manager;    // The viewmodel manager object
@@ -40,6 +41,14 @@ const TurnCharacterDisplay = (props: any) => {
                         <>
                             {TurnChar.action[item].map(_subitem =>
                                 <MoveDisplay manager={Manager} position={Position} turn={TurnChar} action={_subitem}/>
+                            )
+
+                            }
+                        </>}
+                        {item === 'ITEM' &&
+                        <>
+                            {TurnChar.action[item].map(_subitem =>
+                                <ItemDisplay manager={Manager} position={Position} turn={TurnChar} action={_subitem}/>
                             )
 
                             }

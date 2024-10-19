@@ -3,7 +3,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { BotBehaviourWeight, BotOptions, ChosenAction, MessageSet, MoveAction, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
+import { BotBehaviourWeight, BotOptions, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { FieldedMonster, Team } from "../models/team";
@@ -326,9 +326,17 @@ class Battle {
 
         const _choices : TurnChoices = {}
         
-        const swapActions = await this.findSwapOptions(_trainer);
+        const swapActions = await this.findSwapOptions(_trainer);        
+        const itemActions = await this.findItemOptions(_trainer);
+
         if (swapActions.length > 0) {
             _choices["SWITCH"] = swapActions
+        }
+        if (itemActions.length > 0) {
+            _choices["ITEM"] = itemActions
+        }
+        if ((swapActions.length > 0) ||
+            (itemActions.length > 0)) {
             return { Choices: _choices, Position : -1}
         } else {
             return null;
@@ -507,6 +515,62 @@ class Battle {
         }
 
         return _swapactions;
+    }
+    
+    /**
+     * Given a trainer, find all the possible
+     * ITEM options they can take
+     * @param sourceTrainer the trainer to search options for
+     * @returns the list of ITEM actions.
+     */
+    public async findItemOptions(sourceTrainer : TrainerBase): Promise<ItemAction[]> {
+        const _itemactions : ItemAction[] = [];
+
+        for (let i = 0; i < sourceTrainer.Team.Items.length; i++) {
+            const relevantItem = sourceTrainer.Team.Items[i];
+            const CanPlace = await this.runEvent( "CanUseItem", relevantItem, null, null, true, null, this.MessageList )
+            if ((relevantItem.Used === false) && (CanPlace === true)) {
+                const plotpositions : number[][] = []
+                const itemdata = ItemBattleDex[relevantItem.Item];
+                
+                for (let j = 0; j < sourceTrainer.Owner.Owner.Scene.PlotsAs1D().length; j++) {
+                    const _plot = sourceTrainer.Owner.Owner.Scene.PlotsAs1D()[j]
+                    const occupancycheck = await _plot.IsOccupied();
+                    if (occupancycheck === true) {
+                        if (itemdata.target_type != "TERRAIN") {
+                            let PlotMonster : ActiveMonster = null;
+
+                            this.Sides.forEach( _side => {
+                                _side.Trainers.forEach(_trainer => {
+                                    _trainer.Team.Leads.forEach( _lead => {
+                                        if (_lead.Plot === _plot) { PlotMonster = _lead.Monster; }
+                                    })
+                                })
+                            })
+                            
+                            if ((PlotMonster.Owner.Owner === sourceTrainer) && (itemdata.target_team != "ENEMY")) {
+                                plotpositions.push(_plot.returnCoordinates())
+                            }
+
+                            if ((PlotMonster.Owner.Owner != sourceTrainer) && (itemdata.target_team != "SELF")) {
+                                plotpositions.push(_plot.returnCoordinates())
+                            }
+                        }
+                    } else {
+                        if (itemdata.target_type != "MONSTER") {
+                            plotpositions.push(_plot.returnCoordinates())
+                        }
+                    }
+                }
+
+                if (plotpositions.length > 0) {
+                    const _item : ItemAction = { type: "ITEM", item: i, target_id: plotpositions }
+                    _itemactions.push(_item);
+                }
+            }
+        }        
+
+        return _itemactions;
     }
     
     /**
