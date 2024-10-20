@@ -1,4 +1,5 @@
-import { ChosenAction, MessageSet, MoveAction, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
+import { ItemBattleDex } from "../../data/static/item/item_btl";
+import { ChoiceTarget, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
 import { MessageTranslator } from "../tools/translator";
 import { GamePlot } from "./game_plot";
@@ -231,6 +232,51 @@ class BattleManager {
     }
 
     /**
+     * Update the state of the battle plots based on a given SWAP action
+     * @param _action the given action to select positions for
+     * @param _pos the position this action comes from
+     * @param _turnchar the turnchar object this action comes from
+     */
+    public UpdatePlotsItem(_action : ItemAction, _pos : number, _turnchar : any) {
+        this.ClearSelectShow();
+        for(let i = 0; i < this.CurrentPlots.length; i++) {
+            for (let j = 0; j < this.CurrentPlots[i].length; j++) {
+                const relevantPlot = this.CurrentPlots[i][j]
+                
+                let _active = false;
+                let _index = null;
+
+                _action.target_id.forEach(id => 
+                {
+                    if ( (id[0] === relevantPlot.Plot.position[0]) && (id[1] === relevantPlot.Plot.position[1])) {
+                        _active = true;
+                        _index = _action.target_id.indexOf(id);
+                        let _charindex = -1
+                        for(let k = 0; k < this.ChoicesLog.length; k++) {
+                            if (this.ChoicesLog[k].pos === _pos) {
+                                _charindex = k;
+                            }
+                        }
+                        const Action : ChosenAction = {
+                            type: "ITEM",
+                            type_index : _turnchar.action["ITEM"].indexOf(_action),
+                            hypo_index : _charindex, 
+                            hype_index : _index
+                        }
+    
+                        const gamedata = ItemBattleDex[this.BattleState.sides[this.BattlePosition].trainers[this.SidePosition].team.items[(_action).item].item]
+                        
+                        relevantPlot.setClickableState(_active, false, this.returnChoiceTargetPlots(gamedata, id), Action);
+                        relevantPlot.funcUpdateVals();
+                    }
+                }
+                )
+                
+            }
+        }
+    }
+
+    /**
      * Updates a number of plots to activate them as
      * sub-select plots.
      * @param _plots list of plots to update
@@ -335,6 +381,43 @@ class BattleManager {
 
         this.CurrentScene.IsActive = false
         this.CurrentScene.TurnVal = null
+    }
+
+    public returnChoiceTargetPlots(_battleItem : ChoiceTarget, startPos : number[], monsterPos? : number[]) {
+        const array : number[][] = []
+
+        const width = this.BattleState.scene.width - 1;
+        const height = this.BattleState.scene.height - 1;
+
+        if (monsterPos) {
+            undefined // Use when considering MOVES
+        }
+
+        if ((_battleItem.target_pos === "SMALL") || 
+            (_battleItem.target_pos === "MEDIUM") || 
+            (_battleItem.target_pos === "LARGE")) {
+                if (startPos[0] > 0) {array.push([startPos[0] - 1, startPos[1]])}
+                if (startPos[1] > 0) {array.push([startPos[0], startPos[1]-1])}
+                if (startPos[0] < height) {array.push([startPos[0] + 1, startPos[1]])}
+                if (startPos[1] < width) {array.push([startPos[0], startPos[1] + 1])}
+        }
+
+        if ((_battleItem.target_pos === "MEDIUM") || 
+            (_battleItem.target_pos === "LARGE")) {
+                if ((startPos[1] > 0) && (startPos[0] > 0)) {array.push([startPos[0]-1, startPos[1]-1])}
+                if ((startPos[1] > 0) && (startPos[0] < height)) {array.push([startPos[0]+1, startPos[1]-1])}
+                if ((startPos[1] < width) && (startPos[0] > 0)) {array.push([startPos[0]-1, startPos[1]+1])}
+                if ((startPos[1] < width) && (startPos[0] < height)) {array.push([startPos[0]+1, startPos[1]+1])}
+        }
+
+        if ((_battleItem.target_pos === "LARGE")) {
+                if (startPos[0] > 1) {array.push([startPos[0] - 2, startPos[1]])}
+                if (startPos[1] > 1) {array.push([startPos[0], startPos[1]-2])}
+                if (startPos[0] < height-1) {array.push([startPos[0] + 2, startPos[1]])}
+                if (startPos[1] < width-1) {array.push([startPos[0], startPos[1] + 2])}
+        }
+
+        return array;
     }
 
 }

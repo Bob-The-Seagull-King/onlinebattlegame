@@ -15,7 +15,7 @@ const ItemDisplay = (props: any) => {
 
     return (
         <div style={{marginBottom:"0.5rem"}}>
-           <Button bsPrefix="TestButton SmallText" onClick={() => {console.log("TEST")}}>{placeName}</Button>
+           <Button bsPrefix="TestButton SmallText" onClick={() => Manager.UpdatePlotsItem(Action, Position, TurnChar)}>{placeName}</Button>
         </div>
     )
 

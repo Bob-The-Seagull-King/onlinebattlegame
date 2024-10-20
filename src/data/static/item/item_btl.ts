@@ -56,9 +56,9 @@ export const ItemBattleDex : ItemBattleTable = {
         cost                : 75,
         category            : [],
         events              : {},
-        target_team         : "ANY",
+        target_team         : "ENEMY",
         target_pos          : "MEDIUM",
-        target_type         : "TERRAIN",
+        target_type         : "MONSTER",
         target_direction    : "ALL",
         target_choice       : "ALL",
         target_range        : 0
@@ -70,7 +70,7 @@ export const ItemBattleDex : ItemBattleTable = {
         events              : {},
         target_team         : "ANY",
         target_pos          : "LARGE",
-        target_type         : "TERRAIN",
+        target_type         : "ALL",
         target_direction    : "ALL",
         target_choice       : "ALL",
         target_range        : 0
