@@ -102,6 +102,27 @@ class Battle {
         }
         return this.shuffleArray(ItemList);
     }
+
+    /**
+     * Tries to find a monster, if any, at a given coordinate
+     * @param _coord the position we're looking for
+     * @returns null, or the monster at that plot
+     */
+    public GetMonsterFromCoordinate(_coord: number[]) {
+        let HasMonster : null | FieldedMonster = null;
+
+        this.Sides.forEach( _side => {
+            _side.Trainers.forEach(_trainer => {
+                _trainer.Team.Leads.forEach( _lead => {
+                    if (_lead.Plot === this.Scene.ReturnGivenPlot(_coord[0], _coord[1])) {
+                        HasMonster = _lead;
+                    }
+                })
+            })
+        })
+
+        return HasMonster
+    }
     
     /**
      * Given an array of objects, randomise their order

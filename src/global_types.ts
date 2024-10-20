@@ -276,12 +276,20 @@ export interface ChoiceTarget {
 export interface CallEvents {
     onGenericEvent? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, target : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | null, sourceEffect : ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, relayVar : any, trackVal : any, messageList : MessageSet, fromSource : boolean) => Promise<void>; // Generic all-purpose event, avoid using if possible
     onCanUsePlot? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>; // If a plot can be used as a valid monster location
+    onCanHaveOccupant? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>; // If a plot can be used as a valid monster location
     onCanSwapOut? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>; // If a monster can be swapped out of the field
     onMonsterEntersField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When a monster enters the battle
     onMonsterExitsField? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When a monster exits the battle
     onMonsterEntersPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When a monster enters a given plot
     onMonsterExitsPlot? : (this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When a monster exits a given plot
     onPlotEnterCost? : (this : Battle, eventSource : any, source : Plot, relayVar : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Get the movement cost for entering a plot
+    onCanUseItemOnPlot? : (this : Battle, eventSource : any, source : FieldedMonster | Plot, target :  Plot, sourceEffect : ActiveItem, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // If an item can be used on a given Plot object
+    onUseItemOnPlot? : (this : Battle, eventSource : any, target :  Plot, sourceEffect : ActiveItem, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // Effects to apply to a plot from an item
+    onCanUseItemOnMonster? : (this : Battle, eventSource : any, source : FieldedMonster | Plot, target : FieldedMonster, sourceEffect : ActiveItem, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // If an item can be used on a given FieldedMonster object
+    onUseItemOnEnemyMonster? : (this : Battle, eventSource : any, target :  FieldedMonster, sourceEffect : ActiveItem, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // Effects to apply to an enemy monster
+    onUseItemOnSelfMonster? : (this : Battle, eventSource : any, target :  FieldedMonster, sourceEffect : ActiveItem, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // Effects to apply to a member of the team
+    onUseItemOnAnyMonster? : (this : Battle, eventSource : any, target :  FieldedMonster, sourceEffect : ActiveItem, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // Effects to apply to any monster
+    onGenerateFieldEffect? : (this : Battle, eventSource : any, sourceEffect : ActiveItem, messageList : MessageSet, fromSource : boolean) => Promise<FieldEffect | null>; // Effects to apply to a member of the team
 }
 
 /**

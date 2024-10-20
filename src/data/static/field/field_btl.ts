@@ -68,6 +68,9 @@ export const FieldBattleDex : FieldBattleTable = {
         events      : {},
         async onCanUsePlot(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
             return false
+        },
+        async onCanHaveOccupant(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
+            return false
         }
     }
 }

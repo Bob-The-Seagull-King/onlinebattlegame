@@ -105,13 +105,49 @@ class BattleEvents {
     public async PerformActionITEM(_action : ItemAction, _trainer : TrainerBase) {
         
         const RelevantItem = _trainer.Team.Items[_action.item]
-        const RelevantTargetSpaces = returnChoiceTargetPlots(this.Battle.ConvertToInterface(), ItemBattleDex[RelevantItem.Item], _action.target_id[0])
+        const RelevantItemData = ItemBattleDex[RelevantItem.Item]
+        const RelevantTargetSpaces = returnChoiceTargetPlots(this.Battle.ConvertToInterface(), RelevantItemData, _action.target_id[0])
         
-        console.log(RelevantItem)
-        console.log(RelevantTargetSpaces)
+        RelevantItem.Used = true;
+        this.Battle.MessageList.push({ "generic" : _trainer.Name + " used the item " + ItemInfoDex[RelevantItem.Item].name})
+       
+        const _effectadded : FieldEffect = await this.Battle.runEvent( "GenerateFieldEffect", null, null, RelevantItem, null, null, this.Battle.MessageList )
 
-        return true;
+        for (let i = 0; i < RelevantTargetSpaces.length; i++) {
+            const Plot = this.Battle.Scene.ReturnGivenPlot(RelevantTargetSpaces[i][0],RelevantTargetSpaces[i][1])
+            const Monster = this.Battle.GetMonsterFromCoordinate(RelevantTargetSpaces[i])
+
+            if (RelevantItemData.target_type != "MONSTER") {
+                
+                let CanApplyToPlot = await this.Battle.runEvent( "CanUseItemOnPlot", Plot, Plot, RelevantItem, true, null, this.Battle.MessageList )
+                if (Monster != null) {
+                    CanApplyToPlot = await this.Battle.runEvent( "CanUseItemOnPlot", Monster, Plot, RelevantItem, CanApplyToPlot, null, this.Battle.MessageList )
+                }
+
+                if (CanApplyToPlot) {
+                    await this.Battle.runEvent( "UseItemOnPlot", null, Plot, RelevantItem, null, (i === 0), this.Battle.MessageList )
+                    if (_effectadded != null) {
+                        Plot.AddFieldEffect(_effectadded);
+                    }
+                }
+            }
+            if ((RelevantItemData.target_type != "TERRAIN") && (Monster != null)) {
+                let CanApplyToMonster = await this.Battle.runEvent( "CanUseItemOnMonster", Plot, Monster, RelevantItem, await this.Battle.runEvent( "CanUseItemOnMonster", Monster, Monster, RelevantItem, true, null, this.Battle.MessageList ), null, this.Battle.MessageList )
+                if (CanApplyToMonster) {
+                    if ((RelevantItemData.target_team != "SELF") && (Monster.Owner.Owner != _trainer)) {
+                        await this.Battle.runEvent( "UseItemOnEnemyMonster", null, Monster, RelevantItem, null, (i === 0), this.Battle.MessageList )
+                    } else if ((RelevantItemData.target_team != "ENEMY")  && (Monster.Owner.Owner === _trainer)) {
+                        await this.Battle.runEvent( "UseItemOnSelfMonster", null, Monster, RelevantItem, null, (i === 0), this.Battle.MessageList )
+                    }
+                    
+                    await this.Battle.runEvent( "UseItemOnAnyMonster", null, Monster, RelevantItem, null, (i === 0), this.Battle.MessageList )
+                }
+            }
+        }
         
+        await this.Battle.UpdateBattleState();
+
+        return true;        
     }
 
     /**
@@ -311,6 +347,46 @@ class BattleEvents {
             }
 
             return dmg;
+    }
+
+    /**
+     * Given an amount of HP to recover, determine the final
+     * recovery amount and apply it to a monster
+     * @param _val the base amount of HP to recover
+     * @param _type the type of recovery
+     * @param _source the reason for this recovery to happen
+     * @param _target the monster being healed
+     * @param _trainer the trainer associated with the source
+     * @param _targetTrainer the trainer associated with the target
+     * @param _messageList list of messages to add to
+     * @param _skipMod if % based modifiers should be ignored
+     * @param _skipAll if final modifiers should be ignored
+     */
+    public async HealDamage(
+        _val : number, 
+        _type : number,
+        _source : FieldedMonster | ActiveMonster | ActiveItem | Scene | Plot, 
+        _target: ActiveMonster, 
+        _trainer : TrainerBase | null, 
+        _targetTrainer : TrainerBase | null,
+        _messageList : MessageSet,
+        _skipMod : boolean,
+        _skipAll : boolean) {
+            
+            let DamageRecoveredModifier = 0;
+            
+            // This means additional % based modifiers will be considered
+            if (!_skipMod) {
+                DamageRecoveredModifier = await this.Battle.runEvent('GetDamageRecoveredModifiers', _source, _target, null, 1, null, this.Battle.MessageList )
+            }
+            const ModifiedRecovery = Math.floor( _val + (_val * ((DamageRecoveredModifier)/100)))
+            
+            if (_skipAll) {
+                return _target.HealDamage(ModifiedRecovery, _messageList, await this.GetStatValue(_target, 'hp', false, false));
+            } else {
+                const FinalRecovery = await this.Battle.runEvent('GetFinalRecovery',  _source, _target, null, ModifiedRecovery, null, this.Battle.MessageList)
+                return _target.HealDamage(FinalRecovery, _messageList,  await this.GetStatValue(_target, 'hp', false, false));
+            }
     }
 
     /**

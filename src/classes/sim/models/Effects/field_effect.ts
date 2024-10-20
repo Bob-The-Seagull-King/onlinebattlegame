@@ -31,6 +31,7 @@ class FieldEffect {
         this.Owner = _owner;
         this.Plots = this.PlotGenerator(_data.plots)
         this.Field = _data.fieldEffect;
+        this.Owner.Field.push(this);
     }
 
     /**

@@ -73,6 +73,7 @@ class Plot {
      */
     public AddFieldEffect(_effect : FieldEffect) {
         this.FieldEffects.push(_effect);
+        _effect.Plots.push(this);
     }
 
     /**

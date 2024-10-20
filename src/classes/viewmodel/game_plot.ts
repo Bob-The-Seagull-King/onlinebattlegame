@@ -133,6 +133,7 @@ class GamePlot {
         if (Mon != "") {
             this.Tooltip.push("Features: " + Mon)
         }
+        
         for (let i = 0; i < this.Owner.BattleState.scene.field.length; i++) {
             for (let j = 0; j <  this.Owner.BattleState.scene.field[i].plots.length; j++) {
                 if ((this.Owner.BattleState.scene.field[i].plots[j][1] === this.Plot.position[1]) && (this.Owner.BattleState.scene.field[i].plots[j][0] === this.Plot.position[0])) {

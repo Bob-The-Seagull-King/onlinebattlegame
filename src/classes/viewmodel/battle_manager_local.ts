@@ -48,17 +48,8 @@ class OfflineBattleManager extends BattleManager {
         const otherTeam : ITeam = this.TempBotTeam();
         const otherTrainer : ITrainerBot = {type : 'bot', team: otherTeam, pos: 1, behaviour: ['random'], name: "Bot"};
 
-        
-        const FieldEffectDifficult : IFieldEffect = {
-            tokens      : [],        // Tokens held by the plot
-            trackers    : {},    // Misc trackers used by plot tokens
-            plots       : [[4,1],[4,2],[4,3],[4,4],[4,5],[3,3],[3,4],[3,2],[2,2]],
-            fieldEffect : 'difficultterrain'
-        }
-        
         const Trainers : ITrainer[][] = [];
         const newScene : IScene = TerrainFactory.CreateIScene(6,6)
-        newScene.field.push(FieldEffectDifficult);
         Trainers.push([myTrainer]);
         Trainers.push([otherTrainer]);
 
@@ -83,6 +74,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.AddFreshItem("mudshot");
         _Team.AddFreshItem("microbomb");
         _Team.AddFreshItem("gunklauncher");
+        _Team.AddFreshItem("boomboom");
 
         const _teamfinal : ITeam =  _Team.ConvertToInterface();
         return _teamfinal;
@@ -103,6 +95,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.AddFreshItem("mudshot");
         _Team.AddFreshItem("microbomb");
         _Team.AddFreshItem("gunklauncher");
+        _Team.AddFreshItem("boomboom");
         
         const _teamfinal : ITeam =  _Team.ConvertToInterface();
         return _teamfinal;

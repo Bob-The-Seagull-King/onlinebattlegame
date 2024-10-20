@@ -41,5 +41,12 @@ export const ItemInfoDex : ItemInfoTable = {
         description : [
             {cat: "general", text: "Create a large blast of thick terrain."}
         ]
+    },
+    boomboom: {
+        id          : 5,
+        name        : "Boom Boom",
+        description : [
+            {cat: "general", text: "Deal 5 piercing damage to monsters in a medium blast."}
+        ]
     }
 }
