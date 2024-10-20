@@ -272,6 +272,12 @@ class Battle {
                     ChosenTurn.paths = [ChosenTurn.paths[Turn.hype_index]]
                     const TurnVal = await this.Events.PerformActionMOVE(ChosenTurn, _trainer);
                 }
+                
+                if (Turn.type === "ITEM") {
+                    const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as ItemAction)
+                    ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
+                    const TurnVal = await this.Events.PerformActionITEM(ChosenTurn, _trainer);
+                }
 
                 this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
                 return _trainer.Team.IsTeamAlive();

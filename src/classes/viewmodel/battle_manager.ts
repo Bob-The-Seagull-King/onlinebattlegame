@@ -1,5 +1,6 @@
 import { ItemBattleDex } from "../../data/static/item/item_btl";
 import { ChoiceTarget, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
+import { returnChoiceTargetPlots } from "../../util/sharedfunctions";
 import { IBattle } from "../sim/controller/battle";
 import { MessageTranslator } from "../tools/translator";
 import { GamePlot } from "./game_plot";
@@ -266,7 +267,7 @@ class BattleManager {
     
                         const gamedata = ItemBattleDex[this.BattleState.sides[this.BattlePosition].trainers[this.SidePosition].team.items[(_action).item].item]
                         
-                        relevantPlot.setClickableState(_active, false, this.returnChoiceTargetPlots(gamedata, id), Action);
+                        relevantPlot.setClickableState(_active, false, returnChoiceTargetPlots(this.BattleState, gamedata, id), Action);
                         relevantPlot.funcUpdateVals();
                     }
                 }
@@ -381,43 +382,6 @@ class BattleManager {
 
         this.CurrentScene.IsActive = false
         this.CurrentScene.TurnVal = null
-    }
-
-    public returnChoiceTargetPlots(_battleItem : ChoiceTarget, startPos : number[], monsterPos? : number[]) {
-        const array : number[][] = []
-
-        const width = this.BattleState.scene.width - 1;
-        const height = this.BattleState.scene.height - 1;
-
-        if (monsterPos) {
-            undefined // Use when considering MOVES
-        }
-
-        if ((_battleItem.target_pos === "SMALL") || 
-            (_battleItem.target_pos === "MEDIUM") || 
-            (_battleItem.target_pos === "LARGE")) {
-                if (startPos[0] > 0) {array.push([startPos[0] - 1, startPos[1]])}
-                if (startPos[1] > 0) {array.push([startPos[0], startPos[1]-1])}
-                if (startPos[0] < height) {array.push([startPos[0] + 1, startPos[1]])}
-                if (startPos[1] < width) {array.push([startPos[0], startPos[1] + 1])}
-        }
-
-        if ((_battleItem.target_pos === "MEDIUM") || 
-            (_battleItem.target_pos === "LARGE")) {
-                if ((startPos[1] > 0) && (startPos[0] > 0)) {array.push([startPos[0]-1, startPos[1]-1])}
-                if ((startPos[1] > 0) && (startPos[0] < height)) {array.push([startPos[0]+1, startPos[1]-1])}
-                if ((startPos[1] < width) && (startPos[0] > 0)) {array.push([startPos[0]-1, startPos[1]+1])}
-                if ((startPos[1] < width) && (startPos[0] < height)) {array.push([startPos[0]+1, startPos[1]+1])}
-        }
-
-        if ((_battleItem.target_pos === "LARGE")) {
-                if (startPos[0] > 1) {array.push([startPos[0] - 2, startPos[1]])}
-                if (startPos[1] > 1) {array.push([startPos[0], startPos[1]-2])}
-                if (startPos[0] < height-1) {array.push([startPos[0] + 2, startPos[1]])}
-                if (startPos[1] < width-1) {array.push([startPos[0], startPos[1] + 2])}
-        }
-
-        return array;
     }
 
 }

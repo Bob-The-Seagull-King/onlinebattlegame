@@ -81,7 +81,7 @@ class GamePlot {
             }
             if (this.TurnVal.type === "ITEM") {
                 const myClonedArray  = Object.assign([], this.ValIndex);
-                this.Owner.UpdatePlotsSub(myClonedArray)
+                this.Owner.UpdatePlotsSub(myClonedArray.slice(1))
             }
         }
     }
@@ -97,7 +97,7 @@ class GamePlot {
             }
             if (this.TurnVal.type === "ITEM") {
                 const myClonedArray  = Object.assign([], this.ValIndex);
-                this.Owner.ClearPlotsSub(myClonedArray)
+                this.Owner.ClearPlotsSub(myClonedArray.slice(1))
             }
         }
     }

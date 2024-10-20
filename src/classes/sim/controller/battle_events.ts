@@ -5,6 +5,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { ItemInfoDex } from "../../../data/static/item/item_inf";
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
 import { ActionAction, IDEntry, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, SwapAction, TargetSet } from "../../../global_types";
+import { returnChoiceTargetPlots } from "../../../util/sharedfunctions";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { ActiveMonster } from "../models/active_monster";
@@ -90,6 +91,24 @@ class BattleEvents {
                 this.Battle.MessageList.push({ "generic" : lead.Monster.Nickname + " can't swap out."})
             }
         }
+
+        return true;
+        
+    }
+
+    /**
+     * Given a ITEM action, perform it.
+     * Use an item from the trainer's inventory
+     * @param _action the ITEM action to perform
+     * @param _trainer the trainer this action refers to
+     */
+    public async PerformActionITEM(_action : ItemAction, _trainer : TrainerBase) {
+        
+        const RelevantItem = _trainer.Team.Items[_action.item]
+        const RelevantTargetSpaces = returnChoiceTargetPlots(this.Battle.ConvertToInterface(), ItemBattleDex[RelevantItem.Item], _action.target_id[0])
+        
+        console.log(RelevantItem)
+        console.log(RelevantTargetSpaces)
 
         return true;
         
