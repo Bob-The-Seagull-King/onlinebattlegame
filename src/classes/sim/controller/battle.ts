@@ -527,12 +527,13 @@ class Battle {
                 if (MonsterAvailable === true) {
                     const plotpositions : number[][] = []
 
-                    sourceTrainer.Team.Leads.forEach(_plot => {                        
-                        const CanSwap = this.runEvent( "CanSwapOut", _plot, null, null, true, null, this.MessageList )
+                    for (let k = 0; k < sourceTrainer.Team.Leads.length; k++) {
+                        const CanSwap = await this.runEvent( "CanSwapOut", sourceTrainer.Team.Leads[k], null, null, true, null, this.MessageList )
+                        
                         if (CanSwap) {
-                            plotpositions.push(_plot.Position)
-                        }})
-
+                            plotpositions.push(sourceTrainer.Team.Leads[k].Position)
+                        }
+                    }
                     if (plotpositions.length > 0) {
                         const _swap : SwapAction = { type: "SWITCH", monster_id: i, target_id: plotpositions }
                         _swapactions.push(_swap);

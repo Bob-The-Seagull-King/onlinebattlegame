@@ -59,6 +59,7 @@ export const FieldBattleDex : FieldBattleTable = {
         category    : [FieldCategory.Trap],
         events      : {},
         async onCanSwapOut(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
+            console.log("THICK CHECK")
             return false;
         }
     },
