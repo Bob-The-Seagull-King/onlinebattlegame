@@ -7,7 +7,7 @@ import { MonsterType } from "../../enum/types";
 export const SpeciesBattleDex : SpeciesBattleTable = {
     cleric : {
         id          : 0,
-        type        : [MonsterType.Enchanted],
+        type        : [MonsterType.Igor],
         stats       : {
             hp  : 65,
             dl  : 6,
@@ -103,7 +103,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
     },
     evolveb : {
         id          : 6,
-        type        : [MonsterType.Enchanted, MonsterType.Charred],
+        type        : [MonsterType.Enchanted, MonsterType.Knight],
         stats       : {
             hp  : 25,
             dl  : 12,
