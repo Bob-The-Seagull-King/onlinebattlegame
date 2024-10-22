@@ -2,6 +2,7 @@ import { FieldInfoDex } from "../../data/static/field/field_inf";
 import { SpeciesBattleDex } from "../../data/static/species/species_btl";
 import { ChosenAction, MessageSet, SelectedAction, TurnChoices, TurnSelect } from "../../global_types";
 import { IBattle } from "../sim/controller/battle";
+import { ActiveMonster } from "../sim/models/active_monster";
 import { IFieldedMonster } from "../sim/models/team";
 import { IPlot } from "../sim/models/terrain/terrain_plot";
 import { MessageTranslator } from "../tools/translator";
@@ -162,7 +163,7 @@ class GamePlot {
         this.Owner.BattleState.sides.forEach(_side => 
         { _side.trainers.forEach(_trainer =>  {  _trainer.team.active.forEach(_active => {
             if ((_active.position[0] === this.Plot.position[0]) && (_active.position[1] === this.Plot.position[1])) {
-                MonName = _trainer.team.monsters[_active.monster].nickname + " HP: " + _trainer.team.monsters[_active.monster].hp_cur + "/" + SpeciesBattleDex[_trainer.team.monsters[_active.monster].species].stats.hp
+                MonName = _trainer.team.monsters[_active.monster].nickname + " HP: " + _trainer.team.monsters[_active.monster].hp_cur + "/" + SpeciesBattleDex[new ActiveMonster(_trainer.team.monsters[_active.monster], null).GetSpecies()].stats.hp
                 return;
             }
         }) }) })

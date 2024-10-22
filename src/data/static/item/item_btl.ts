@@ -1,3 +1,4 @@
+import { isUndefined } from "util";
 import { Battle } from "../../../classes/sim/controller/battle";
 import { TrainerBase } from "../../../classes/sim/controller/trainer/trainer_basic";
 import { ActiveItem } from "../../../classes/sim/models/active_item";
@@ -28,6 +29,19 @@ export const ItemBattleDex : ItemBattleTable = {
         target_choice       : "MONSTER",
         target_range        : 0,
         async onUseItemOnSelfMonster(this : Battle, eventSource : any, target :  FieldedMonster, sourceEffect : ActiveItem, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {
+            
+            if ((SpeciesEvolutionDex[target.Monster.GetSpecies()] != null) && 
+                (SpeciesEvolutionDex[target.Monster.GetSpecies()] != undefined)) {
+                for (let i = 0; i < SpeciesEvolutionDex[target.Monster.GetSpecies()].evolutions.length; i++) {
+                    if (SpeciesEvolutionDex[target.Monster.GetSpecies()].evolutions[i].triggeritem === sourceEffect.Item) {
+                        const newSpecies = (SpeciesEvolutionDex[target.Monster.GetSpecies()].evolutions[i])
+                        target.Monster.Trackers["evolution"] = newSpecies.newspecies
+                        messageList.push({ "generic" : target.Monster.Nickname + " has evolved into " + SpeciesInfoDex[newSpecies.newspecies].name})
+                        break;
+                    }
+                }
+            }
+
             const BaseHeal = await this.Events.GetStatValue(target, 'hp', false, false)
             const HealVal = await this.Events.HealDamage(BaseHeal, 0, sourceEffect, target.Monster, sourceEffect.Owner.Owner, target.Owner.Owner, messageList, false, false)
         }

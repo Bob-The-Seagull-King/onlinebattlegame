@@ -117,7 +117,9 @@ class ActiveMonster {
         TraitSet.push.apply(TraitSet, this.Traits)
 
         if (this.Trackers["evolution"]) {
-            TraitSet.push.apply(TraitSet, SpeciesLearnsetDex[this.Trackers["evolution"]].traits);
+            if (SpeciesLearnsetDex[this.Trackers["evolution"]]) {
+                TraitSet.push.apply(TraitSet, SpeciesLearnsetDex[this.Trackers["evolution"]].traits);
+            }
         }
 
         return TraitSet;

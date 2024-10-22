@@ -105,7 +105,7 @@ export const SpeciesBattleDex : SpeciesBattleTable = {
         id          : 6,
         type        : [MonsterType.Enchanted, MonsterType.Knight],
         stats       : {
-            hp  : 25,
+            hp  : 50,
             dl  : 12,
             dh  : 24,
             ac  : 25,
