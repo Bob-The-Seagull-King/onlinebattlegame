@@ -171,7 +171,6 @@ export interface IActionBattle extends CallEvents, ChoiceTarget {
     uses        : number,                   // How many times the action can be used per battle
     accuracy    : number | true,            // Base accuracy of a move (true === no accuracy check)
     damage_mod  : number | true | false,    // Modifier the action applies to the user's damage range (true === alternative damage calc) (false === does no damage)
-    priority    : number,                   // The action priority, higher priority moves always go after lower priority moves
     category    : ActionCategory[],         // Category of move
     events      : InfoSetGeneric            // Tags for move use
 }
@@ -264,7 +263,7 @@ export interface ChoiceTarget {
     target_team         : "ALL" | "ANY" | "ENEMY" | "SELF" | "TEAM" | "ALLY",    // If something hits all things, can hit any one thing, hits any one of their things, or any one enemy thing
     target_pos          : "ALL" | "SINGLE" | "SMALL" | "MEDIUM" | "LARGE" ,    // If something a single space, or a blast area
     target_type         : "ALL" | "TERRAIN" | "MONSTER", // If something targets the terrain, the monster on it, or both
-    target_direction    : "ALL" | "CARDINAL" | "ORDINAL" | "BOTH", // If the possible range is X, +, both, or anywhere within range
+    target_direction    : "ALL" | "CARDINAL" | "ORTHOGONAL" | "BOTH", // If the possible range is X, +, both, or anywhere within range
     target_choice       : "ALL" | "TERRAIN" | "MONSTER", // If the player can select a space with a monster on it, a space without a monster on it, or either
     target_range        : number // how many spaces from the source it can be (no impact on Items)
 }

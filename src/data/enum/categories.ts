@@ -6,15 +6,12 @@
 
 enum ActionCategory {
     None = "", // No special category
-    Blunt = "Blunt", // Basic 'hit with mass' Actions
-    Restoration = "Restoration", // Recovers HP or removes negative tokens
-    Boost = "Boost", // Improves the user in some way
-    Aggressive = "Aggressive", // Particularly harsh, or dealing with improving damage
-    Tactical = "Tactical", // Modifies monsters by inflicting tokens
+    Attack = "Attack", // Basic 'hit with mass' Actions
+    Recovery = "Recovery", // Recovers HP or removes negative tokens
+    Buff = "Buff", // Improves the user in some way
     Debuff = "Debuff", // Lowers the effectiveness of something
     Terraform = "Terraform", // Changes the field
-    Energy = "Energy", // Hits with elemental power
-    Armour = "Armour" // Defensive actions
+    Help = "Help" // Assist an ally
 }
 
 enum TraitCategory {
