@@ -261,7 +261,7 @@ export interface IBehaviour extends BehaviourEvents {
  * Used to determine what parts of the scene something can target
  */
 export interface ChoiceTarget {
-    target_team         : "ALL" | "ANY" | "ENEMY" | "SELF" | "TEAM",    // If something hits all things, can hit any one thing, hits any one of their things, or any one enemy thing
+    target_team         : "ALL" | "ANY" | "ENEMY" | "SELF" | "TEAM" | "ALLY",    // If something hits all things, can hit any one thing, hits any one of their things, or any one enemy thing
     target_pos          : "ALL" | "SINGLE" | "SMALL" | "MEDIUM" | "LARGE" ,    // If something a single space, or a blast area
     target_type         : "ALL" | "TERRAIN" | "MONSTER", // If something targets the terrain, the monster on it, or both
     target_direction    : "ALL" | "CARDINAL" | "ORDINAL" | "BOTH", // If the possible range is X, +, both, or anywhere within range
