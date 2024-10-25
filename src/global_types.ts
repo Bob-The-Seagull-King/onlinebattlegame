@@ -264,6 +264,7 @@ export interface ChoiceTarget {
     target_pos          : "ALL" | "SINGLE" | "SMALL" | "MEDIUM" | "LARGE" ,    // If something a single space, or a blast area
     target_type         : "ALL" | "TERRAIN" | "MONSTER", // If something targets the terrain, the monster on it, or both
     target_direction    : "ALL" | "CARDINAL" | "ORTHOGONAL" | "BOTH", // If the possible range is X, +, both, or anywhere within range
+    target_fill?        : "MIN" | "ALL" | "NONE" // For lines and diagnoals, if the spaces in that line should also be included
     target_choice       : "ALL" | "TERRAIN" | "MONSTER", // If the player can select a space with a monster on it, a space without a monster on it, or either
     target_range        : number // how many spaces from the source it can be (no impact on Items)
 }

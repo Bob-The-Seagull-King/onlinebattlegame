@@ -27,7 +27,7 @@ class TrainerLocal extends TrainerBase {
      * Sends the user information on where in
      * the battle this trainer is located
      */
-    public SendPositionInfo() {         
+    public SendPositionInfo(_manager : any) {         
         this.Manager.SetUserInfo(this.Position, this.Owner.Position)
     }
     

@@ -7,6 +7,7 @@ import PlaceDisplay from "./OptionTypes/PlaceDisplay";
 import SwapDisplay from "./OptionTypes/SwapDisplay";
 import MoveDisplay from "./OptionTypes/MoveDisplay";
 import ItemDisplay from "./OptionTypes/ItemDisplay";
+import ActionDisplay from "./OptionTypes/ActionDisplay";
 
 const TurnCharacterDisplay = (props: any) => {
     const Manager   : BattleManager = props.manager;    // The viewmodel manager object
@@ -41,6 +42,14 @@ const TurnCharacterDisplay = (props: any) => {
                         <>
                             {TurnChar.action[item].map(_subitem =>
                                 <MoveDisplay manager={Manager} position={Position} turn={TurnChar} action={_subitem}/>
+                            )
+
+                            }
+                        </>}
+                        {item === 'ACTION' &&
+                        <>
+                            {TurnChar.action[item].map(_subitem =>
+                                <ActionDisplay manager={Manager} position={Position} turn={TurnChar} action={_subitem}/>
                             )
 
                             }

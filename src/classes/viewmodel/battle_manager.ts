@@ -1,5 +1,7 @@
+import { ActionBattleDex } from "../../data/static/action/action_btl";
+import { ActionInfoDex } from "../../data/static/action/action_inf";
 import { ItemBattleDex } from "../../data/static/item/item_btl";
-import { ChoiceTarget, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
+import { ActionAction, ChoiceTarget, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
 import { returnChoiceTargetPlots } from "../../util/sharedfunctions";
 import { IBattle } from "../sim/controller/battle";
 import { MessageTranslator } from "../tools/translator";
@@ -268,6 +270,53 @@ class BattleManager {
                         const gamedata = ItemBattleDex[this.BattleState.sides[this.BattlePosition].trainers[this.SidePosition].team.items[(_action).item].item]
                         
                         relevantPlot.setClickableState(_active, false, returnChoiceTargetPlots(this.BattleState, gamedata, id), Action);
+                        relevantPlot.funcUpdateVals();
+                    }
+                }
+                )
+                
+            }
+        }
+    }
+    
+    /**
+     * Update the state of the battle plots based on a given ACTION action
+     * @param _action the given action to select positions for
+     * @param _pos the position this action comes from
+     * @param _turnchar the turnchar object this action comes from
+     */
+    public UpdatePlotsAction(_action : ActionAction, _pos : number, _turnchar : any) {
+        this.ClearSelectShow();
+        const MonsterBasePos = this.BattleState.sides[this.BattlePosition].trainers[this.SidePosition].team.active[(_action).source_id].position
+        for(let i = 0; i < this.CurrentPlots.length; i++) {
+            for (let j = 0; j < this.CurrentPlots[i].length; j++) {
+                const relevantPlot = this.CurrentPlots[i][j]
+                
+                let _active = false;
+                let _index = null;
+
+                _action.target_id.forEach(id => 
+                {
+                    if ( (id[0] === relevantPlot.Plot.position[0]) && (id[1] === relevantPlot.Plot.position[1])) {
+                        _active = true;
+                        _index = _action.target_id.indexOf(id);
+                        let _charindex = _turnchar.pos
+                        for(let k = 0; k < this.ChoicesLog.length; k++) {
+                            if (this.ChoicesLog[k].pos === _pos) {
+                                _charindex = k;
+                            }
+                        }
+                        const Action : ChosenAction = {
+                            type: "ACTION",
+                            type_index : _turnchar.action["ACTION"].indexOf(_action),
+                            hypo_index : _charindex, 
+                            hype_index : _index
+                        }
+    
+                        const gamedata = ActionBattleDex[this.BattleState.sides[this.BattlePosition].trainers[this.SidePosition].team.monsters[_turnchar.pos].actions[(_action).action_id]]
+                        
+                        
+                        relevantPlot.setClickableState(_active, false, returnChoiceTargetPlots(this.BattleState, gamedata, id, MonsterBasePos), Action);
                         relevantPlot.funcUpdateVals();
                     }
                 }

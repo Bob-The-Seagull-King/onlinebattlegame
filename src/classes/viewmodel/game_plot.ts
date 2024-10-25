@@ -84,6 +84,10 @@ class GamePlot {
                 const myClonedArray  = Object.assign([], this.ValIndex);
                 this.Owner.UpdatePlotsSub(myClonedArray.slice(1))
             }
+            if (this.TurnVal.type === "ACTION") {
+                const myClonedArray  = Object.assign([], this.ValIndex);
+                this.Owner.UpdatePlotsSub(myClonedArray.slice(1))
+            }
         }
     }
 
@@ -97,6 +101,10 @@ class GamePlot {
                 this.Owner.ClearPlotsSub(myClonedArray.slice(1))
             }
             if (this.TurnVal.type === "ITEM") {
+                const myClonedArray  = Object.assign([], this.ValIndex);
+                this.Owner.ClearPlotsSub(myClonedArray.slice(1))
+            }
+            if (this.TurnVal.type === "ACTION") {
                 const myClonedArray  = Object.assign([], this.ValIndex);
                 this.Owner.ClearPlotsSub(myClonedArray.slice(1))
             }

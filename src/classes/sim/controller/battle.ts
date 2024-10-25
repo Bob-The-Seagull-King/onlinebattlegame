@@ -3,7 +3,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { BotBehaviourWeight, BotOptions, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
+import { ActionAction, BotBehaviourWeight, BotOptions, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { FieldedMonster, Team } from "../models/team";
@@ -100,7 +100,18 @@ class Battle {
         for (i = 0; i < _items.length; i++) {
             ItemList.push(new BattleSide(_items[i], this))
         }
-        return this.shuffleArray(ItemList);
+        const shuffledarray : BattleSide[] = this.shuffleArray(ItemList);
+
+        for (let i = 0; i < shuffledarray.length; i++) {
+            shuffledarray[i].Position = i;
+            for (let j = 0; j < shuffledarray[i].Trainers.length; j++) {
+                shuffledarray[i].Trainers[j].SendPositionInfo(this.Manager)
+            }
+        }
+
+        return shuffledarray
+
+
     }
 
     /**
@@ -399,10 +410,18 @@ class Battle {
     public async GetMonsterOptions(_monster : FieldedMonster) {
         
         const _choices : TurnChoices = {}
-        
+
         const moveActions = await this.findMoveOptions(_monster);
+        const actionActions = await this.findActionOptions(_monster);  
+
         if (moveActions.length > 0) {
             _choices["MOVE"] = moveActions
+        }
+        if (actionActions.length > 0) {
+            _choices["ACTION"] = actionActions
+        }
+        if ((moveActions.length > 0) ||
+            (actionActions.length > 0)) {
             return { Choices: _choices, Position : _monster.Owner.Monsters.indexOf(_monster.Monster)}
         } else {
             return null;
@@ -565,7 +584,7 @@ class Battle {
                     const _plot = sourceTrainer.Owner.Owner.Scene.PlotsAs1D()[j]
                     const occupancycheck = await _plot.IsOccupied();
                     if (occupancycheck === true) {
-                        if (itemdata.target_type != "TERRAIN") {
+                        if (itemdata.target_choice != "TERRAIN") {
                             let PlotMonster : ActiveMonster = null;
 
                             this.Sides.forEach( _side => {
@@ -585,7 +604,7 @@ class Battle {
                             }
                         }
                     } else {
-                        if (itemdata.target_type != "MONSTER") {
+                        if (itemdata.target_choice != "MONSTER") {
                             plotpositions.push(_plot.returnCoordinates())
                         }
                     }
@@ -642,6 +661,128 @@ class Battle {
         return _swapactions;
     }
 
+    /**
+     * Given a monster, find all the possible
+     * Action options they can take
+     * @param sourceMonster the monster to search options for
+     * @returns the list of Action actions.
+     */
+    public async findActionOptions(sourceMonster : FieldedMonster): Promise<ActionAction[]> {
+        const _actionActions : ActionAction[] = [];
+
+        const SourceID = sourceMonster.Owner.Leads.indexOf(sourceMonster);
+
+        for (let i = 0; i < sourceMonster.Monster.Actions_Current.length; i++) {
+            const RelevantAction = sourceMonster.Monster.Actions_Current[i];
+            const ActionID = i;
+
+            // Check if Uses are available
+            if (RelevantAction.HasUsesRemaining()) {
+                // Check if this Action is able to be used (Recharging, Special Effects barring certain categories, etc)
+                const CanUse = await this.runEvent( "CanUseAction", sourceMonster, null, RelevantAction, true, null, this.MessageList )
+
+                if (CanUse) {
+                    // Check if this Monster can act (Conditions, special effects, etc)
+                    const CanAct = await this.runEvent( "MonsterCanAct", sourceMonster, null, null, true, null, this.MessageList )
+
+                    if (CanAct) {
+                        // Now Gather Target Spaces
+                        const TargetSpaces = await this.getMonsterActionSpaces(sourceMonster, RelevantAction);
+
+                        if (TargetSpaces.length > 0) {
+                            _actionActions.push( 
+                                {
+                                    type: "ACTION",
+                                    action_id: ActionID,
+                                    source_id: SourceID,
+                                    target_id: TargetSpaces
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        return _actionActions
+    }
+
+    public async getMonsterActionSpaces(sourceMonster : FieldedMonster, sourceMove : ActiveAction) : Promise<number[][]> {
+        const targetlist : number[][] = []
+
+        const ActionData = ActionBattleDex[sourceMove.Action];
+        const potentiallist : number[][] = [];
+
+        const width = this.Scene.Width - 1;
+        const height = this.Scene.Height - 1;
+
+        // Gather All Spaces In Range (target_range, target_direction)
+        potentiallist.push(sourceMonster.Position)
+
+        for (let i = (sourceMonster.Position[0] - ActionData.target_range); i < (sourceMonster.Position[0] + ActionData.target_range); i++) {
+            for (let j = (sourceMonster.Position[1] - ActionData.target_range); j < (sourceMonster.Position[1] + ActionData.target_range); j++) {
+                // Check if in map bounds
+                if (
+                    ((i >= 0) && (i <= width)) &&
+                    ((j >= 0) && (j <= height)) &&
+                    (!((i === sourceMonster.Position[0]) && (j === sourceMonster.Position[1])))
+                ) {
+                    if (ActionData.target_direction === "ALL") {
+                        potentiallist.push([i,j])
+                    } else if ((ActionData.target_direction != "CARDINAL") && 
+                        ((i === sourceMonster.Position[0]) || (j === sourceMonster.Position[1]))) {
+                        potentiallist.push([i,j])
+                    } else if ((ActionData.target_direction != "ORTHOGONAL") &&
+                        ((Math.abs(i - sourceMonster.Position[0])) === (Math.abs(j - sourceMonster.Position[1])))) {
+                        potentiallist.push([i,j])
+                    }
+                }
+            }
+        }
+
+        // Validate Each Space (target_team, target_choice)
+        for (let i = 0; i < potentiallist.length; i++) {
+            const _plot = this.Scene.ReturnGivenPlot(potentiallist[i][0],potentiallist[i][1])
+            const occupancycheck = await _plot.IsOccupied();
+
+            if (occupancycheck === true) {
+                if (ActionData.target_choice != "TERRAIN") {
+                    let PlotMonster : ActiveMonster = null;
+
+                    this.Sides.forEach( _side => {
+                        _side.Trainers.forEach(_trainer => {
+                            _trainer.Team.Leads.forEach( _lead => {
+                                if (_lead.Plot === _plot) { PlotMonster = _lead.Monster; }
+                            })
+                        })
+                    })
+                    
+                    if ((PlotMonster.Owner.Owner === sourceMonster.Owner.Owner) && (ActionData.target_team != "ENEMY")) {
+                        const CanHit = await this.runEvent( "MonsterCanHit", sourceMonster, PlotMonster, sourceMove, true, null, this.MessageList )
+                        if (CanHit) {
+                            targetlist.push(_plot.returnCoordinates())
+                        }
+                    }
+
+                    if ((PlotMonster.Owner.Owner != sourceMonster.Owner.Owner) && (ActionData.target_team != "SELF")) {
+                        const CanHit = await this.runEvent( "MonsterCanHit", sourceMonster, PlotMonster, sourceMove, true, null, this.MessageList )
+                        if (CanHit) {
+                            targetlist.push(_plot.returnCoordinates())
+                        }
+                    }
+                }
+            } else {
+                if (ActionData.target_choice != "MONSTER") {
+                    const CanHit = await this.runEvent( "MonsterCanHit", sourceMonster, _plot, sourceMove, true, null, this.MessageList )
+                    if (CanHit) {
+                        targetlist.push(_plot.returnCoordinates())
+                    }
+                }
+            }
+        }
+
+        return targetlist;
+    }
     
     /**
      * Given a monster, find all the possible

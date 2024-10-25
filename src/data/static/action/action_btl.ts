@@ -41,8 +41,9 @@ export const ActionBattleDex : ActionBattleTable = {
         target_team         : "ENEMY",
         target_pos          : "SMALL",
         target_type         : "MONSTER",
+        target_fill         : "MIN",
         target_direction    : "BOTH", 
-        target_choice       : "MONSTER",
+        target_choice       : "ALL",
         target_range        : 3
     },    
     help: {
