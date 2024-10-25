@@ -1,6 +1,7 @@
 import { FieldInfoDex } from "../../data/static/field/field_inf";
 import { SpeciesBattleDex } from "../../data/static/species/species_btl";
 import { ChosenAction, MessageSet, SelectedAction, TurnChoices, TurnSelect } from "../../global_types";
+import { returnChoiceTargetPlots } from "../../util/sharedfunctions";
 import { IBattle } from "../sim/controller/battle";
 import { ActiveMonster } from "../sim/models/active_monster";
 import { IFieldedMonster } from "../sim/models/team";

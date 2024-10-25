@@ -14,60 +14,54 @@ export function returnChoiceTargetPlots(battle : IBattle, _battleItem : ChoiceTa
         ((_battleItem.target_direction === "BOTH") || 
         (_battleItem.target_direction === "CARDINAL") || 
         (_battleItem.target_direction === "ORTHOGONAL"))) {
-
-        console.log(startPos)
-        console.log(monsterPos)
         
-        const hordistance = (-1 * (startPos[0] - monsterPos[0]))
-        const verdistance = (-1 * (startPos[1] - monsterPos[1]))
+        let verdistance = (-1 * (startPos[0] - monsterPos[0]))
+        let hordistance = (1 * (startPos[1] - monsterPos[1]))
 
-        console.log(hordistance)
-        console.log(verdistance)
+        if (hordistance === -0) {
+            hordistance = 0;
+        }
+        if (verdistance === -0) {
+            verdistance = 0;
+        }
+
 
         let distance = _battleItem.target_range;
 
         if (_battleItem.target_fill === "MIN") {
-            distance = Math.max(hordistance, verdistance)
+            distance = Math.max(Math.abs(hordistance), Math.abs(verdistance))
         } else if (_battleItem.target_fill === "NONE") {
             distance = 0;
         }
 
         if (hordistance === 0) {            
             if (verdistance > 0) { // Line UP
-                console.log("NORTH")
-                const FillArray = gatherLine(monsterPos, distance, 1, 0)
+                const FillArray = gatherLine(monsterPos, distance, 0, -1)
                 array.push(...FillArray);
             } else if (verdistance < 0) { // Line DOWN
-                console.log("SOUTH")
-                const FillArray = gatherLine(monsterPos, distance, -1, 0)
+                const FillArray = gatherLine(monsterPos, distance, 0, 1)
                 array.push(...FillArray);
             }
         } else if (hordistance > 0) {
             if (verdistance === 0) { // Line RIGHT
-                console.log("EAST")
-                const FillArray = gatherLine(monsterPos, distance, 0, 1)
+                const FillArray = gatherLine(monsterPos, distance, 1, 0)
                 array.push(...FillArray);
             } else if (verdistance < 0) { // Diagonal SouthEast
-                console.log("SOUTHEAST")
-                const FillArray = gatherLine(monsterPos, distance, -1, 1)
+                const FillArray = gatherLine(monsterPos, distance, 1, 1)
                 array.push(...FillArray);
             } else if (verdistance > 0) { // Diagonal NorthEast
-                console.log("NORTHEAST")
-                const FillArray = gatherLine(monsterPos, distance, 1, 1)
+                const FillArray = gatherLine(monsterPos, distance, 1, -1)
                 array.push(...FillArray);
             }
         } else if (hordistance < 0) {
             if (verdistance === 0) { // Line LEFT
-                console.log("WEST")
-                const FillArray = gatherLine(monsterPos, distance, 0, -1)
+                const FillArray = gatherLine(monsterPos, distance, -1, 0)
                 array.push(...FillArray);
             } else if (verdistance < 0) { // Diagonal SouthWest
-                console.log("SOUTHWEST")
-                const FillArray = gatherLine(monsterPos, distance, -1, -1)
+                const FillArray = gatherLine(monsterPos, distance, -1, 1)
                 array.push(...FillArray);
             } else if (verdistance > 0) { // Diagonal NorthWest
-                console.log("NORTHWEST")
-                const FillArray = gatherLine(monsterPos, distance, 1, -1)
+                const FillArray = gatherLine(monsterPos, distance, -1, -1)
                 array.push(...FillArray);                
             }
         }
