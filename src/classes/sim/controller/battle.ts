@@ -305,6 +305,12 @@ class Battle {
                     const TurnVal = await this.Events.PerformActionMOVE(ChosenTurn, _trainer);
                 }
                 
+                if (Turn.type === "ACTION") {
+                    const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as ActionAction)
+                    ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]
+                    const TurnVal = await this.Events.PerformActionACTION(ChosenTurn, _trainer);
+                }
+                
                 if (Turn.type === "ITEM") {
                     const ChosenTurn = (_TurnSelect.Options[Turn.hypo_index].Choices[Turn.type][Turn.type_index] as ItemAction)
                     ChosenTurn.target_id = [ChosenTurn.target_id[Turn.hype_index]]

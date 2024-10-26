@@ -151,6 +151,22 @@ class BattleEvents {
     }
 
     /**
+     * Given a ACTION action, perform it.
+     * @param _action the ACTION action to perform
+     * @param _trainer the trainer this action refers to
+     */
+    public async PerformActionACTION(_action : ActionAction, _trainer : TrainerBase) {
+        const TargetLead : FieldedMonster = _trainer.Team.Leads[_action.source_id];
+
+        if (TargetLead) {
+            TargetLead.Activated = true;
+            this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " used the move " + (ActionInfoDex[TargetLead.Monster.Actions_Current[_action.action_id].Action].name)})
+        }        
+
+        return true;        
+    }
+
+    /**
      * Given a MOVE action, perform it.
      * Take a fielded monster and move it through
      * each plot on the path
