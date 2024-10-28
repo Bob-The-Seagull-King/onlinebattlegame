@@ -993,7 +993,7 @@ class Battle {
      */
     public async runEvent(
         eventid: string,
-        source?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | TrainerBase | Scene | null,
+        source?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveAction | ActiveItem | TrainerBase | Scene | null,
         target?: FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | TrainerBase | null, 
         sourceEffect?: ActiveItem | ActiveAction | WeatherEffect | FieldEffect | null, 
         relayVar?: any, 

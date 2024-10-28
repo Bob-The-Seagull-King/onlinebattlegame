@@ -195,10 +195,25 @@ class BattleEvents {
                 }
             }
 
+            let ContinueAction = true;
+
             // Target Main Monster
-            // Check Immunity
-            // Attack
-            // Effect
+
+            let HitAsMainTarget = await this.Battle.runEvent( "MonsterUseActionOnMainTarget", TargetLead, MainTarget, RelevantAction, true, null, this.Battle.MessageList )
+            if (await this.Battle.runEvent( "CareAboutType", TargetLead, MainTarget, RelevantAction, true, null, this.Battle.MessageList ) === true) {
+                if (await this.CalculateTypeEffectiveness(RelevantActionData.type, RelevantAction, MainTarget) === 0 ) {
+                    HitAsMainTarget = false;
+                }
+            }
+
+            if (RelevantActionData.events["musthitmain"]) {
+                if ((RelevantActionData.events["musthitmain"] === true) && (HitAsMainTarget === false)) { return true }
+            }
+
+            if (HitAsMainTarget) {
+                // Attack
+                // Effect
+            }
 
             // Target Secondary Monsters
             // Check Immunity
@@ -293,7 +308,7 @@ class BattleEvents {
      */
     public async CalculateTypeEffectiveness(
         _type : number,
-        _source : FieldedMonster | ActiveMonster | ActiveItem | Plot | Scene | FieldEffect | WeatherEffect | null , 
+        _source : FieldedMonster | ActiveMonster | ActiveAction | ActiveItem | Plot | Scene | FieldEffect | WeatherEffect | null , 
         _target: FieldedMonster
     ) {
         /*
