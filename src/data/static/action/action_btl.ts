@@ -22,12 +22,13 @@ export const ActionBattleDex : ActionBattleTable = {
         damage_mod          : 0,
         category            : [ActionCategory.Attack],
         events              : {},
+        effects             : [],
         target_team         : "ENEMY",
         target_pos          : "SINGLE",
         target_type         : "MONSTER",
         target_direction    : "ALL", 
         target_choice       : "MONSTER",
-        target_range        : 2
+        target_range        : 4
     },    
     blast: {
         id                  : 1,
@@ -38,6 +39,7 @@ export const ActionBattleDex : ActionBattleTable = {
         damage_mod          : -25,
         category            : [ActionCategory.Attack],
         events              : {},
+        effects             : [],
         target_team         : "ENEMY",
         target_pos          : "SMALL",
         target_type         : "MONSTER",
@@ -55,6 +57,7 @@ export const ActionBattleDex : ActionBattleTable = {
         damage_mod          : false,
         category            : [ActionCategory.Recovery, ActionCategory.Help],
         events              : {},
+        effects             : [],
         target_team         : "ALLY",
         target_pos          : "SINGLE",
         target_type         : "MONSTER",

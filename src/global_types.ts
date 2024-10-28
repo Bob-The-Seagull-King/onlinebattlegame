@@ -172,13 +172,21 @@ export interface IActionBattle extends CallEvents, ChoiceTarget {
     accuracy    : number | true,            // Base accuracy of a move (true === no accuracy check)
     damage_mod  : number | true | false,    // Modifier the action applies to the user's damage range (true === alternative damage calc) (false === does no damage)
     category    : ActionCategory[],         // Category of move
-    events      : InfoSetGeneric            // Tags for move use
+    events      : InfoSetGeneric,            // Tags for move use
+    effects     : IEffectData[]
 }
 
 export interface IActionInfo {
     id          : number,       // Numerical ID of the action
     name        : string,       // Name of the aciton
     description : DescBlock[]   // Formattable description of the action
+}
+
+export interface IEffectData {
+    effectval   : IDEntry,    // The effect / condition / etc to apply
+    baseChance  : number | true,    // The base chance to apply this effect
+    trackerVal? : any, // Used for trackers
+    target_type : "PLOT" | "MAIN" | "SECONDARY" | "MONSTER" // If this effect applies to the main target, non-main targets, all monsters, or plots
 }
 
 // Monster Trait

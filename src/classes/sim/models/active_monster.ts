@@ -202,6 +202,10 @@ class ActiveMonster {
         return HPTrack;
     }
 
+    public IsAlive() {
+        return (this.HP_Current > 0);
+    }
+
 }
 
 export {IActiveMonster, ActiveMonster}

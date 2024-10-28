@@ -4,7 +4,7 @@ import { ActionInfoDex } from "../../../data/static/action/action_inf";
 import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { ItemInfoDex } from "../../../data/static/item/item_inf";
 import { SpeciesBattleDex } from "../../../data/static/species/species_btl";
-import { ActionAction, IDEntry, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, SwapAction, TargetSet } from "../../../global_types";
+import { ActionAction, IDEntry, IEffectData, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, SwapAction, TargetSet } from "../../../global_types";
 import { returnChoiceTargetPlots } from "../../../util/sharedfunctions";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
@@ -177,6 +177,8 @@ class BattleEvents {
             CanUseAction = await this.Battle.runEvent( "MonsterCanUseAction", TargetLead, null, RelevantAction, true, null, this.Battle.MessageList )
             if (!CanUseAction) { return true; }
 
+            this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " used the move " + ActionInfoDex[RelevantAction.Action].name})
+
             // Gather Targets
 
             const Plot = this.Battle.Scene.ReturnGivenPlot(RelevantTargetSpaces[0][0],RelevantTargetSpaces[0][1])
@@ -195,39 +197,225 @@ class BattleEvents {
                 }
             }
 
-            let ContinueAction = true;
-
             // Target Main Monster
 
-            let HitAsMainTarget = await this.Battle.runEvent( "MonsterUseActionOnMainTarget", TargetLead, MainTarget, RelevantAction, true, null, this.Battle.MessageList )
-            if (await this.Battle.runEvent( "CareAboutType", TargetLead, MainTarget, RelevantAction, true, null, this.Battle.MessageList ) === true) {
-                if (await this.CalculateTypeEffectiveness(RelevantActionData.type, RelevantAction, MainTarget) === 0 ) {
-                    HitAsMainTarget = false;
+            if (MainTarget != null) {
+
+                let HitAsMainTarget = await this.Battle.runEvent( "MonsterUseActionOnMainTarget", TargetLead, MainTarget, RelevantAction, true, null, this.Battle.MessageList )
+                if (await this.Battle.runEvent( "CareAboutType", TargetLead, MainTarget, RelevantAction, true, null, this.Battle.MessageList ) === true) {
+                    if (await this.CalculateTypeEffectiveness(RelevantActionData.type, RelevantAction, MainTarget) === 0 ) {
+                        HitAsMainTarget = false;
+                    }
+                }
+
+                if (HitAsMainTarget) {
+                    let HitCount = 1;
+
+                    if (RelevantActionData.events["multihit"]) {
+                        const Min = RelevantActionData.events["multihit"]["min"]
+                        const Max = RelevantActionData.events["multihit"]["max"]
+                        
+                        let minhit = (Min)? ((typeof Min === 'number')? Min : 1) : 1;
+                        let maxhit = (Max)? ((typeof Max === 'number')? Max : 1) : 1;
+
+                        const rnmd = Math.max(1, Math.floor(Math.random() * (1 + (maxhit - minhit)) + minhit));
+                        HitCount = rnmd;
+                    }
+
+                    for (let i = 0; i < HitCount; i++) {
+                        if (MainTarget.Monster.IsAlive()) {
+                            const DoesHit = await this.MakeAccuracyCheck(TargetLead, RelevantAction, MainTarget, true)
+                            if (DoesHit === true) {
+                                HitAsMainTarget = true;
+                                if ((RelevantActionData.damage_mod != false) || (typeof RelevantActionData.damage_mod === 'number')) {
+                                    
+                                    let DamageOut = (RelevantActionData.damage_mod === true) ? await this.Battle.runEvent( "GetActionSpecialDamage", TargetLead, MainTarget, RelevantAction, 0, true, this.Battle.MessageList ) : await this.MakeDamageOut(TargetLead, RelevantAction, MainTarget, true);
+                                    
+                                    if (DamageOut > 0) {
+                                        const DamageDealt = await this.DealDamage(
+                                            DamageOut, RelevantActionData.type, TargetLead, MainTarget,
+                                            await this.Battle.runEvent( "UseDMGProt", TargetLead, MainTarget, RelevantAction, false, true, this.Battle.MessageList ),
+                                            await this.Battle.runEvent( "UseDMGType", TargetLead, MainTarget, RelevantAction, false, true, this.Battle.MessageList ),
+                                            await this.Battle.runEvent( "UseDMGMods", TargetLead, MainTarget, RelevantAction, false, true, this.Battle.MessageList ) )
+
+                                        await this.Battle.runEvent( "AfterDamageDealt", TargetLead, MainTarget, RelevantAction, DamageDealt, true, this.Battle.MessageList )
+                                    } else {
+                                        this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " did no damage!"})
+                                    }
+                                }
+
+                                for (let j = 0; j < RelevantActionData.effects.length; j++) {
+                                    if ((RelevantActionData.effects[j].target_type === "MAIN") || (RelevantActionData.effects[j].target_type === "MONSTER")) {
+                                        const DoesApply = await this.MakeEffectCheck(TargetLead, RelevantAction, MainTarget, RelevantActionData.effects[j])
+
+                                        if (DoesApply) {
+                                            await this.ApplyEffect(TargetLead, RelevantAction, MainTarget, RelevantActionData.effects[j])
+                                        } else {
+                                            await this.Battle.runEvent( "OnEffectNotApply", TargetLead, MainTarget, RelevantAction, RelevantActionData.effects[j], true, this.Battle.MessageList )
+                                        }
+                                    }
+                                }
+                                await this.Battle.runEvent( "RunExtraEffects", TargetLead, MainTarget, RelevantAction, null, true, this.Battle.MessageList )
+                            } else {
+                                this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " missed " + MainTarget.Monster.Nickname + "!"})
+                                await this.Battle.runEvent( "OnMiss", TargetLead, MainTarget, RelevantAction, null, true, this.Battle.MessageList )
+                            }
+                        } else { i = HitCount; }
+                    }
+                }           
+
+                if (RelevantActionData.events["musthitmain"]) {
+                    if ((RelevantActionData.events["musthitmain"] === true) && (HitAsMainTarget === false)) { return true }
                 }
             }
 
-            if (RelevantActionData.events["musthitmain"]) {
-                if ((RelevantActionData.events["musthitmain"] === true) && (HitAsMainTarget === false)) { return true }
-            }
-
-            if (HitAsMainTarget) {
-                // Attack
-                // Effect
-            }
-
             // Target Secondary Monsters
-            // Check Immunity
-            // Attack 
-            // Effect
+
+            for (let k = 0; k < AltTargets.length; k++) {
+                
+                let HitAsSecondaryTarget = await this.Battle.runEvent( "MonsterUseActionOnSecondaryTarget", TargetLead, AltTargets[k], RelevantAction, true, null, this.Battle.MessageList )
+                if (await this.Battle.runEvent( "CareAboutType", TargetLead, AltTargets[k], RelevantAction, true, null, this.Battle.MessageList ) === true) {
+                    if (await this.CalculateTypeEffectiveness(RelevantActionData.type, RelevantAction, AltTargets[k]) === 0 ) {
+                        HitAsSecondaryTarget = false;
+                    }
+                }
+
+                if (HitAsSecondaryTarget) {
+                    let HitCount = 1;
+
+                    if (RelevantActionData.events["multihit"]) {
+                        const Min = RelevantActionData.events["multihit"]["min"]
+                        const Max = RelevantActionData.events["multihit"]["max"]
+                        
+                        let minhit = (Min)? ((typeof Min === 'number')? Min : 1) : 1;
+                        let maxhit = (Max)? ((typeof Max === 'number')? Max : 1) : 1;
+
+                        const rnmd = Math.max(1, Math.floor(Math.random() * (1 + (maxhit - minhit)) + minhit));
+                        HitCount = rnmd;
+                    }
+
+                    for (let i = 0; i < HitCount; i++) {
+                        if (AltTargets[k].Monster.IsAlive()) {
+                            const DoesHit = await this.MakeAccuracyCheck(TargetLead, RelevantAction, AltTargets[k], true)
+
+                            if (DoesHit) {
+                                if ((RelevantActionData.damage_mod != false) || (typeof RelevantActionData.damage_mod === 'number')) {
+                                    let DamageOut = (RelevantActionData.damage_mod === true)? await this.Battle.runEvent( "GetActionSpecialDamage", TargetLead, AltTargets[k], RelevantAction, 0, false, this.Battle.MessageList ) : await this.MakeDamageOut(TargetLead, RelevantAction, AltTargets[k], false);
+                                    
+                                    if (DamageOut > 0) {
+                                        const DamageDealt = await this.DealDamage(
+                                            DamageOut, RelevantActionData.type, TargetLead, AltTargets[k],
+                                            await this.Battle.runEvent( "UseDMGProt", TargetLead, AltTargets[k], RelevantAction, false, false, this.Battle.MessageList ),
+                                            await this.Battle.runEvent( "UseDMGType", TargetLead, AltTargets[k], RelevantAction, false, false, this.Battle.MessageList ),
+                                            await this.Battle.runEvent( "UseDMGMods", TargetLead, AltTargets[k], RelevantAction, false, false, this.Battle.MessageList ) )
+
+                                        await this.Battle.runEvent( "AfterDamageDealt", TargetLead, AltTargets[k], RelevantAction, DamageDealt, false, this.Battle.MessageList )
+                                    } else {
+                                        this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " did no damage!"})
+                                    }
+                                }
+
+                                for (let j = 0; j < RelevantActionData.effects.length; j++) {
+                                    if ((RelevantActionData.effects[j].target_type === "SECONDARY") || (RelevantActionData.effects[j].target_type === "MONSTER")) {
+                                        const DoesApply = await this.MakeEffectCheck(TargetLead, RelevantAction, AltTargets[k], RelevantActionData.effects[j])
+
+                                        if (DoesApply) {
+                                            await this.ApplyEffect(TargetLead, RelevantAction, AltTargets[k], RelevantActionData.effects[j])
+                                        } else {
+                                            await this.Battle.runEvent( "OnEffectNotApply", TargetLead, AltTargets[k], RelevantAction, RelevantActionData.effects[j], false, this.Battle.MessageList )
+                                        }
+                                    }
+                                }
+                                await this.Battle.runEvent( "RunExtraEffects", TargetLead, AltTargets[k], RelevantAction, null, false, this.Battle.MessageList )
+                            } else {
+                                this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " missed " + AltTargets[k].Monster.Nickname + "!"})
+                                await this.Battle.runEvent( "OnMiss", TargetLead, AltTargets[k], RelevantAction, null, false, this.Battle.MessageList )
+                            }
+                        } else { i = HitCount; }
+                    }
+                }   
+
+            }
 
             // Target Plots
-            // FieldEffect
-            // Effect
+            const _effectadded : FieldEffect = await this.Battle.runEvent( "GenerateFieldEffect", TargetLead, null, RelevantAction, null, null, this.Battle.MessageList )
+            for (let i = 0; i < PlotTargets.length; i++) {                
+                const Plot = PlotTargets[i]
+                const Monster = this.Battle.GetMonsterFromCoordinate(Plot.returnCoordinates())
+                let CanApplyToPlot = await this.Battle.runEvent( "CanUseActionOnPlot", Plot, Plot, RelevantAction, true, null, this.Battle.MessageList )
+                if (Monster != null) {
+                    CanApplyToPlot = await this.Battle.runEvent( "CanUseActionOnPlot", Monster, Plot, RelevantAction, CanApplyToPlot, null, this.Battle.MessageList )
+                }
+
+                if (CanApplyToPlot) {
+                    await this.Battle.runEvent( "UseActionOnPlot", null, Plot, RelevantAction, null, (i === 0), this.Battle.MessageList )
+                    if (_effectadded != null) {
+                        Plot.AddFieldEffect(_effectadded);
+                    }
+                }
+            }
             
             await this.Battle.UpdateBattleState();
         }        
 
         return true;        
+    }
+
+    public async MakeEffectCheck(source : FieldedMonster, effect : ActiveAction, target: FieldedMonster, skilleffect : IEffectData) : Promise<boolean> {
+
+        const BaseChance = await this.Battle.runEvent( "GetActionBaseAcc", source, target, effect, skilleffect.baseChance, skilleffect, this.Battle.MessageList );
+        const SkillMod = await this.Battle.runEvent( "ModifySKMod", source, target, effect, this.GetStatValue(source, "sk", await this.Battle.runEvent( "UseSKMods", source, target, effect, false, skilleffect, this.Battle.MessageList ), await this.Battle.runEvent( "UseSKBoosts", source, target, effect, false, skilleffect, this.Battle.MessageList )), skilleffect, this.Battle.MessageList ) 
+        const ResistMod = await this.Battle.runEvent( "ModifyRSMod", source, target, effect, this.GetStatValue(source, "rs", await this.Battle.runEvent( "UseRSMods", source, target, effect, false, skilleffect, this.Battle.MessageList ), await this.Battle.runEvent( "UseRSBoosts", source, target, effect, false, skilleffect, this.Battle.MessageList )), skilleffect, this.Battle.MessageList ) 
+        const TotalChance = Math.min(100, BaseChance + SkillMod - ResistMod);
+        
+        const rnmd = Math.floor(Math.random() * 100) + 1;
+
+        return (rnmd <= TotalChance);
+    }
+
+    public async ApplyEffect(source : FieldedMonster, effect : ActiveAction, target: FieldedMonster, skilleffect : IEffectData) {
+        const CanApply = await this.Battle.runEvent( "CanApplyToTarget", source, target, effect, true, skilleffect, this.Battle.MessageList );
+
+        if (CanApply) {            
+            await this.Battle.runEvent( "ApplySelfToTarget", source, target, effect, null, skilleffect, this.Battle.MessageList )
+            await this.Battle.runEvent( "OnEffectApply", source, target, effect, null, skilleffect, this.Battle.MessageList )
+        } else {
+            await this.Battle.runEvent( "OnEffectCanNotApply", source, target, effect, null, skilleffect, this.Battle.MessageList )
+        }
+    }
+
+    public async MakeDamageOut(source : FieldedMonster, effect : ActiveAction, target: FieldedMonster, isMain : boolean): Promise<number> {
+        const DamageLow = await this.Battle.runEvent( "GetDLValue", source, target, effect, this.GetStatValue(source, "dl", await this.Battle.runEvent( "UseDLMods", source, target, effect, false, isMain, this.Battle.MessageList ), await this.Battle.runEvent( "UseDLBoosts", source, target, effect, false, isMain, this.Battle.MessageList )), isMain, this.Battle.MessageList )
+        const DamageHgh = await this.Battle.runEvent( "GetDHValue", source, target, effect, this.GetStatValue(source, "dh", await this.Battle.runEvent( "UseDHMods", source, target, effect, false, isMain, this.Battle.MessageList ), await this.Battle.runEvent( "UseDHBoosts", source, target, effect, false, isMain, this.Battle.MessageList )), isMain, this.Battle.MessageList )
+
+        const Range = ((DamageHgh - DamageLow) <= 0) ? 1: (DamageHgh - DamageLow);
+        let ActionMod = 1;
+        if (typeof ActionBattleDex[effect.Action].damage_mod === 'number') {
+            ActionMod += (ActionBattleDex[effect.Action].damage_mod as number) / 100
+        }
+        const randomValue = Math.floor( ActionMod * (Math.random() * (Range)));
+        const DealtDamage = await this.Battle.runEvent( "GetDamageNumberModified", source, target, effect, (randomValue + DamageLow), isMain, this.Battle.MessageList );
+
+        const TypeMod = (SpeciesBattleDex[(source.Monster.GetSpecies())].type.includes(ActionBattleDex[effect.Action].type))? 1.25 : 1;
+        const ModifiedTypeMod = await this.Battle.runEvent( "GetSTABModified", source, target, effect, TypeMod , isMain, this.Battle.MessageList );
+        
+        return await this.Battle.runEvent( "GetFinalDamageOut", source, target, effect, (DealtDamage * ModifiedTypeMod) , isMain, this.Battle.MessageList );
+    }
+
+    public async MakeAccuracyCheck(source : FieldedMonster, effect : ActiveAction, target: FieldedMonster, isMain : boolean) : Promise<boolean> {
+        const RelevantActionData = ActionBattleDex[effect.Action]
+
+        if (RelevantActionData.accuracy === true) {
+            return true;
+        }
+
+        const BaseAcc = await this.Battle.runEvent( "GetActionBaseAcc", source, target, effect, RelevantActionData.accuracy, isMain, this.Battle.MessageList );
+        const AccMod = await this.Battle.runEvent( "ModifyAccMod", source, target, effect, this.GetStatValue(source, "ac", await this.Battle.runEvent( "UseAccMods", source, target, effect, false, isMain, this.Battle.MessageList ), await this.Battle.runEvent( "UseAccBoosts", source, target, effect, false, isMain, this.Battle.MessageList )), isMain, this.Battle.MessageList ) 
+        const TotalChance = Math.min(100, BaseAcc + AccMod);
+        
+        const rnmd = Math.floor(Math.random() * 100) + 1;
+
+        return (rnmd <= TotalChance);
     }
 
     /**
@@ -385,7 +573,7 @@ class BattleEvents {
         _skipProt : boolean,
         _skipType : boolean,
         _skipMods : boolean) : Promise<number> {
-
+            
             let ProtectionModifier = 0;
             let TypeMatchupModifier = 0;
             let DamageTakenModifier = 0;
@@ -402,11 +590,12 @@ class BattleEvents {
             if (!_skipMods) {
                 DamageTakenModifier = await this.Battle.runEvent( "GetTotalDamageMod", _source, _target, null, 1, _val, this.Battle.MessageList );
             }
-
+            
             const ModifiedDamage = Math.floor( (_val - (_val * ( ( Math.min(90, ProtectionModifier * DamageTakenModifier))/100))) * TypeMatchupModifier)
 
             let dmg;
             const FinalDamage = await this.Battle.runEvent('GetFinalDamage', _source, _target, null, ModifiedDamage, null, this.Battle.MessageList )
+            
             dmg = await _target.Monster.TakeDamage(FinalDamage, this.Battle.MessageList);
 
             if (dmg) {
