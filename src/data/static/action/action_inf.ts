@@ -19,5 +19,11 @@ export const ActionInfoDex : ActionInfoTable = {
         name        : "Help",
         description : [ {cat: "positive", text: "Recovers 10% "},
             {cat: "stat", text: "HP"}]
+    },    
+    ritualblade: {
+        id          : 3,
+        name        : "Ritual Blade",
+        description : [ {cat: "negative", text: "Removes 10% "},
+            {cat: "stat", text: "HP"},{cat: "positive", text: " and applies UNDYING "}]
     }
 }

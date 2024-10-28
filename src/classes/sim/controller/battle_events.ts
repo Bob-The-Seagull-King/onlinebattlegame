@@ -575,7 +575,7 @@ class BattleEvents {
         _skipMods : boolean) : Promise<number> {
             
             let ProtectionModifier = 0;
-            let TypeMatchupModifier = 0;
+            let TypeMatchupModifier = 1;
             let DamageTakenModifier = 0;
             // This means the protection of the monster will be considered
             if (!_skipProt) {

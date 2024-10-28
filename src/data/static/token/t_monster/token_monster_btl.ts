@@ -13,4 +13,14 @@ import { TokenCategory } from "../../../enum/categories";
  * Monster Token mechanical information database
  */
 export const TokenMonsterBattleDex : TokenBattleTable = {
+    
+    undying: {
+        id          : 0,       // Numerical ID of the token
+        category    : [TokenCategory.Buff, TokenCategory.Help],
+        async onWhenHitZero (this : Battle, eventSource : any, source : ActiveMonster, messageList : MessageSet, fromSource : boolean) {
+            source.Tokens = source.Tokens.filter( item => item != 'undying')
+            source.HP_Current = 1;
+            messageList.push({ "generic" : source.Nickname + " survived a brush with death!"})
+        }
+    }
 }

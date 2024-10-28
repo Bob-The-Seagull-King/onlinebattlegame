@@ -64,5 +64,32 @@ export const ActionBattleDex : ActionBattleTable = {
         target_direction    : "CARDINAL", 
         target_choice       : "MONSTER",
         target_range        : 1
+    },    
+    ritualblade: {
+        id                  : 3,
+        type                : MonsterType.Accursed,
+        cost                : 15,
+        uses                : 5,
+        accuracy            : true,
+        damage_mod          : false,
+        category            : [ActionCategory.Recovery, ActionCategory.Help],
+        events              : {},
+        effects             : [],
+        target_team         : "ALLY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 3,
+        async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {            
+            const BaseVal = await this.Events.GetStatValue(target, 'hp', false, false)
+            await this.Events.DealDamage((Math.ceil(BaseVal/10)), 0, eventSource, target, true, true, true)
+
+            messageList.push({ "generic" : target.Monster.Nickname + " has been ritually hurt."})
+
+            if (!target.Monster.Tokens.includes("undying")) {
+                target.Monster.Tokens.push("undying")
+            }
+        }
     }
 }

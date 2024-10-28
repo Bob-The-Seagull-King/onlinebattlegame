@@ -298,6 +298,12 @@ export interface CallEvents {
     onUseItemOnSelfMonster? : (this : Battle, eventSource : any, target :  FieldedMonster, sourceEffect : ActiveItem, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // Effects to apply to a member of the team
     onUseItemOnAnyMonster? : (this : Battle, eventSource : any, target :  FieldedMonster, sourceEffect : ActiveItem, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // Effects to apply to any monster
     onGenerateFieldEffect? : (this : Battle, eventSource : any, sourceEffect : ActiveItem, messageList : MessageSet, fromSource : boolean) => Promise<FieldEffect | null>; // Effects to apply to a member of the team
+    onGetActionSpecialDamage? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Returns a special damage value for an action
+    onUseDMGProt? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean> // If the action should consider Protection
+    onUseDMGType? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean> // If the action should consider Type matchups
+    onUseDMGMods? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean> // If the action should consider any other modifiers
+    onRunExtraEffects? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void> // Add additional effects to a target
+    onWhenHitZero? : (this : Battle, eventSource : any, source : ActiveMonster, messageList : MessageSet, fromSource : boolean) => Promise<void> // When a monster hits 0HP
 }
 
 /**

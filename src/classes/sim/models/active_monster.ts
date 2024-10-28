@@ -171,7 +171,7 @@ class ActiveMonster {
      * @param _dmg the amount of damage to apply
      * @param _messageList message list to apply messages to
      */
-    public TakeDamage(_dmg : number, _messageList : MessageSet) {
+    public async TakeDamage(_dmg : number, _messageList : MessageSet) {
         let DmgTrack = _dmg;
         if (_dmg > this.HP_Current) { DmgTrack = this.HP_Current }
         _messageList.push({ "generic" : this.Nickname + " took " + DmgTrack + " damage!"})
@@ -179,6 +179,10 @@ class ActiveMonster {
         this.HP_Current -= _dmg;
         if (this.HP_Current < 0) { this.HP_Current = 0}
         if (this.HP_Current <= 0) {
+            await this.Owner.Owner.Owner.Owner.runEvent( "WhenHitZero", this, null, null, null, null, this.Owner.Owner.Owner.Owner.MessageList )
+        }
+        if (this.HP_Current <= 0) {
+
             _messageList.push({ "generic" : this.Nickname + " was Knocked Out!"})
         }
 

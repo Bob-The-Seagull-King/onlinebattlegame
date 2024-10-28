@@ -59,7 +59,8 @@ enum TokenCategory {
     None = "", // No special category
     Status = "Status", // Status tokens aren't removed upon switching out
     Condition = "Condition", // Conditions are removed upon switching out
-    Boost = "Boost", // Boosts improve base stats of a monster, and are removed upon switching out
+    Buff = "Buff", // Buffs improve the state of a monster
+    Help = "Help", // Helps improve an ally
     Revenge = "Revenge", // Is caused or triggers in response to enemy action
     Harsh = "Harsh", // Terrain token - Represents a negative/damaging effect
     Ground = "Ground", // Terrain token - Represents an effect that occurs on the 'ground' of the field
