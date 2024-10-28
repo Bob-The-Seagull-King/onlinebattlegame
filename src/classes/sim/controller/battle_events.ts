@@ -158,9 +158,58 @@ class BattleEvents {
     public async PerformActionACTION(_action : ActionAction, _trainer : TrainerBase) {
         const TargetLead : FieldedMonster = _trainer.Team.Leads[_action.source_id];
 
+        let MainTarget : FieldedMonster | null = null;
+        const AltTargets : FieldedMonster[] = [];
+        const PlotTargets : Plot[] = [];
+
         if (TargetLead) {
-            TargetLead.Activated = true;
-            this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " used the move " + (ActionInfoDex[TargetLead.Monster.Actions_Current[_action.action_id].Action].name)})
+            TargetLead.Activated = true;   
+            
+            const RelevantAction = TargetLead.Monster.Actions_Current[_action.action_id]
+            const RelevantActionData = ActionBattleDex[RelevantAction.Action]
+            const RelevantTargetSpaces = returnChoiceTargetPlots(this.Battle.ConvertToInterface(), RelevantActionData, _action.target_id[0], TargetLead.Position)
+
+            // See if the Action can be done
+
+            let CanUseAction = RelevantAction.HasUsesRemaining();
+            if (!CanUseAction) { return true; }
+
+            CanUseAction = await this.Battle.runEvent( "MonsterCanUseAction", TargetLead, null, RelevantAction, true, null, this.Battle.MessageList )
+            if (!CanUseAction) { return true; }
+
+            // Gather Targets
+
+            const Plot = this.Battle.Scene.ReturnGivenPlot(RelevantTargetSpaces[0][0],RelevantTargetSpaces[0][1])
+            PlotTargets.push(Plot)
+            const Monster = this.Battle.GetMonsterFromCoordinate(RelevantTargetSpaces[0])
+            if ((RelevantActionData.target_type != "TERRAIN") && (Monster != null)) {
+                MainTarget = Monster;
+            }
+
+            for (let i = 1; i < RelevantTargetSpaces.length; i++) {
+                const Plot = this.Battle.Scene.ReturnGivenPlot(RelevantTargetSpaces[i][0],RelevantTargetSpaces[i][1])
+                PlotTargets.push(Plot)
+                const Monster = this.Battle.GetMonsterFromCoordinate(RelevantTargetSpaces[i])
+                if ((RelevantActionData.target_type != "TERRAIN") && (Monster != null)) {
+                    AltTargets.push(Monster);
+                }
+            }
+
+            // Target Main Monster
+            // Check Immunity
+            // Attack
+            // Effect
+
+            // Target Secondary Monsters
+            // Check Immunity
+            // Attack 
+            // Effect
+
+            // Target Plots
+            // FieldEffect
+            // Effect
+            
+            await this.Battle.UpdateBattleState();
         }        
 
         return true;        
