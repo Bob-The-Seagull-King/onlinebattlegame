@@ -22,5 +22,33 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             source.HP_Current = 1;
             messageList.push({ "generic" : source.Nickname + " survived a brush with death!"})
         }
+    },
+    dizzy: {
+        id          : 1,       // Numerical ID of the token
+        category    : [TokenCategory.Debuff, TokenCategory.Movement, TokenCategory.Control],
+        async onEndTurn(this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+            if (eventSource === source) {
+                if (source.Monster.Trackers['dizzy']) {
+                    if (source.Monster.Trackers['dizzy'] > 0) {
+                        messageList.push({ "generic" : source.Monster.Nickname + " stumbled around!"})
+                        source.Plot.UpdateMovePlot(source);
+                        const rnmd = Math.floor(Math.random() * (Math.min(4,source.Plot.MovePlot.neighbours.length)));
+                        if ((await source.Plot.MovePlot.neighbours[rnmd].IsPlaceable())) {
+                            await this.Events.MoveMonster(source, source.Plot, source.Plot.MovePlot.neighbours[rnmd], source.Owner.Owner);
+                        }
+                        source.Monster.Trackers['dizzy'] -= 1;
+                    }
+                    if (source.Monster.Trackers['dizzy'] <= 0) {                        
+                        messageList.push({ "generic" : source.Monster.Nickname + " stopped being DIZZY."})
+                        source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'dizzy')
+                        source.Monster.Trackers['dizzy'] = null;
+                    }
+                } else {                      
+                    messageList.push({ "generic" : source.Monster.Nickname + " stopped being DIZZY."})
+                    source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'dizzy')
+                    source.Monster.Trackers['dizzy'] = null;                    
+                }
+            }
+        }
     }
 }

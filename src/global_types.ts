@@ -305,6 +305,8 @@ export interface CallEvents {
     onRunExtraEffects? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void> // Add additional effects to a target
     onGetActionModifier? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<number> // Modify Damage_Modifier for outgoing damage
     onWhenHitZero? : (this : Battle, eventSource : any, source : ActiveMonster, messageList : MessageSet, fromSource : boolean) => Promise<void> // When a monster hits 0HP
+    onEndTurn? : (this : Battle, eventSource : any, source : FieldedMonster | TrainerBase, messageList : MessageSet, fromSource : boolean) => Promise<void> // When a monster hits 0HP
+    onApplySelfToTarget? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When an effect is successfully applied to a target
 }
 
 /**

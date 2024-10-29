@@ -317,7 +317,15 @@ class Battle {
                     const TurnVal = await this.Events.PerformActionITEM(ChosenTurn, _trainer);
                 }
 
-                this.runEvent( "EndTurn", _trainer, null, null, null, null, this.MessageList )
+                for(let i = 0; i < this.Sides.length; i++) {
+                    for (let j = 0; j < this.Sides[i].Trainers.length; j++) {
+                        
+                        await this.runEvent( "EndTurn", this.Sides[i].Trainers[j], null, null, null, null, this.MessageList )
+                        for (let k = 0; k < this.Sides[i].Trainers[j].Team.Leads.length; k++) {
+                            await this.runEvent( "EndTurn", this.Sides[i].Trainers[j].Team.Leads[k], null, null, null, null, this.MessageList )
+                        }
+                    }
+                }
                 return _trainer.Team.IsTeamAlive();
             }
         } else {

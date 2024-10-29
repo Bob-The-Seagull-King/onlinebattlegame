@@ -61,8 +61,8 @@ enum TokenCategory {
     Condition = "Condition", // Conditions are removed upon switching out
     Buff = "Buff", // Buffs improve the state of a monster
     Help = "Help", // Helps improve an ally
-    Revenge = "Revenge", // Is caused or triggers in response to enemy action
-    Harsh = "Harsh", // Terrain token - Represents a negative/damaging effect
+    Movement = "Movement", // Relates to the MOVE action
+    Control = "Control", // Involves the ability to direct a monster
     Ground = "Ground", // Terrain token - Represents an effect that occurs on the 'ground' of the field
     Debuff = "Debuff" // Reduces the effectiveness of a monster / their team
 }

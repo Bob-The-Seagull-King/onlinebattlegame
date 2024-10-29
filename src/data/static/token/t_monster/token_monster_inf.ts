@@ -12,5 +12,13 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
             {cat: "stat", text: "HP"},
             {cat: "general", text: "would reach 0, "},
             {cat: "positive", text: "instead reach 1HP."}]
+    },
+    dizzy: {
+        id          : 1,       // Numerical ID of the token
+        name        : 'dizzy',       // Name of the token
+        description : [ 
+            {cat: "general", text: "At the start of their turn "},
+            {cat: "negative", text: "MOVE"},
+            {cat: "general", text: " 1 space in a random direction."}]
     }
 }

@@ -30,5 +30,15 @@ export const ActionInfoDex : ActionInfoTable = {
         id          : 4,
         name        : "Rot Shot",
         description : [ {cat: "general", text: "Deals +20% base damage for each 10% HP the target has lost."}]
+    },    
+    mindwipe: {
+        id          : 5,
+        name        : "Mind Wipe",
+        description : []
+    },    
+    tractorbeam: {
+        id          : 6,
+        name        : "Tractor Beam",
+        description : []
     }
 }

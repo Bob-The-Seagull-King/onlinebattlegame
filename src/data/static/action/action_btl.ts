@@ -1,4 +1,4 @@
-import { ActionBattleTable, MessageSet } from "../../../global_types";
+import { ActionBattleTable, IEffectData, MessageSet } from "../../../global_types";
 import { MonsterType } from "../../enum/types";
 import { ActionCategory } from "../../enum/categories";
 import { Battle } from "../../../classes/sim/controller/battle";
@@ -117,5 +117,73 @@ export const ActionBattleDex : ActionBattleTable = {
             const Proportion = 10 - (Math.ceil((10/BaseVal) * target.Monster.HP_Current))
             return relayVar + (20 * Proportion);
         }
-    },
+    },    
+    mindwipe: {
+        id                  : 5,
+        type                : MonsterType.Bizarro,
+        cost                : 15,
+        uses                : 10,
+        accuracy            : 100,
+        damage_mod          : -50,
+        category            : [ActionCategory.Attack, ActionCategory.Debuff],
+        events              : {},
+        effects             : [
+            {
+            effectval   : 'dizzy',
+            baseChance  : 50,
+            trackerVal  : 3,
+            target_type : "MONSTER"
+            }
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 3,        
+        async onApplySelfToTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            if (!target.Monster.Tokens.includes('dizzy')) {
+                target.Monster.Tokens.push('dizzy');
+            }
+            if (target.Monster.Trackers['dizzy']) {
+                target.Monster.Trackers['dizzy'] = Math.max(3, target.Monster.Trackers['dizzy']);
+            } else {
+                target.Monster.Trackers['dizzy'] = 3;
+            }
+        }
+    },    
+    tractorbeam: {
+        id                  : 6,
+        type                : MonsterType.Bizarro,
+        cost                : 15,
+        uses                : 5,
+        accuracy            : 100,
+        damage_mod          : false,
+        category            : [ActionCategory.Debuff],
+        events              : {},
+        effects             : [
+            {
+            effectval   : 'dizzy',
+            baseChance  : 75,
+            trackerVal  : 4,
+            target_type : "MONSTER"
+            }
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SMALL",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 10,        
+        async onApplySelfToTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            if (!target.Monster.Tokens.includes('dizzy')) {
+                target.Monster.Tokens.push('dizzy');
+            }
+            if (target.Monster.Trackers['dizzy']) {
+                target.Monster.Trackers['dizzy'] = Math.max(3, target.Monster.Trackers['dizzy']);
+            } else {
+                target.Monster.Trackers['dizzy'] = 4;
+            }
+        }
+    }
 }
