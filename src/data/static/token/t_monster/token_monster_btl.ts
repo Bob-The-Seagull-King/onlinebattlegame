@@ -8,7 +8,8 @@ import { FieldedMonster } from "../../../../classes/sim/models/team";
 import { Plot } from "../../../../classes/sim/models/terrain/terrain_plot";
 import { Scene } from "../../../../classes/sim/models/terrain/terrain_scene";
 import { MessageSet, TokenBattleTable } from "../../../../global_types";
-import { TokenCategory } from "../../../enum/categories";
+import { FieldCategory, TokenCategory } from "../../../enum/categories";
+import { FieldBattleDex } from "../../field/field_btl";
 
 /**
  * Monster Token mechanical information database
@@ -152,7 +153,11 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             source.Monster.Trackers['whimsical'] = null;  
         },
         async onMonsterAffectedByTerrain(this : Battle, eventSource : any, source : FieldEffect, target : FieldedMonster, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
-            return false;
+            if (FieldBattleDex[source.Field].category.includes(FieldCategory.Damage)) {
+                return false;
+            } else {
+                return relayVar;
+            }
         }
     }
 }
