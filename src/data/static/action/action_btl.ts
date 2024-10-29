@@ -384,5 +384,56 @@ export const ActionBattleDex : ActionBattleTable = {
                 return relayVar;
             }
         }
+    },   
+    whirlgang: {
+        id                  : 13,
+        type                : MonsterType.Flooded,
+        cost                : 10,
+        uses                : 5,
+        accuracy            : true,
+        damage_mod          : -40,
+        category            : [ActionCategory.Buff, ActionCategory.Attack],
+        events              : {},
+        effects             : [],
+        target_team         : "ALL",
+        target_pos          : "MEDIUM",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "ALL",
+        target_range        : 0,        
+        async onMonsterUseActionOnMainTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, messageList : MessageSet, fromSource : boolean) { 
+            if (source === target) {
+                if (!source.Monster.Tokens.includes('tempest')) {
+                    source.Monster.Tokens.push('tempest');
+                }
+                return false; 
+            } else {
+                return relayVar;
+            }
+        },        
+        async onMonsterUseActionOnSecondaryTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, messageList : MessageSet, fromSource : boolean) { 
+            if (source.Owner === target.Owner) {
+                return false; 
+            } else {
+                return relayVar;
+            }
+        }
+    },   
+    purepressure: {
+        id                  : 14,
+        type                : MonsterType.Flooded,
+        cost                : 5,
+        uses                : 10,
+        accuracy            : 75,
+        damage_mod          : 75,
+        category            : [ ActionCategory.Attack],
+        events              : {},
+        effects             : [],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "BOTH", 
+        target_choice       : "MONSTER",
+        target_range        : 4
     }
 }

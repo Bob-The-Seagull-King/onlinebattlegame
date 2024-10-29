@@ -70,5 +70,15 @@ export const ActionInfoDex : ActionInfoTable = {
         id          : 12,
         name        : "Pixie Dust",
         description : []
+    },    
+    whirlgang: {
+        id          : 13,
+        name        : "Whirlgang",
+        description : []
+    },    
+    purepressure: {
+        id          : 14,
+        name        : "Pure Pressure",
+        description : []
     }
 }

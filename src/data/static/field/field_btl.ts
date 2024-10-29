@@ -22,13 +22,16 @@ export const FieldBattleDex : FieldBattleTable = {
         category    : [FieldCategory.Damage, FieldCategory.Piercing, FieldCategory.Enter],
         events      : {},
         async onMonsterEntersPlot(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
-            let TypeVal = 0;
-            if (eventSource.Trackers["damagetype"]) {
-                TypeVal = eventSource.Trackers["damagetype"]
-            } else { TypeVal = 0 }
-            await this.Events.DealDamage(5, TypeVal, eventSource, source, true, false, false)
-
-            messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Dangerous Terrain."})
+            const IsEffected = await this.runEvent( "MonsterAffectedByTerrain", eventSource, source, null, true, null, messageList )
+            if (IsEffected === true) {
+                let TypeVal = 0;
+                if (eventSource.Trackers["damagetype"]) {
+                    TypeVal = eventSource.Trackers["damagetype"]
+                } else { TypeVal = 0 }
+                await this.Events.DealDamage(5, TypeVal, eventSource, source, true, false, false)
+    
+                messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Dangerous Terrain."})
+            }            
         }
     },
     harshterrain: {
@@ -36,14 +39,18 @@ export const FieldBattleDex : FieldBattleTable = {
         category    : [FieldCategory.Damage, FieldCategory.Enter],
         events      : {},
         async onMonsterEntersPlot(this : Battle, eventSource : FieldEffect, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
-            let TypeVal = 0;
-            if (eventSource.Trackers["damagetype"]) {
-                TypeVal = eventSource.Trackers["damagetype"]
-            } else { TypeVal = 0 }
+            const IsEffected = await this.runEvent( "MonsterAffectedByTerrain", eventSource, source, null, true, null, messageList )
+            if (IsEffected === true) {
+                
+                let TypeVal = 0;
+                if (eventSource.Trackers["damagetype"]) {
+                    TypeVal = eventSource.Trackers["damagetype"]
+                } else { TypeVal = 0 }
 
-            this.Events.DealDamage(5, TypeVal, eventSource, source, false, false, false)
+                this.Events.DealDamage(5, TypeVal, eventSource, source, false, false, false)
 
-            messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Harsh Terrain."})
+                messageList.push({ "generic" : source.Monster.Nickname + " has been damaged by the Harsh Terrain."})
+            }
         }
     },
     difficultterrain: {
@@ -59,7 +66,6 @@ export const FieldBattleDex : FieldBattleTable = {
         category    : [FieldCategory.Trap],
         events      : {},
         async onCanSwapOut(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
-            
             return false;
         }
     },

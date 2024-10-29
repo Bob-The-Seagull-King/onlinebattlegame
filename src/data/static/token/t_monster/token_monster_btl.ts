@@ -3,6 +3,7 @@ import { TrainerBase } from "../../../../classes/sim/controller/trainer/trainer_
 import { ActiveAction } from "../../../../classes/sim/models/active_action";
 import { ActiveItem } from "../../../../classes/sim/models/active_item";
 import { ActiveMonster } from "../../../../classes/sim/models/active_monster";
+import { FieldEffect } from "../../../../classes/sim/models/Effects/field_effect";
 import { FieldedMonster } from "../../../../classes/sim/models/team";
 import { Plot } from "../../../../classes/sim/models/terrain/terrain_plot";
 import { Scene } from "../../../../classes/sim/models/terrain/terrain_scene";
@@ -141,6 +142,17 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
         async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
             source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'whimsical')
             source.Monster.Trackers['whimsical'] = null;  
+        }
+    },
+    tempest: {
+        id          : 5,       // Numerical ID of the token
+        category    : [TokenCategory.Buff, TokenCategory.Movement],
+        async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'whimsical')
+            source.Monster.Trackers['whimsical'] = null;  
+        },
+        async onMonsterAffectedByTerrain(this : Battle, eventSource : any, source : FieldEffect, target : FieldedMonster, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
+            return false;
         }
     }
 }

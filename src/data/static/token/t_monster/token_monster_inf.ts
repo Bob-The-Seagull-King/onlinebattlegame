@@ -46,5 +46,12 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
             {cat: "general", text: "Has a 25% chance to "},
             {cat: "positive", text: "dodge"},
             {cat: "general", text: " enemy actions."}]
+    },
+    tempest: {
+        id          : 5,       // Numerical ID of the token
+        name        : 'tempest',       // Name of the token
+        description : [ 
+            {cat: "positive", text: "Ignores"},
+            {cat: "general", text: " damage from terrain effects."}]
     }
 }
