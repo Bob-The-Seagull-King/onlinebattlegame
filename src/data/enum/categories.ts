@@ -63,7 +63,7 @@ enum TokenCategory {
     Help = "Help", // Helps improve an ally
     Movement = "Movement", // Relates to the MOVE action
     Control = "Control", // Involves the ability to direct a monster
-    Ground = "Ground", // Terrain token - Represents an effect that occurs on the 'ground' of the field
+    Range = "Range", // Modified action range
     Debuff = "Debuff" // Reduces the effectiveness of a monster / their team
 }
 

@@ -730,11 +730,13 @@ class Battle {
         const width = this.Scene.Width - 1;
         const height = this.Scene.Height - 1;
 
+        const ValRange = await this.runEvent( "ModifyActionRange", sourceMonster, null, sourceMove, ActionData.target_range, null, this.MessageList )
+
         // Gather All Spaces In Range (target_range, target_direction)
         potentiallist.push(sourceMonster.Position)
 
-        for (let i = (sourceMonster.Position[0] - ActionData.target_range); i <= (sourceMonster.Position[0] + ActionData.target_range); i++) {
-            for (let j = (sourceMonster.Position[1] - ActionData.target_range); j <= (sourceMonster.Position[1] + ActionData.target_range); j++) {
+        for (let i = (sourceMonster.Position[0] - ValRange); i <= (sourceMonster.Position[0] + ValRange); i++) {
+            for (let j = (sourceMonster.Position[1] - ValRange); j <= (sourceMonster.Position[1] + ValRange); j++) {
                 // Check if in map bounds
                 if (
                     ((i >= 0) && (i <= width)) &&

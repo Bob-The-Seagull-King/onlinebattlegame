@@ -311,6 +311,7 @@ export interface CallEvents {
     onSwitchOutMonster? : (this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) => Promise<void> // When a monster switches out
     onApplySelfToTarget? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When an effect is successfully applied to a target
     onGetStatFinaldh? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Get the final value of the DAMAGE HIGH stat
+    onModifyActionRange? : (this : Battle, eventSource : any, source : FieldedMonster , sourceEffect : ActiveAction, relayVar : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Adjust the range of an action
 }
 
 /**

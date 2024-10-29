@@ -79,5 +79,16 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
         async onGetStatFinaldh(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) {
             return await this.Events.GetStatValue(source, 'dl', false, false);
         }
+    },
+    enveloped: {
+        id          : 3,       // Numerical ID of the token
+        category    : [TokenCategory.Debuff, TokenCategory.Range],        
+        async onModifyActionRange(this : Battle, eventSource : any, source : FieldedMonster , sourceEffect : ActiveAction, relayVar : number, messageList : MessageSet, fromSource : boolean) {
+            if (relayVar > 1) {
+                return Math.floor(relayVar / 2)
+            } else {
+                return relayVar;
+            }
+        }
     }
 }

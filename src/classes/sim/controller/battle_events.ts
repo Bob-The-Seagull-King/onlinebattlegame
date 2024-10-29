@@ -178,6 +178,7 @@ class BattleEvents {
             if (!CanUseAction) { return true; }
 
             this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " used the move " + ActionInfoDex[RelevantAction.Action].name})
+            RelevantAction.UseActionUp();
 
             // Gather Targets
 

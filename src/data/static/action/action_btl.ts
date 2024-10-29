@@ -182,7 +182,7 @@ export const ActionBattleDex : ActionBattleTable = {
                 target.Monster.Tokens.push('dizzy');
             }
             if (target.Monster.Trackers['dizzy']) {
-                target.Monster.Trackers['dizzy'] = Math.max(3, target.Monster.Trackers['dizzy']);
+                target.Monster.Trackers['dizzy'] = Math.max(4, target.Monster.Trackers['dizzy']);
             } else {
                 target.Monster.Trackers['dizzy'] = 4;
             }
@@ -216,7 +216,7 @@ export const ActionBattleDex : ActionBattleTable = {
                 target.Monster.Tokens.push('weakened');
             }
             if (target.Monster.Trackers['weakened']) {
-                target.Monster.Trackers['weakened'] = Math.max(3, target.Monster.Trackers['weakened']);
+                target.Monster.Trackers['weakened'] = Math.max(4, target.Monster.Trackers['weakened']);
             } else {
                 target.Monster.Trackers['weakened'] = 4;
             }
@@ -254,6 +254,67 @@ export const ActionBattleDex : ActionBattleTable = {
                 trackers    : {},    // Misc trackers used by plot tokens
                 plots       : [],
                 fieldEffect : "dangerousterrain"
+            }
+            const Effect : FieldEffect = new FieldEffect(_interface,this.Scene )
+            return Effect;
+        }
+    },    
+    intothepit: {
+        id                  : 9,
+        type                : MonsterType.Dungeon,
+        cost                : 5,
+        uses                : 5,
+        accuracy            : 100,
+        damage_mod          : false,
+        category            : [ActionCategory.Debuff],
+        events              : {},
+        effects             : [
+            {
+            effectval   : 'enveloped',
+            baseChance  : 150,
+            trackerVal  : 3,
+            target_type : "MONSTER"
+            }
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "ALL",
+        target_range        : 4, 
+        async onApplySelfToTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            if (!target.Monster.Tokens.includes('enveloped')) {
+                target.Monster.Tokens.push('enveloped');
+            }
+            if (target.Monster.Trackers['enveloped']) {
+                target.Monster.Trackers['enveloped'] = Math.max(4, target.Monster.Trackers['enveloped']);
+            } else {
+                target.Monster.Trackers['enveloped'] = 4;
+            }
+        }
+    },    
+    graveyard: {
+        id                  : 10,
+        type                : MonsterType.Dungeon,
+        cost                : 15,
+        uses                : 5,
+        accuracy            : true,
+        damage_mod          : false,
+        category            : [ActionCategory.Terraform],
+        events              : {},
+        effects             : [],
+        target_team         : "ANY",
+        target_pos          : "SINGLE",
+        target_type         : "TERRAIN",
+        target_direction    : "ALL", 
+        target_choice       : "TERRAIN",
+        target_range        : 1, 
+        async onGenerateFieldEffect(this : Battle, eventSource : any, sourceEffect : ActiveItem, messageList : MessageSet, fromSource : boolean) {
+            const _interface : IFieldEffect = {
+                tokens      : [],        // Tokens held by the plot
+                trackers    : {},    // Misc trackers used by plot tokens
+                plots       : [],
+                fieldEffect : "obstacle"
             }
             const Effect : FieldEffect = new FieldEffect(_interface,this.Scene )
             return Effect;

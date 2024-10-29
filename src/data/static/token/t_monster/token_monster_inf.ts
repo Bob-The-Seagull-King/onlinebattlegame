@@ -30,5 +30,13 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
             {cat: "general", text: " is brought down to their "},
             {cat: "stat", text: "Damage Minimum"},
             {cat: "general", text: "."}]
+    },
+    enveloped: {
+        id          : 3,       // Numerical ID of the token
+        name        : 'enveloped',       // Name of the token
+        description : [ 
+            {cat: "general", text: "The monster's "},
+            {cat: "stat", text: "Range"},
+            {cat: "general", text: " is halved (minimum of 1)."}]
     }
 }

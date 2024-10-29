@@ -66,11 +66,14 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[0].AddFreshAction("help");
         _Team.Monsters[0].AddFreshAction("strike");
         _Team.Monsters[0].AddFreshAction("ritualblade");
+        _Team.Monsters[0].AddFreshAction("intothepit");
         _Team.AddFreshMonster("terrain");
         _Team.Monsters[1].AddFreshAction("help");
         _Team.Monsters[1].AddFreshAction("blast");
         _Team.Monsters[1].AddFreshAction("tractorbeam");
         _Team.Monsters[1].AddFreshAction("oilspit");
+        _Team.Monsters[1].AddFreshAction("intothepit");
+        _Team.Monsters[1].AddFreshAction("graveyard");
         _Team.AddFreshMonster("nimble");
         _Team.Monsters[2].AddFreshAction("blast");
         _Team.Monsters[2].AddFreshAction("strike");
@@ -80,6 +83,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.AddFreshMonster("bruiser");
         _Team.Monsters[3].AddFreshAction("strike");
         _Team.Monsters[3].AddFreshAction("rotshot");
+        _Team.Monsters[3].AddFreshAction("graveyard");
         _Team.AddFreshMonster("arcane");
         _Team.Monsters[4].AddFreshAction("blast");
         _Team.Monsters[4].AddFreshAction("ritualblade");
