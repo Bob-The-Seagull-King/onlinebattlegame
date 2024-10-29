@@ -774,17 +774,16 @@ class Battle {
                     })
                     
                     if ((PlotMonster.Owner.Owner === sourceMonster.Owner.Owner) && (ActionData.target_team != "ENEMY")) {
-                        console.log("SAME TEAM")
-                        console.log(PlotMonster === sourceMonster.Monster)
+                       
                         if ((PlotMonster === sourceMonster.Monster) && (ActionData.target_team != "ALLY")) {
-                            console.log("IS ME")
+                            
                             const CanHit = await this.runEvent( "MonsterCanHit", sourceMonster, PlotMonster, sourceMove, true, null, this.MessageList )
                             if (CanHit) {
                                 targetlist.push(_plot.returnCoordinates())
                             }
                         }
                         if ((PlotMonster != sourceMonster.Monster) && (ActionData.target_team != "SELF")) {
-                            console.log("IS NOT ME")
+                            
                             const CanHit = await this.runEvent( "MonsterCanHit", sourceMonster, PlotMonster, sourceMove, true, null, this.MessageList )
                             if (CanHit) {
                                 targetlist.push(_plot.returnCoordinates())

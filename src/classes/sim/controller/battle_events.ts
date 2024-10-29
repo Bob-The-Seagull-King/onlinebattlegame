@@ -578,21 +578,27 @@ class BattleEvents {
         _skipType : boolean,
         _skipMods : boolean) : Promise<number> {
             
-            let ProtectionModifier = 0;
-            let TypeMatchupModifier = 1;
-            let DamageTakenModifier = 0;
+            let ProtectionModifier;
+            let TypeMatchupModifier;
+            let DamageTakenModifier;
             // This means the protection of the monster will be considered
             if (!_skipProt) {
                 const Protection = this.GetStatValue(_target, "pt", false, false)
                 ProtectionModifier = await this.Battle.runEvent( "GetTotalProtectionMod", _source, _target, null, Protection, _val, this.Battle.MessageList );
+            } else {
+                ProtectionModifier = 0;
             }
             // This means type modifiers will be considered
             if (!_skipType) {
                 TypeMatchupModifier = this.returnTypeDamageMod( await this.CalculateTypeEffectiveness(_type, _source , _target) );
+            } else {
+                ProtectionModifier = 1;
             }
             // This means additional % based modifiers will be considered
             if (!_skipMods) {
                 DamageTakenModifier = await this.Battle.runEvent( "GetTotalDamageMod", _source, _target, null, 1, _val, this.Battle.MessageList );
+            } else {
+                DamageTakenModifier = 1;
             }
             
             const ModifiedDamage = Math.floor( (_val - (_val * ( ( Math.min(90, ProtectionModifier * DamageTakenModifier))/100))) * TypeMatchupModifier)
@@ -601,7 +607,7 @@ class BattleEvents {
             const FinalDamage = await this.Battle.runEvent('GetFinalDamage', _source, _target, null, ModifiedDamage, null, this.Battle.MessageList )
             
             dmg = await _target.Monster.TakeDamage(FinalDamage, this.Battle.MessageList);
-
+            
             if (dmg) {
                 if (_target.Monster.HP_Current <= 0) {
                     this.Battle.runEvent('WhenKnockedOut', _source, _target, null, null, null, this.Battle.MessageList )

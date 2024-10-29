@@ -25,7 +25,7 @@ export const ActionBattleDex : ActionBattleTable = {
         category            : [ActionCategory.Attack],
         events              : {},
         effects             : [],
-        target_team         : "ENEMY",
+        target_team         : "ALL",
         target_pos          : "SINGLE",
         target_type         : "MONSTER",
         target_direction    : "ALL", 
@@ -435,5 +435,62 @@ export const ActionBattleDex : ActionBattleTable = {
         target_direction    : "BOTH", 
         target_choice       : "MONSTER",
         target_range        : 4
+    },    
+    collectcall: {
+        id                  : 15,
+        type                : MonsterType.Gilded,
+        cost                : 5,
+        uses                : 5,
+        accuracy            : true,
+        damage_mod          : false,
+        category            : [ActionCategory.Buff],
+        events              : {},
+        effects             : [],
+        target_team         : "SELF",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 0, 
+        async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {    
+            if (!source.Monster.Tokens.includes('insured')) {
+                source.Monster.Tokens.push('insured');
+            }
+            if (source.Monster.Trackers['insured']) {
+                source.Monster.Trackers['insured'] = Math.max(3, source.Monster.Trackers['insured']);
+            } else {
+                source.Monster.Trackers['insured'] = 3;
+            }            
+        }
+    },    
+    payoff: {
+        id                  : 16,
+        type                : MonsterType.Gilded,
+        cost                : 15,
+        uses                : 1,
+        accuracy            : true,
+        damage_mod          : false,
+        category            : [ActionCategory.Debuff],
+        events              : {},
+        effects             : [],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 3,
+        async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {            
+            let IsSwapped = true;
+            while (IsSwapped) {
+
+                const AwaitSwap = await this.AutoSwapMonster(target.Monster)
+                if (AwaitSwap === true) {IsSwapped = false}
+                if (AwaitSwap === false) {
+                    IsSwapped = false
+                    target.Owner.RemoveFielded(target);
+                    await this.UpdateBattleState();
+                }
+            }
+        }
     }
 }

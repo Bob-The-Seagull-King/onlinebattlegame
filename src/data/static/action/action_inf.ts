@@ -80,5 +80,15 @@ export const ActionInfoDex : ActionInfoTable = {
         id          : 14,
         name        : "Pure Pressure",
         description : []
+    },    
+    collectcall: {
+        id          : 15,
+        name        : "Collect Call",
+        description : []
+    },    
+    payoff: {
+        id          : 16,
+        name        : "Pay Off",
+        description : []
     }
 }

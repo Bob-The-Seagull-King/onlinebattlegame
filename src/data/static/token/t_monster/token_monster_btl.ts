@@ -149,8 +149,8 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
         id          : 5,       // Numerical ID of the token
         category    : [TokenCategory.Buff, TokenCategory.Movement],
         async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
-            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'whimsical')
-            source.Monster.Trackers['whimsical'] = null;  
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'tempest')
+            source.Monster.Trackers['tempest'] = null;  
         },
         async onMonsterAffectedByTerrain(this : Battle, eventSource : any, source : FieldEffect, target : FieldedMonster, relayVar : boolean, messageList : MessageSet, fromSource : boolean) {
             if (FieldBattleDex[source.Field].category.includes(FieldCategory.Damage)) {
@@ -158,6 +158,33 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             } else {
                 return relayVar;
             }
+        }
+    },
+    insured: {
+        id          : 5,       // Numerical ID of the token
+        category    : [TokenCategory.Buff, TokenCategory.Defense],        
+        async onGetStatModpt(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
+            const SourceMonster = (source instanceof FieldedMonster)? source.Monster : source;
+            let FinalOutput = relayVar
+
+            if (SourceMonster.Trackers['insured']) {
+                if (SourceMonster.Trackers['insured'] > 0) {
+                    FinalOutput += SourceMonster.Trackers['insured'];
+                    messageList.push({ "generic" : SourceMonster.Nickname + " lost some insurance."})
+                    SourceMonster.Trackers['insured'] -= 1;
+                }
+                if (SourceMonster.Trackers['insured'] <= 0) {                        
+                    messageList.push({ "generic" : SourceMonster.Nickname + " stopped being INSURED."})
+                    SourceMonster.Tokens = SourceMonster.Tokens.filter(item => item != 'insured')
+                    SourceMonster.Trackers['insured'] = null;
+                }
+            } else {                      
+                messageList.push({ "generic" : SourceMonster.Nickname + " stopped being INSURED."})
+                SourceMonster.Tokens = SourceMonster.Tokens.filter(item => item != 'insured')
+                SourceMonster.Trackers['insured'] = null;                    
+            }
+            
+            return FinalOutput;
         }
     }
 }
