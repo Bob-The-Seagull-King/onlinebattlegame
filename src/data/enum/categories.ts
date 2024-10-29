@@ -64,7 +64,8 @@ enum TokenCategory {
     Movement = "Movement", // Relates to the MOVE action
     Control = "Control", // Involves the ability to direct a monster
     Range = "Range", // Modified action range
-    Debuff = "Debuff" // Reduces the effectiveness of a monster / their team
+    Debuff = "Debuff", // Reduces the effectiveness of a monster / their team
+    Defense = "Defense" // Improves ability to avoid or mitigate effects
 }
 
 export {ActionCategory, TraitCategory, ItemCategory, TokenCategory, WeatherCategory, FieldCategory}

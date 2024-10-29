@@ -221,7 +221,7 @@ export const ActionBattleDex : ActionBattleTable = {
                 target.Monster.Trackers['weakened'] = 4;
             }
         },
-        async onMonsterUseActionOnMainTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) { return false; }
+        async onMonsterUseActionOnMainTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, messageList : MessageSet, fromSource : boolean) { return false; }
     },    
     oilspit: {
         id                  : 8,
@@ -247,7 +247,7 @@ export const ActionBattleDex : ActionBattleTable = {
         target_direction    : "ORTHOGONAL", 
         target_choice       : "ALL",
         target_range        : 3, 
-        async onMonsterUseActionOnSecondaryTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) { return false; },
+        async onMonsterUseActionOnSecondaryTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, messageList : MessageSet, fromSource : boolean) { return false; },
         async onGenerateFieldEffect(this : Battle, eventSource : any, sourceEffect : ActiveItem, messageList : MessageSet, fromSource : boolean) {
             const _interface : IFieldEffect = {
                 tokens      : [],        // Tokens held by the plot
@@ -318,6 +318,71 @@ export const ActionBattleDex : ActionBattleTable = {
             }
             const Effect : FieldEffect = new FieldEffect(_interface,this.Scene )
             return Effect;
+        }
+    },    
+    dance: {
+        id                  : 11,
+        type                : MonsterType.Enchanted,
+        cost                : 20,
+        uses                : 5,
+        accuracy            : true,
+        damage_mod          : false,
+        category            : [ActionCategory.Buff],
+        events              : {},
+        effects             : [],
+        target_team         : "SELF",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 0, 
+        async onApplySelfToTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            for (let i = 0; i < source.Owner.Leads.length; i++) {
+                if (!source.Owner.Leads[i].Monster.Tokens.includes('whimsical')) {
+                    source.Owner.Leads[i].Monster.Tokens.push('whimsical');
+                }
+                if (source.Owner.Leads[i].Monster.Trackers['whimsical']) {
+                    source.Owner.Leads[i].Monster.Trackers['whimsical'] = Math.max(4, source.Owner.Leads[i].Monster.Trackers['whimsical']);
+                } else {
+                    source.Owner.Leads[i].Monster.Trackers['whimsical'] = 4;
+                }
+            }
+            
+        }
+    },   
+    pixiedust: {
+        id                  : 12,
+        type                : MonsterType.Enchanted,
+        cost                : 15,
+        uses                : 10,
+        accuracy            : true,
+        damage_mod          : -75,
+        category            : [ActionCategory.Recovery, ActionCategory.Attack],
+        events              : {},
+        effects             : [],
+        target_team         : "ANY",
+        target_pos          : "MEDIUM",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "ALL",
+        target_range        : 2,
+        async onMonsterUseActionOnSecondaryTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, messageList : MessageSet, fromSource : boolean) { 
+            if (source.Owner === target.Owner) {
+                const BaseHeal = await this.Events.GetStatValue(target, 'hp', false, false)
+                const HealVal = await this.Events.HealDamage(Math.ceil(BaseHeal/5), 0, source, target.Monster, source.Owner.Owner, target.Owner.Owner, messageList, false, false)
+                return false; 
+            } else {
+                return relayVar;
+            }
+        },        
+        async onMonsterUseActionOnMainTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, messageList : MessageSet, fromSource : boolean) { 
+            if (source.Owner === target.Owner) {
+                const BaseHeal = await this.Events.GetStatValue(target, 'hp', false, false)
+                const HealVal = await this.Events.HealDamage(Math.ceil(BaseHeal/5), 0, source, target.Monster, source.Owner.Owner, target.Owner.Owner, messageList, false, false)
+                return false; 
+            } else {
+                return relayVar;
+            }
         }
     }
 }

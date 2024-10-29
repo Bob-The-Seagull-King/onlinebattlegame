@@ -418,7 +418,8 @@ class BattleEvents {
         
         const rnmd = Math.floor(Math.random() * 100) + 1;
 
-        return (rnmd <= TotalChance);
+        const DoesHit = (rnmd <= TotalChance)
+        return await this.Battle.runEvent( "FinalDoesHit", source, target, effect, DoesHit, isMain, this.Battle.MessageList );;
     }
 
     /**

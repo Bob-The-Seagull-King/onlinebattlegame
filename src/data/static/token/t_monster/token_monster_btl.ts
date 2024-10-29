@@ -89,6 +89,58 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             } else {
                 return relayVar;
             }
+        },
+        async onEndTurn(this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+            if (eventSource === source) {
+                if (source.Monster.Trackers['enveloped']) {
+                    if (source.Monster.Trackers['enveloped'] > 0) {
+                        source.Monster.Trackers['enveloped'] -= 1;
+                    }
+                    if (source.Monster.Trackers['enveloped'] <= 0) {                        
+                        messageList.push({ "generic" : source.Monster.Nickname + " stopped being ENVELOPED."})
+                        source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'enveloped')
+                        source.Monster.Trackers['enveloped'] = null;
+                    }
+                } else {                      
+                    messageList.push({ "generic" : source.Monster.Nickname + " stopped being ENVELOPED."})
+                    source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'enveloped')
+                    source.Monster.Trackers['enveloped'] = null;                    
+                }
+            }
+        }
+    },
+    whimsical: {
+        id          : 4,       // Numerical ID of the token
+        category    : [TokenCategory.Buff, TokenCategory.Defense],
+        async onEndTurn(this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+            if (eventSource === source) {
+                if (source.Monster.Trackers['whimsical']) {
+                    if (source.Monster.Trackers['whimsical'] > 0) {
+                        source.Monster.Trackers['whimsical'] -= 1;
+                    }
+                    if (source.Monster.Trackers['whimsical'] <= 0) {                        
+                        messageList.push({ "generic" : source.Monster.Nickname + " stopped being WHIMSICAL."})
+                        source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'whimsical')
+                        source.Monster.Trackers['whimsical'] = null;
+                    }
+                } else {                      
+                    messageList.push({ "generic" : source.Monster.Nickname + " stopped being WHIMSICAL."})
+                    source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'whimsical')
+                    source.Monster.Trackers['whimsical'] = null;                    
+                }
+            }
+        },        
+        async onFinalDoesHit(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {
+            if ((relayVar === true) && (source.Owner != target.Owner)) {
+                const rnmd = Math.floor(Math.random() * 4);
+                return rnmd === 0;
+            } else {
+                return relayVar;
+            }
+        },
+        async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'whimsical')
+            source.Monster.Trackers['whimsical'] = null;  
         }
     }
 }

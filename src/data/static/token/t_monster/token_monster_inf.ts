@@ -38,5 +38,13 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
             {cat: "general", text: "The monster's "},
             {cat: "stat", text: "Range"},
             {cat: "general", text: " is halved (minimum of 1)."}]
+    },
+    whimsical: {
+        id          : 4,       // Numerical ID of the token
+        name        : 'whimsical',       // Name of the token
+        description : [ 
+            {cat: "general", text: "Has a 25% chance to "},
+            {cat: "positive", text: "dodge"},
+            {cat: "general", text: " enemy actions."}]
     }
 }
