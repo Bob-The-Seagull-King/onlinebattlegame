@@ -40,5 +40,15 @@ export const ActionInfoDex : ActionInfoTable = {
         id          : 6,
         name        : "Tractor Beam",
         description : []
+    },    
+    radiate: {
+        id          : 7,
+        name        : "Radiate",
+        description : []
+    },    
+    oilspit: {
+        id          : 8,
+        name        : "Oil Spit",
+        description : []
     }
 }

@@ -8,6 +8,8 @@ import { ActiveMonster } from "../../../classes/sim/models/active_monster";
 import { FieldedMonster } from "../../../classes/sim/models/team";
 import { Plot } from "../../../classes/sim/models/terrain/terrain_plot";
 import { Scene } from "../../../classes/sim/models/terrain/terrain_scene";
+import { ActiveItem } from "../../../classes/sim/models/active_item";
+import { IFieldEffect, FieldEffect } from "../../../classes/sim/models/Effects/field_effect";
 
 /**
  * Action mechanical information database
@@ -184,6 +186,77 @@ export const ActionBattleDex : ActionBattleTable = {
             } else {
                 target.Monster.Trackers['dizzy'] = 4;
             }
+        }
+    },    
+    radiate: {
+        id                  : 7,
+        type                : MonsterType.Charred,
+        cost                : 10,
+        uses                : 10,
+        accuracy            : 100,
+        damage_mod          : -80,
+        category            : [ActionCategory.Debuff, ActionCategory.Attack],
+        events              : {},
+        effects             : [
+            {
+            effectval   : 'weakened',
+            baseChance  : 75,
+            trackerVal  : 4,
+            target_type : "MONSTER"
+            }
+        ],
+        target_team         : "ALL",
+        target_pos          : "LARGE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 0,        
+        async onApplySelfToTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            if (!target.Monster.Tokens.includes('weakened')) {
+                target.Monster.Tokens.push('weakened');
+            }
+            if (target.Monster.Trackers['weakened']) {
+                target.Monster.Trackers['weakened'] = Math.max(3, target.Monster.Trackers['weakened']);
+            } else {
+                target.Monster.Trackers['weakened'] = 4;
+            }
+        },
+        async onMonsterUseActionOnMainTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) { return false; }
+    },    
+    oilspit: {
+        id                  : 8,
+        type                : MonsterType.Charred,
+        cost                : 10,
+        uses                : 10,
+        accuracy            : 100,
+        damage_mod          : -80,
+        category            : [ActionCategory.Terraform, ActionCategory.Attack],
+        events              : {},
+        effects             : [
+            {
+            effectval   : 'weakened',
+            baseChance  : 75,
+            trackerVal  : 4,
+            target_type : "MONSTER"
+            }
+        ],
+        target_team         : "ALL",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_fill         : "ALL",
+        target_direction    : "ORTHOGONAL", 
+        target_choice       : "ALL",
+        target_range        : 3, 
+        async onMonsterUseActionOnSecondaryTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) { return false; },
+        async onGenerateFieldEffect(this : Battle, eventSource : any, sourceEffect : ActiveItem, messageList : MessageSet, fromSource : boolean) {
+            const _interface : IFieldEffect = {
+                tokens      : [],        // Tokens held by the plot
+                trackers    : {},    // Misc trackers used by plot tokens
+                plots       : [],
+                fieldEffect : "dangerousterrain"
+            }
+            const Effect : FieldEffect = new FieldEffect(_interface,this.Scene )
+            return Effect;
         }
     }
 }
