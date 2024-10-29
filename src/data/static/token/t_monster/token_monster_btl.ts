@@ -49,6 +49,10 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
                     source.Monster.Trackers['dizzy'] = null;                    
                 }
             }
+        },
+        async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'dizzy')
+            source.Monster.Trackers['dizzy'] = null;  
         }
     }
 }
