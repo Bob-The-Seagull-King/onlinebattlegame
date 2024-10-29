@@ -20,5 +20,15 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
             {cat: "general", text: "At the start of their turn "},
             {cat: "negative", text: "MOVE"},
             {cat: "general", text: " 1 space in a random direction."}]
+    },
+    weakened: {
+        id          : 2,       // Numerical ID of the token
+        name        : 'weakened',       // Name of the token
+        description : [ 
+            {cat: "general", text: "The monster's "},
+            {cat: "stat", text: "Damage Maximum"},
+            {cat: "general", text: " is brought down to their "},
+            {cat: "stat", text: "Damage Minimum"},
+            {cat: "general", text: "."}]
     }
 }

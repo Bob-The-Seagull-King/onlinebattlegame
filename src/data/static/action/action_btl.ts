@@ -63,7 +63,7 @@ export const ActionBattleDex : ActionBattleTable = {
         target_type         : "MONSTER",
         target_direction    : "CARDINAL", 
         target_choice       : "MONSTER",
-        target_range        : 1,
+        target_range        : 2,
         async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {            
             const BaseHeal = await this.Events.GetStatValue(target, 'hp', false, false)
             const HealVal = await this.Events.HealDamage(Math.ceil(BaseHeal/10), 0, source, target.Monster, source.Owner.Owner, target.Owner.Owner, messageList, false, false)
@@ -79,7 +79,7 @@ export const ActionBattleDex : ActionBattleTable = {
         category            : [ActionCategory.Recovery, ActionCategory.Help],
         events              : {},
         effects             : [],
-        target_team         : "ALLY",
+        target_team         : "TEAM",
         target_pos          : "SINGLE",
         target_type         : "MONSTER",
         target_direction    : "ALL", 

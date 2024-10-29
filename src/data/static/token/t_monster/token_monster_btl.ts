@@ -54,5 +54,30 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'dizzy')
             source.Monster.Trackers['dizzy'] = null;  
         }
+    },
+    weakened: {
+        id          : 1,       // Numerical ID of the token
+        category    : [TokenCategory.Debuff, TokenCategory.Movement, TokenCategory.Control],
+        async onEndTurn(this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+            if (eventSource === source) {
+                if (source.Monster.Trackers['weakened']) {
+                    if (source.Monster.Trackers['weakened'] > 0) {
+                        source.Monster.Trackers['weakened'] -= 1;
+                    }
+                    if (source.Monster.Trackers['weakened'] <= 0) {                        
+                        messageList.push({ "generic" : source.Monster.Nickname + " stopped being WEAKENED."})
+                        source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'weakened')
+                        source.Monster.Trackers['weakened'] = null;
+                    }
+                } else {                      
+                    messageList.push({ "generic" : source.Monster.Nickname + " stopped being WEAKENED."})
+                    source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'weakened')
+                    source.Monster.Trackers['weakened'] = null;                    
+                }
+            }
+        },
+        async onGetStatFinaldh(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) {
+            return await this.Events.GetStatValue(source, 'dl', false, false);
+        }
     }
 }
