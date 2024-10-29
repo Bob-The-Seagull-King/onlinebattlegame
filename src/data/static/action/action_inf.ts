@@ -25,5 +25,10 @@ export const ActionInfoDex : ActionInfoTable = {
         name        : "Ritual Blade",
         description : [ {cat: "negative", text: "Removes 10% "},
             {cat: "stat", text: "HP"},{cat: "positive", text: " and applies UNDYING "}]
+    },    
+    rotshot: {
+        id          : 4,
+        name        : "Rot Shot",
+        description : [ {cat: "general", text: "Deals +20% base damage for each 10% HP the target has lost."}]
     }
 }

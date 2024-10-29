@@ -63,7 +63,11 @@ export const ActionBattleDex : ActionBattleTable = {
         target_type         : "MONSTER",
         target_direction    : "CARDINAL", 
         target_choice       : "MONSTER",
-        target_range        : 1
+        target_range        : 1,
+        async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {            
+            const BaseHeal = await this.Events.GetStatValue(target, 'hp', false, false)
+            const HealVal = await this.Events.HealDamage(Math.ceil(BaseHeal/10), 0, source, target.Monster, source.Owner.Owner, target.Owner.Owner, messageList, false, false)
+        }
     },    
     ritualblade: {
         id                  : 3,
@@ -91,5 +95,27 @@ export const ActionBattleDex : ActionBattleTable = {
                 target.Monster.Tokens.push("undying")
             }
         }
-    }
+    },    
+    rotshot: {
+        id                  : 4,
+        type                : MonsterType.Accursed,
+        cost                : 10,
+        uses                : 10,
+        accuracy            : 100,
+        damage_mod          : -60,
+        category            : [ActionCategory.Attack],
+        events              : {},
+        effects             : [],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 2,
+        async onGetActionModifier(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {
+            const BaseVal = await this.Events.GetStatValue(target, 'hp', false, false)
+            const Proportion = 10 - (Math.ceil((10/BaseVal) * target.Monster.HP_Current))
+            return relayVar + (20 * Proportion);
+        }
+    },
 }

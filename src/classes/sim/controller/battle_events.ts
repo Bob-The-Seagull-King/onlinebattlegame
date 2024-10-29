@@ -389,10 +389,12 @@ class BattleEvents {
         const DamageHgh = await this.Battle.runEvent( "GetDHValue", source, target, effect, this.GetStatValue(source, "dh", await this.Battle.runEvent( "UseDHMods", source, target, effect, false, isMain, this.Battle.MessageList ), await this.Battle.runEvent( "UseDHBoosts", source, target, effect, false, isMain, this.Battle.MessageList )), isMain, this.Battle.MessageList )
 
         const Range = ((DamageHgh - DamageLow) <= 0) ? 1: (DamageHgh - DamageLow);
-        let ActionMod = 1;
+        let ActionMod = 100;
         if (typeof ActionBattleDex[effect.Action].damage_mod === 'number') {
-            ActionMod += (ActionBattleDex[effect.Action].damage_mod as number) / 100
+            ActionMod += (ActionBattleDex[effect.Action].damage_mod as number)
         }
+        ActionMod = await this.Battle.runEvent( "GetActionModifier", source, target, effect, ActionMod, isMain, this.Battle.MessageList );
+        ActionMod = (ActionMod / 100)
         const randomValue = Math.floor( ActionMod * (Math.random() * (Range)));
         const DealtDamage = await this.Battle.runEvent( "GetDamageNumberModified", source, target, effect, (randomValue + DamageLow), isMain, this.Battle.MessageList );
 

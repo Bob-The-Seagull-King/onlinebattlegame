@@ -303,6 +303,7 @@ export interface CallEvents {
     onUseDMGType? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean> // If the action should consider Type matchups
     onUseDMGMods? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean> // If the action should consider any other modifiers
     onRunExtraEffects? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void> // Add additional effects to a target
+    onGetActionModifier? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<number> // Modify Damage_Modifier for outgoing damage
     onWhenHitZero? : (this : Battle, eventSource : any, source : ActiveMonster, messageList : MessageSet, fromSource : boolean) => Promise<void> // When a monster hits 0HP
 }
 

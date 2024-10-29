@@ -72,10 +72,13 @@ class OfflineBattleManager extends BattleManager {
         _Team.AddFreshMonster("nimble");
         _Team.Monsters[2].AddFreshAction("blast");
         _Team.Monsters[2].AddFreshAction("strike");
+        _Team.Monsters[2].AddFreshAction("rotshot");
         _Team.AddFreshMonster("bruiser");
         _Team.Monsters[3].AddFreshAction("strike");
+        _Team.Monsters[3].AddFreshAction("rotshot");
         _Team.AddFreshMonster("arcane");
         _Team.Monsters[4].AddFreshAction("blast");
+        _Team.Monsters[4].AddFreshAction("ritualblade");
         _Team.AddFreshMonster("evolvea");
         _Team.Monsters[5].AddFreshAction("help");
 
@@ -96,16 +99,20 @@ class OfflineBattleManager extends BattleManager {
         _Team.AddFreshMonster("cleric");
         _Team.Monsters[0].AddFreshAction("help");
         _Team.Monsters[0].AddFreshAction("strike");
+        _Team.Monsters[0].AddFreshAction("ritualblade");
         _Team.AddFreshMonster("terrain");
         _Team.Monsters[1].AddFreshAction("help");
         _Team.Monsters[1].AddFreshAction("blast");
         _Team.AddFreshMonster("nimble");
         _Team.Monsters[2].AddFreshAction("blast");
         _Team.Monsters[2].AddFreshAction("strike");
+        _Team.Monsters[2].AddFreshAction("rotshot");
         _Team.AddFreshMonster("bruiser");
         _Team.Monsters[3].AddFreshAction("strike");
+        _Team.Monsters[3].AddFreshAction("rotshot");
         _Team.AddFreshMonster("arcane");
         _Team.Monsters[4].AddFreshAction("blast");
+        _Team.Monsters[4].AddFreshAction("ritualblade");
         _Team.AddFreshMonster("evolvea");
         _Team.Monsters[5].AddFreshAction("help");
 
