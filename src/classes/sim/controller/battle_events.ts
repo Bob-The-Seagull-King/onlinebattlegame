@@ -355,6 +355,8 @@ class BattleEvents {
                     }
                 }
             }
+
+            await this.Battle.runEvent( "UsedAction", TargetLead, null, RelevantAction, null, null, this.Battle.MessageList )
             
             await this.Battle.UpdateBattleState();
         }        

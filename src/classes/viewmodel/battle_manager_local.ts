@@ -94,6 +94,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[2].AddFreshAction("deathroll");
         _Team.Monsters[2].AddFreshAction("slam");
         _Team.Monsters[2].AddFreshAction("blackdart");
+        _Team.Monsters[2].AddFreshAction("feast");
         _Team.AddFreshMonster("bruiser");
         _Team.Monsters[3].AddFreshAction("strike");
         _Team.Monsters[3].AddFreshAction("rotshot");
@@ -104,6 +105,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[3].AddFreshAction("smite");
         _Team.Monsters[3].AddFreshAction("deathroll");
         _Team.Monsters[3].AddFreshAction("slam");
+        _Team.Monsters[3].AddFreshAction("feast");
         _Team.AddFreshMonster("arcane");
         _Team.Monsters[4].AddFreshAction("blast");
         _Team.Monsters[4].AddFreshAction("ritualblade");
@@ -113,6 +115,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[4].AddFreshAction("collectcall");
         _Team.Monsters[4].AddFreshAction("payoff");
         _Team.Monsters[4].AddFreshAction("vomit");
+        _Team.Monsters[4].AddFreshAction("command");
         _Team.AddFreshMonster("evolvea");
         _Team.Monsters[5].AddFreshAction("help");
         _Team.Monsters[5].AddFreshAction("radiate");
@@ -121,6 +124,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[5].AddFreshAction("purepressure");
         _Team.Monsters[5].AddFreshAction("smite");
         _Team.Monsters[5].AddFreshAction("honourablearrow");
+        _Team.Monsters[5].AddFreshAction("command");
 
         _Team.AddFreshItem("greenherb");
         _Team.AddFreshItem("blockofstone");

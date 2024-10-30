@@ -130,5 +130,15 @@ export const ActionInfoDex : ActionInfoTable = {
         id          : 24,
         name        : "Vomit",
         description : []
+    },    
+    feast: {
+        id          : 25,
+        name        : "Feast",
+        description : []
+    },    
+    command: {
+        id          : 26,
+        name        : "Command",
+        description : []
     }
 }

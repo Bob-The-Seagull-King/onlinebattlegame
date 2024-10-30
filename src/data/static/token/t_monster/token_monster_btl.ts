@@ -247,8 +247,8 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
         id          : 9,       // Numerical ID of the token
         category    : [TokenCategory.Debuff, TokenCategory.Movement, TokenCategory.Harm],
         async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
-            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'tempest')
-            source.Monster.Trackers['tempest'] = null;  
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'wounded')
+            source.Monster.Trackers['wounded'] = null;  
         },
         async onMonsterEndMove(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
             const BaseVal = await this.Events.GetStatValue(source, 'hp', false, false)
@@ -282,6 +282,20 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
                     source.Monster.Trackers['sickened'] = null;                    
                 }
             }
+        }
+    },
+    enobled: {
+        id          : 11,       // Numerical ID of the token
+        category    : [TokenCategory.Buff, TokenCategory.Harm],
+        async onAfterDamageDealt(this : Battle, eventSource : any, source : FieldedMonster , target : FieldedMonster, sourceEffect :  ActiveAction, relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {
+            if (eventSource === target) {
+                messageList.push({ "generic" : target.Monster.Nickname + " was aghast!"})
+                const dmg = await this.Events.DealDamage((1), 0, eventSource, source, true, true, true)
+            }
+        },
+        async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'enobled')
+            source.Monster.Trackers['enobled'] = null;  
         }
     }
 }

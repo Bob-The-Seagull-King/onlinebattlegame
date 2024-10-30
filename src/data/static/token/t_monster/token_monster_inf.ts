@@ -92,5 +92,11 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
             {cat: "general", text: "At the end of each turn, take "},
             {cat: "negative", text: "5% "},
             {cat: "general", text: " HP."}]
+    },
+    enobled: {
+        id          : 11,       // Numerical ID of the token
+        name        : 'enobled',       // Name of the token
+        description : [ 
+            {cat: "general", text: "When damaged, deal 1 HP to the source"}]
     }
 }

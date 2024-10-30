@@ -319,6 +319,8 @@ export interface CallEvents {
     onGetTypeMatchupMod? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, target : FieldedMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Gets the type effectiveness modifier
     onMonsterEndMove? : (this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) => Promise<void>; // Perform after the monster takes a MOVE action
     onGetFinalDamageOut? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction , relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Get the final damage output by a monster
+    onAfterDamageDealt? : (this : Battle, eventSource : any, source : FieldedMonster , target : FieldedMonster, sourceEffect :  ActiveAction, relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<void>; // After damage is dealt by a monster to another monster with an action
+    onUsedAction? : (this : Battle, eventSource : any, source : FieldedMonster, sourceEffect :  ActiveAction, messageList : MessageSet, fromSource : boolean) => Promise<void>; // After using an ACTION
 }
 
 /**

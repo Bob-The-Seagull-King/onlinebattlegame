@@ -711,10 +711,9 @@ export const ActionBattleDex : ActionBattleTable = {
         target_pos          : "MEDIUM",
         target_type         : "MONSTER",
         target_fill         : "ALL",
-        target_direction    : "ORTHOGONAL", 
+        target_direction    : "ALL", 
         target_choice       : "ALL",
         target_range        : 1, 
-        async onMonsterUseActionOnSecondaryTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, messageList : MessageSet, fromSource : boolean) { return false; },
         async onGenerateFieldEffect(this : Battle, eventSource : any, sourceEffect : ActiveItem, messageList : MessageSet, fromSource : boolean) {
             const _interface : IFieldEffect = {
                 tokens      : [],        // Tokens held by the plot
@@ -724,6 +723,73 @@ export const ActionBattleDex : ActionBattleTable = {
             }
             const Effect : FieldEffect = new FieldEffect(_interface,this.Scene )
             return Effect;
+        }
+    },    
+    feast: {
+        id                  : 25,
+        type                : MonsterType.Vampire,
+        cost                : 10,
+        uses                : 10,
+        accuracy            : 100,
+        damage_mod          : -40,
+        category            : [ActionCategory.Recovery, ActionCategory.Attack],
+        events              : {},
+        effects             : [
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_fill         : "ALL",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 3,
+        async onAfterDamageDealt(this : Battle, eventSource : any, source : FieldedMonster , target : FieldedMonster, sourceEffect :  ActiveAction, relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {
+            const HealVal = await this.Events.HealDamage(Math.ceil(relayVar/2), 0, source, source.Monster, source.Owner.Owner, source.Owner.Owner, messageList, false, false)
+        }
+    },    
+    command: {
+        id                  : 26,
+        type                : MonsterType.Vampire,
+        cost                : 15,
+        uses                : 5,
+        accuracy            : true,
+        damage_mod          : false,
+        category            : [ActionCategory.Debuff, ActionCategory.Buff],
+        events              : {},
+        effects             : [
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_fill         : "ALL",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 4,
+        async onUsedAction(this : Battle, eventSource : any, source : FieldedMonster, sourceEffect :  ActiveAction, messageList : MessageSet, fromSource : boolean) {
+            if (!source.Monster.Tokens.includes('enobled')) {
+                source.Monster.Tokens.push('enobled');
+            }
+        },
+        async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {    
+            target.Plot.UpdateMovePlot(target);
+            
+            let chosenNeighbour = 0;
+            let shortDistance = 999;
+
+            for (let i = 0; i < source.Plot.MovePlot.neighbours.length; i++) {
+                if ((
+                    (Math.abs(source.Plot.MovePlot.neighbours[i].returnCoordinates()[0] - source.Plot.returnCoordinates()[0])) + 
+                    (Math.abs(source.Plot.MovePlot.neighbours[i].returnCoordinates()[1] - source.Plot.returnCoordinates()[1]))
+                ) < (shortDistance)) {
+                    chosenNeighbour = i;
+                    shortDistance = ((Math.abs(source.Plot.MovePlot.neighbours[i].returnCoordinates()[0] - source.Plot.returnCoordinates()[0])) + 
+                    (Math.abs(source.Plot.MovePlot.neighbours[i].returnCoordinates()[1] - source.Plot.returnCoordinates()[1])))
+                }
+            }
+
+            if ((await target.Plot.MovePlot.neighbours[chosenNeighbour].IsPlaceable())) {
+                await this.Events.MoveMonster(target, target.Plot, target.Plot.MovePlot.neighbours[chosenNeighbour], target.Owner.Owner);
+            }
         }
     }
 }
