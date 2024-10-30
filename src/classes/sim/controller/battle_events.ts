@@ -452,6 +452,7 @@ class BattleEvents {
             }
             
             this.Battle.MessageList.push({ "generic" : TargetLead.Monster.Nickname + " moved from Position " + TargetPath[TargetPath.length - 1] + " to Position " + TargetLead.Plot.returnCoordinates()})
+            await this.Battle.runEvent( "MonsterEndMove", TargetLead, null, null, null, null, this.Battle.MessageList )
         }
 
         return true;        

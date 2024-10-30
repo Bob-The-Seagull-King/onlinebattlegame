@@ -569,7 +569,7 @@ export const ActionBattleDex : ActionBattleTable = {
             target_type : "MONSTER"
             }
         ],
-        target_team         : "ANY",
+        target_team         : "ENEMY",
         target_pos          : "SINGLE",
         target_type         : "MONSTER",
         target_direction    : "ALL", 
@@ -604,5 +604,61 @@ export const ActionBattleDex : ActionBattleTable = {
         target_direction    : "ALL", 
         target_choice       : "MONSTER",
         target_range        : 4
+    },  
+    deathroll: {
+        id                  : 21,
+        type                : MonsterType.Rabid,
+        cost                : 5,
+        uses                : 10,
+        accuracy            : true,
+        damage_mod          : 50,
+        category            : [ActionCategory.Attack, ActionCategory.Debuff],
+        events              : {},
+        effects             : [
+            {
+            effectval   : 'wounded',
+            baseChance  : 100,
+            trackerVal  : 3,
+            target_type : "MONSTER"
+            }
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 1,        
+        async onApplySelfToTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            if (!target.Monster.Tokens.includes('wounded')) {
+                target.Monster.Tokens.push('wounded');
+            }
+        }
+    },  
+    slam: {
+        id                  : 22,
+        type                : MonsterType.Rabid,
+        cost                : 10,
+        uses                : 5,
+        accuracy            : 75,
+        damage_mod          : 0,
+        category            : [ActionCategory.Attack],
+        events              : {},
+        effects             : [
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 2,        
+        async onGetFinalDamageOut (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction , relayVar : number, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {
+            const rnmd = Math.floor(Math.random() * 2);
+            if (rnmd === 0) {                
+                messageList.push({ "generic" : target.Monster.Nickname + " took a massive blow!"})
+                return relayVar * 3
+            } else {
+                return relayVar;
+            }
+        }
     }
 }

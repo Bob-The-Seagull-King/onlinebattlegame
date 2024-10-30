@@ -242,5 +242,19 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             
             return relayVar;
         }
+    },
+    wounded: {
+        id          : 9,       // Numerical ID of the token
+        category    : [TokenCategory.Debuff, TokenCategory.Movement],
+        async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'tempest')
+            source.Monster.Trackers['tempest'] = null;  
+        },
+        async onMonsterEndMove(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
+            const BaseVal = await this.Events.GetStatValue(source, 'hp', false, false)
+            if (BaseVal) {
+                const dmg = await this.Events.DealDamage((Math.ceil(BaseVal/10)), 0, eventSource, source, true, true, true)
+            }
+        }
     }
 }

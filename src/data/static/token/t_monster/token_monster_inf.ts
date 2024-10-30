@@ -76,5 +76,13 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
         description : [ 
             {cat: "negative", text: "Triple "},
             {cat: "general", text: " type weaknesses."}]
+    },
+    wounded: {
+        id          : 9,       // Numerical ID of the token
+        name        : 'wounded',       // Name of the token
+        description : [ 
+            {cat: "general", text: "When MOVEing, take "},
+            {cat: "negative", text: "10% "},
+            {cat: "general", text: " HP."}]
     }
 }
