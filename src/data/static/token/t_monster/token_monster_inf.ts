@@ -61,5 +61,13 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
             {cat: "positive", text: "Gain +25%"},
             {cat: "stat", text: " Protection "},
             {cat: "general", text: " for each layer of Insured."}]
+    },
+    immunised: {
+        id          : 7,       // Numerical ID of the token
+        name        : 'immunised',       // Name of the token
+        description : [ 
+            {cat: "positive", text: "Gain +10%"},
+            {cat: "stat", text: " Resistance "},
+            {cat: "general", text: " for each condition or status."}]
     }
 }

@@ -24,7 +24,13 @@ export const ActionBattleDex : ActionBattleTable = {
         damage_mod          : 0,
         category            : [ActionCategory.Attack],
         events              : {},
-        effects             : [],
+        effects             : [
+            {
+            effectval   : 'enveloped',
+            baseChance  : 150,
+            trackerVal  : 3,
+            target_type : "MONSTER"
+            }],
         target_team         : "ALL",
         target_pos          : "SINGLE",
         target_type         : "MONSTER",
@@ -89,12 +95,14 @@ export const ActionBattleDex : ActionBattleTable = {
         target_range        : 3,
         async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {            
             const BaseVal = await this.Events.GetStatValue(target, 'hp', false, false)
-            await this.Events.DealDamage((Math.ceil(BaseVal/10)), 0, eventSource, target, true, true, true)
+            if (BaseVal) {
+                const dmg = await this.Events.DealDamage((Math.ceil(BaseVal/10)), 0, eventSource, target, true, true, true)
 
-            messageList.push({ "generic" : target.Monster.Nickname + " has been ritually hurt."})
+                messageList.push({ "generic" : target.Monster.Nickname + " has been ritually hurt."})
 
-            if (!target.Monster.Tokens.includes("undying")) {
-                target.Monster.Tokens.push("undying")
+                if (!target.Monster.Tokens.includes("undying")) {
+                    target.Monster.Tokens.push("undying")
+                }
             }
         }
     },    
@@ -491,6 +499,57 @@ export const ActionBattleDex : ActionBattleTable = {
                     await this.UpdateBattleState();
                 }
             }
+        }
+    },    
+    stitchup: {
+        id                  : 17,
+        type                : MonsterType.Igor,
+        cost                : 10,
+        uses                : 5,
+        accuracy            : true,
+        damage_mod          : false,
+        category            : [ActionCategory.Recovery, ActionCategory.Help],
+        events              : {},
+        effects             : [],
+        target_team         : "TEAM",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "CARDINAL", 
+        target_choice       : "MONSTER",
+        target_range        : 1,
+        async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {            
+            const BaseHeal = await this.Events.GetStatValue(target, 'hp', false, false)
+            const HealVal = await this.Events.HealDamage(Math.ceil(BaseHeal/2), 0, source, target.Monster, source.Owner.Owner, target.Owner.Owner, messageList, false, false)
+        }
+    },    
+    vaccine: {
+        id                  : 18,
+        type                : MonsterType.Igor,
+        cost                : 10,
+        uses                : 5,
+        accuracy            : 100,
+        damage_mod          : false,
+        category            : [ActionCategory.Recovery],
+        events              : {},
+        effects             : [],
+        target_team         : "ALLY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 2, 
+        async onRunExtraEffects(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : boolean, messageList : MessageSet, fromSource : boolean) {    
+            if (!target.Monster.Tokens.includes('immunised')) {
+                target.Monster.Tokens.push('immunised');
+            }
+            if (target.Monster.Trackers['immunised']) {
+                target.Monster.Trackers['immunised'] = Math.max(3, target.Monster.Trackers['immunised']);
+            } else {
+                target.Monster.Trackers['immunised'] = 3;
+            }  
+            
+            let HPHeal =  await this.Events.MakeDamageOut(source, sourceEffect, target, false);
+            const HealVal = await this.Events.HealDamage(HPHeal, 0, source, target.Monster, source.Owner.Owner, target.Owner.Owner, messageList, false, false)
         }
     }
 }

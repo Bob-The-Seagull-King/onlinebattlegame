@@ -186,5 +186,31 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             
             return FinalOutput;
         }
+    },
+    immunised: {
+        id          : 7,       // Numerical ID of the token
+        category    : [TokenCategory.Buff, TokenCategory.Defense],        
+        async onGetStatFinalrs(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) {
+            const SourceMonster = (source instanceof FieldedMonster)? source.Monster : source;
+            let FinalOutput = relayVar
+
+            if (SourceMonster.Trackers['immunised']) {
+                if (SourceMonster.Trackers['immunised'] > 0) {
+                    FinalOutput = (FinalOutput * (1 + (SourceMonster.Tokens.length / 10)))
+                    SourceMonster.Trackers['immunised'] -= 1;
+                }
+                if (SourceMonster.Trackers['immunised'] <= 0) {                        
+                    messageList.push({ "generic" : SourceMonster.Nickname + " stopped being IMMUNISED."})
+                    SourceMonster.Tokens = SourceMonster.Tokens.filter(item => item != 'immunised')
+                    SourceMonster.Trackers['immunised'] = null;
+                }
+            } else {                      
+                messageList.push({ "generic" : SourceMonster.Nickname + " stopped being IMMUNISED."})
+                SourceMonster.Tokens = SourceMonster.Tokens.filter(item => item != 'immunised')
+                SourceMonster.Trackers['immunised'] = null;                    
+            }
+            
+            return FinalOutput;
+        }
     }
 }

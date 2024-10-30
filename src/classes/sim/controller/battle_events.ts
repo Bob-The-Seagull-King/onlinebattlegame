@@ -366,9 +366,8 @@ class BattleEvents {
 
         const BaseChance = await this.Battle.runEvent( "GetActionBaseAcc", source, target, effect, skilleffect.baseChance, skilleffect, this.Battle.MessageList );
         const SkillMod = await this.Battle.runEvent( "ModifySKMod", source, target, effect, this.GetStatValue(source, "sk", await this.Battle.runEvent( "UseSKMods", source, target, effect, false, skilleffect, this.Battle.MessageList ), await this.Battle.runEvent( "UseSKBoosts", source, target, effect, false, skilleffect, this.Battle.MessageList )), skilleffect, this.Battle.MessageList ) 
-        const ResistMod = await this.Battle.runEvent( "ModifyRSMod", source, target, effect, this.GetStatValue(source, "rs", await this.Battle.runEvent( "UseRSMods", source, target, effect, false, skilleffect, this.Battle.MessageList ), await this.Battle.runEvent( "UseRSBoosts", source, target, effect, false, skilleffect, this.Battle.MessageList )), skilleffect, this.Battle.MessageList ) 
+        const ResistMod = await this.Battle.runEvent( "ModifyRSMod", source, target, effect, this.GetStatValue(target, "rs", await this.Battle.runEvent( "UseRSMods", source, target, effect, false, skilleffect, this.Battle.MessageList ), await this.Battle.runEvent( "UseRSBoosts", source, target, effect, false, skilleffect, this.Battle.MessageList )), skilleffect, this.Battle.MessageList ) 
         const TotalChance = Math.min(100, BaseChance + SkillMod - ResistMod);
-        
         const rnmd = Math.floor(Math.random() * 100) + 1;
 
         return (rnmd <= TotalChance);
@@ -583,16 +582,16 @@ class BattleEvents {
             let DamageTakenModifier;
             // This means the protection of the monster will be considered
             if (!_skipProt) {
-                const Protection = this.GetStatValue(_target, "pt", false, false)
+                const Protection = await this.GetStatValue(_target, "pt", false, false)
                 ProtectionModifier = await this.Battle.runEvent( "GetTotalProtectionMod", _source, _target, null, Protection, _val, this.Battle.MessageList );
             } else {
                 ProtectionModifier = 0;
             }
             // This means type modifiers will be considered
             if (!_skipType) {
-                TypeMatchupModifier = this.returnTypeDamageMod( await this.CalculateTypeEffectiveness(_type, _source , _target) );
+                TypeMatchupModifier = await this.returnTypeDamageMod( await this.CalculateTypeEffectiveness(_type, _source , _target) );
             } else {
-                ProtectionModifier = 1;
+                TypeMatchupModifier = 1;
             }
             // This means additional % based modifiers will be considered
             if (!_skipMods) {
@@ -624,6 +623,7 @@ class BattleEvents {
                     }
                 }
             }
+            
 
             return dmg;
     }
@@ -691,9 +691,10 @@ class BattleEvents {
 
         if (!_skipMods) {
             FinalStat *= await this.Battle.runEvent(('GetStatFinal'+_stat), _mon, null, null, 1, (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4))))), this.Battle.MessageList)
+            return Math.ceil(FinalStat);
+        } else {
+            return Math.ceil(FinalStat);
         }
-        
-        return FinalStat;
     }
 
 }
