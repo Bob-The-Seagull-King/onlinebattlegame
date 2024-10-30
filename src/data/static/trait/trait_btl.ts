@@ -16,4 +16,16 @@ import { TokenMonsterInfoDex } from "../token/t_monster/token_monster_inf";
  * Trait mechanical information database
  */
 export const TraitBattleDex : TraitBattleTable = {
+    hospitality: {
+        id          : 0,
+        cost        : 5,
+        category    : [TraitCategory.Restoration],
+        events      : {},
+        async onSwitchInMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
+            for (let i = 0; i < source.Owner.Leads.length; i++) {
+                const BaseHeal = await this.Events.GetStatValue(source.Owner.Leads[i], 'hp', false, false)
+                const HealVal = await this.Events.HealDamage(Math.ceil(BaseHeal/10), 0, source, source.Owner.Leads[i].Monster, source.Owner.Owner, source.Owner.Leads[i].Owner.Owner, messageList, false, false)
+            }
+        }
+    }
 }

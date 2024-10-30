@@ -309,6 +309,7 @@ export interface CallEvents {
     onWhenHitZero? : (this : Battle, eventSource : any, source : ActiveMonster, messageList : MessageSet, fromSource : boolean) => Promise<void> // When a monster hits 0HP
     onEndTurn? : (this : Battle, eventSource : any, source : FieldedMonster | TrainerBase, messageList : MessageSet, fromSource : boolean) => Promise<void> // When a turn ends
     onSwitchOutMonster? : (this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) => Promise<void> // When a monster switches out
+    onSwitchInMonster? : (this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) => Promise<void> // When a monster switches out
     onApplySelfToTarget? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) => Promise<void>; // When an effect is successfully applied to a target
     onGetStatFinaldh? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Get the final value of the DAMAGE HIGH stat
     onGetStatFinalrs? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Get the final value of the RESISTANCE stat

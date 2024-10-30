@@ -73,6 +73,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[0].AddFreshAction("payoff");
         _Team.Monsters[0].AddFreshAction("stitchup");
         _Team.Monsters[0].AddFreshAction("vaccine");
+        _Team.Monsters[0].Traits.push("hospitality");
         _Team.AddFreshMonster("terrain");
         _Team.Monsters[1].AddFreshAction("help");
         _Team.Monsters[1].AddFreshAction("blast");
