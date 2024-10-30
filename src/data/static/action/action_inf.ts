@@ -100,5 +100,15 @@ export const ActionInfoDex : ActionInfoTable = {
         id          : 18,
         name        : "Vaccine",
         description : []
+    },    
+    smite: {
+        id          : 19,
+        name        : "Smite",
+        description : []
+    },    
+    honourablearrow: {
+        id          : 20,
+        name        : "Honourable Arrow",
+        description : []
     }
 }

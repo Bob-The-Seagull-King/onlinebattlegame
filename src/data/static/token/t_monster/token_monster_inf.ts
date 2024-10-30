@@ -69,5 +69,12 @@ export const TokenMonsterInfoDex : TokenInfoTable = {
             {cat: "positive", text: "Gain +10%"},
             {cat: "stat", text: " Resistance "},
             {cat: "general", text: " for each condition or status."}]
+    },
+    branded: {
+        id          : 8,       // Numerical ID of the token
+        name        : 'branded',       // Name of the token
+        description : [ 
+            {cat: "negative", text: "Triple "},
+            {cat: "general", text: " type weaknesses."}]
     }
 }

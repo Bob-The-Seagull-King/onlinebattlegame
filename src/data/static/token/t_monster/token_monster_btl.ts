@@ -4,6 +4,7 @@ import { ActiveAction } from "../../../../classes/sim/models/active_action";
 import { ActiveItem } from "../../../../classes/sim/models/active_item";
 import { ActiveMonster } from "../../../../classes/sim/models/active_monster";
 import { FieldEffect } from "../../../../classes/sim/models/Effects/field_effect";
+import { WeatherEffect } from "../../../../classes/sim/models/Effects/weather_effect";
 import { FieldedMonster } from "../../../../classes/sim/models/team";
 import { Plot } from "../../../../classes/sim/models/terrain/terrain_plot";
 import { Scene } from "../../../../classes/sim/models/terrain/terrain_scene";
@@ -211,6 +212,35 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             }
             
             return FinalOutput;
+        }
+    },
+    branded: {
+        id          : 8,       // Numerical ID of the token
+        category    : [TokenCategory.Debuff, TokenCategory.Defense],
+        async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
+            source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'tempest')
+            source.Monster.Trackers['tempest'] = null;  
+        },
+        async onGetTypeMatchupMod(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, target : FieldedMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) {
+            if (relayVar > 1) {
+                if (target.Monster.Trackers['branded']) {
+                    if (target.Monster.Trackers['branded'] > 0) {                        
+                        target.Monster.Trackers['branded'] -= 1;
+                        return 1 + ((relayVar - 1) * 3)
+                    }
+                    if (target.Monster.Trackers['branded'] <= 0) {                        
+                        messageList.push({ "generic" : target.Monster.Nickname + " stopped being BRANDED."})
+                        target.Monster.Tokens = target.Monster.Tokens.filter(item => item != 'branded')
+                        target.Monster.Trackers['branded'] = null;
+                    }
+                } else {                      
+                    messageList.push({ "generic" : target.Monster.Nickname + " stopped being BRANDED."})
+                    target.Monster.Tokens = target.Monster.Tokens.filter(item => item != 'branded')
+                    target.Monster.Trackers['branded'] = null;                    
+                }
+            }
+            
+            return relayVar;
         }
     }
 }

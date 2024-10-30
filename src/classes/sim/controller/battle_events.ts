@@ -589,7 +589,7 @@ class BattleEvents {
             }
             // This means type modifiers will be considered
             if (!_skipType) {
-                TypeMatchupModifier = await this.returnTypeDamageMod( await this.CalculateTypeEffectiveness(_type, _source , _target) );
+                TypeMatchupModifier = await this.Battle.runEvent( "GetTypeMatchupMod", _source, _target, null, await this.returnTypeDamageMod( await this.CalculateTypeEffectiveness(_type, _source , _target) ), _val, this.Battle.MessageList );
             } else {
                 TypeMatchupModifier = 1;
             }

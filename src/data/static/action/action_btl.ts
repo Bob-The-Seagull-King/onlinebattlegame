@@ -551,5 +551,58 @@ export const ActionBattleDex : ActionBattleTable = {
             let HPHeal =  await this.Events.MakeDamageOut(source, sourceEffect, target, false);
             const HealVal = await this.Events.HealDamage(HPHeal, 0, source, target.Monster, source.Owner.Owner, target.Owner.Owner, messageList, false, false)
         }
+    },  
+    smite: {
+        id                  : 19,
+        type                : MonsterType.Knight,
+        cost                : 15,
+        uses                : 10,
+        accuracy            : 100,
+        damage_mod          : 0,
+        category            : [ActionCategory.Attack, ActionCategory.Debuff],
+        events              : {},
+        effects             : [
+            {
+            effectval   : 'branded',
+            baseChance  : 75,
+            trackerVal  : 3,
+            target_type : "MONSTER"
+            }
+        ],
+        target_team         : "ANY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 2,        
+        async onApplySelfToTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            
+            if (!target.Monster.Tokens.includes('branded')) {
+                target.Monster.Tokens.push('branded');
+            }
+            if (target.Monster.Trackers['branded']) {
+                target.Monster.Trackers['branded'] = Math.max(3, target.Monster.Trackers['branded']);
+            } else {
+                target.Monster.Trackers['branded'] = 3;
+            }
+        }
+    },  
+    honourablearrow: {
+        id                  : 20,
+        type                : MonsterType.Knight,
+        cost                : 10,
+        uses                : 10,
+        accuracy            : true,
+        damage_mod          : -25,
+        category            : [ActionCategory.Attack],
+        events              : {},
+        effects             : [
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "ALL", 
+        target_choice       : "MONSTER",
+        target_range        : 4
     }
 }

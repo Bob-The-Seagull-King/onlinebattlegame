@@ -316,6 +316,7 @@ export interface CallEvents {
     onModifyActionRange? : (this : Battle, eventSource : any, source : FieldedMonster , sourceEffect : ActiveAction, relayVar : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Adjust the range of an action
     onFinalDoesHit? : (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, trackVal : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>; // Final check for if something hits
     onMonsterAffectedByTerrain? : (this : Battle, eventSource : any, source : FieldEffect, target : FieldedMonster, relayVar : boolean, messageList : MessageSet, fromSource : boolean) => Promise<boolean>; // Check is a monster is affected by this event
+    onGetTypeMatchupMod? : (this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster | Plot | WeatherEffect | FieldEffect | ActiveItem | null, target : FieldedMonster, relayVar : number, trackVal : number, messageList : MessageSet, fromSource : boolean) => Promise<number>; // Gets the type effectiveness modifier
 }
 
 /**
