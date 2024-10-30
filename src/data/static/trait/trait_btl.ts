@@ -27,5 +27,22 @@ export const TraitBattleDex : TraitBattleTable = {
                 const HealVal = await this.Events.HealDamage(Math.ceil(BaseHeal/10), 0, source, source.Owner.Leads[i].Monster, source.Owner.Owner, source.Owner.Leads[i].Owner.Owner, messageList, false, false)
             }
         }
+    },
+    retreat: {
+        id          : 1,
+        cost        : 20,
+        category    : [TraitCategory.Armour],
+        events      : {},
+        async onGetStatModpt(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
+            const SourceMonster = (source instanceof FieldedMonster)? source.Monster : source;
+            let FinalOutput = relayVar
+            const BaseHP = await this.Events.GetStatValue(SourceMonster, 'hp', false, false)
+
+            if (SourceMonster.HP_Current <= (BaseHP/2)) {
+                FinalOutput += 2;
+            }
+            
+            return FinalOutput;
+        }
     }
 }

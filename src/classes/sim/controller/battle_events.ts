@@ -687,9 +687,9 @@ class BattleEvents {
         let FinalStat : number = BaseStat;
 
         if (!_skipBoosts) {
-            StatMod = await this.Battle.runEvent(('GetStatMod'+_stat), _mon, null, null, _mon.GetStatBoost(_stat), null, this.Battle.MessageList)
+            StatMod = await this.Battle.runEvent(('GetStatMod'+_stat), _mon, null, null, _mon.GetStatBoost(_stat), null, this.Battle.MessageList)        
+            console.log(StatMod);
         }
-
         FinalStat = await (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4)))))
 
         if (!_skipMods) {
