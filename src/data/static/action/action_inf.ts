@@ -120,5 +120,15 @@ export const ActionInfoDex : ActionInfoTable = {
         id          : 22,
         name        : "Slam",
         description : []
+    },    
+    blackdart: {
+        id          : 23,
+        name        : "Black Dart",
+        description : []
+    },    
+    vomit: {
+        id          : 24,
+        name        : "Vomit",
+        description : []
     }
 }

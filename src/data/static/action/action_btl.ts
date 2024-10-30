@@ -660,5 +660,70 @@ export const ActionBattleDex : ActionBattleTable = {
                 return relayVar;
             }
         }
+    },  
+    blackdart: {
+        id                  : 23,
+        type                : MonsterType.Scum,
+        cost                : 10,
+        uses                : 10,
+        accuracy            : 90,
+        damage_mod          : -50,
+        category            : [ActionCategory.Attack, ActionCategory.Debuff],
+        events              : {},
+        effects             : [
+            {
+            effectval   : 'sickened',
+            baseChance  : 75,
+            trackerVal  : 3,
+            target_type : "MONSTER"
+            }
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "SINGLE",
+        target_type         : "MONSTER",
+        target_direction    : "BOTH", 
+        target_choice       : "MONSTER",
+        target_range        : 4,        
+        async onApplySelfToTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            
+            if (!target.Monster.Tokens.includes('sickened')) {
+                target.Monster.Tokens.push('sickened');
+            }
+            if (target.Monster.Trackers['sickened']) {
+                target.Monster.Trackers['sickened'] = Math.max(3, target.Monster.Trackers['sickened']);
+            } else {
+                target.Monster.Trackers['sickened'] = 3;
+            }
+        }
+    },    
+    vomit: {
+        id                  : 24,
+        type                : MonsterType.Scum,
+        cost                : 20,
+        uses                : 10,
+        accuracy            : 100,
+        damage_mod          : -80,
+        category            : [ActionCategory.Terraform, ActionCategory.Attack],
+        events              : {},
+        effects             : [
+        ],
+        target_team         : "ENEMY",
+        target_pos          : "MEDIUM",
+        target_type         : "MONSTER",
+        target_fill         : "ALL",
+        target_direction    : "ORTHOGONAL", 
+        target_choice       : "ALL",
+        target_range        : 1, 
+        async onMonsterUseActionOnSecondaryTarget(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : boolean, messageList : MessageSet, fromSource : boolean) { return false; },
+        async onGenerateFieldEffect(this : Battle, eventSource : any, sourceEffect : ActiveItem, messageList : MessageSet, fromSource : boolean) {
+            const _interface : IFieldEffect = {
+                tokens      : [],        // Tokens held by the plot
+                trackers    : {},    // Misc trackers used by plot tokens
+                plots       : [],
+                fieldEffect : "difficultterrain"
+            }
+            const Effect : FieldEffect = new FieldEffect(_interface,this.Scene )
+            return Effect;
+        }
     }
 }

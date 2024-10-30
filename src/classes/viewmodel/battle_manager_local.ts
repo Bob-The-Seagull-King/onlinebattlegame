@@ -81,6 +81,8 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[1].AddFreshAction("intothepit");
         _Team.Monsters[1].AddFreshAction("graveyard");
         _Team.Monsters[1].AddFreshAction("vaccine");
+        _Team.Monsters[1].AddFreshAction("blackdart");
+        _Team.Monsters[1].AddFreshAction("vomit");
         _Team.AddFreshMonster("nimble");
         _Team.Monsters[2].AddFreshAction("blast");
         _Team.Monsters[2].AddFreshAction("strike");
@@ -91,6 +93,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[2].AddFreshAction("honourablearrow");
         _Team.Monsters[2].AddFreshAction("deathroll");
         _Team.Monsters[2].AddFreshAction("slam");
+        _Team.Monsters[2].AddFreshAction("blackdart");
         _Team.AddFreshMonster("bruiser");
         _Team.Monsters[3].AddFreshAction("strike");
         _Team.Monsters[3].AddFreshAction("rotshot");
@@ -109,6 +112,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[4].AddFreshAction("oilspit");
         _Team.Monsters[4].AddFreshAction("collectcall");
         _Team.Monsters[4].AddFreshAction("payoff");
+        _Team.Monsters[4].AddFreshAction("vomit");
         _Team.AddFreshMonster("evolvea");
         _Team.Monsters[5].AddFreshAction("help");
         _Team.Monsters[5].AddFreshAction("radiate");

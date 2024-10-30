@@ -245,7 +245,7 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
     },
     wounded: {
         id          : 9,       // Numerical ID of the token
-        category    : [TokenCategory.Debuff, TokenCategory.Movement],
+        category    : [TokenCategory.Debuff, TokenCategory.Movement, TokenCategory.Harm],
         async onSwitchOutMonster(this : Battle, eventSource : any, source : FieldedMonster , messageList : MessageSet, fromSource : boolean) {
             source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'tempest')
             source.Monster.Trackers['tempest'] = null;  
@@ -254,6 +254,33 @@ export const TokenMonsterBattleDex : TokenBattleTable = {
             const BaseVal = await this.Events.GetStatValue(source, 'hp', false, false)
             if (BaseVal) {
                 const dmg = await this.Events.DealDamage((Math.ceil(BaseVal/10)), 0, eventSource, source, true, true, true)
+            }
+        }
+    },
+    sickened: {
+        id          : 10,       // Numerical ID of the token
+        category    : [TokenCategory.Debuff, TokenCategory.Harm],
+        async onEndTurn(this : Battle, eventSource : any, source : FieldedMonster, messageList : MessageSet, fromSource : boolean) {
+            if (eventSource === source) {
+                if (source.Monster.Trackers['sickened']) {
+                    if (source.Monster.Trackers['sickened'] > 0) {
+                        messageList.push({ "generic" : source.Monster.Nickname + " threw up!"})
+                        const BaseVal = await this.Events.GetStatValue(source, 'hp', false, false)
+                        if (BaseVal) {
+                            const dmg = await this.Events.DealDamage((Math.ceil(BaseVal/10)), 0, eventSource, source, true, true, true)
+                        }
+                        source.Monster.Trackers['sickened'] -= 1;
+                    }
+                    if (source.Monster.Trackers['sickened'] <= 0) {                        
+                        messageList.push({ "generic" : source.Monster.Nickname + " stopped being SICK."})
+                        source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'sickened')
+                        source.Monster.Trackers['sickened'] = null;
+                    }
+                } else {                      
+                    messageList.push({ "generic" : source.Monster.Nickname + " stopped being SICK."})
+                    source.Monster.Tokens = source.Monster.Tokens.filter(item => item != 'sickened')
+                    source.Monster.Trackers['sickened'] = null;                    
+                }
             }
         }
     }
