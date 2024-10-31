@@ -109,6 +109,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[3].AddFreshAction("deathroll");
         _Team.Monsters[3].AddFreshAction("slam");
         _Team.Monsters[3].AddFreshAction("feast");
+        _Team.Monsters[3].Traits.push("guardian");
         _Team.AddFreshMonster("arcane");
         _Team.Monsters[4].AddFreshAction("blast");
         _Team.Monsters[4].AddFreshAction("ritualblade");

@@ -33,8 +33,15 @@ export const TraitInfoDex : TraitInfoTable = {
         id          : 3,
         name        : 'Soul Sucker',
         description : [ 
-            {cat: "positive", text: " Recover 1 "},
+            {cat: "positive", text: "Recover 1 "},
             {cat: "stat", text: "HP"},
             {cat: "general", text: " when inflicting effects."}]
+    },
+    guardian: {
+        id          : 4,
+        name        : 'Guardian',
+        description : [ 
+            {cat: "positive", text: "Reduce "},
+            {cat: "general", text: " incoming damage by 1."}]
     }
 }

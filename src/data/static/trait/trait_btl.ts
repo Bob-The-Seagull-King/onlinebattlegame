@@ -69,5 +69,18 @@ export const TraitBattleDex : TraitBattleTable = {
         async onOnEffectApply(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
             const HealVal = await this.Events.HealDamage(1, 0, source, source.Monster, source.Owner.Owner, source.Owner.Owner, messageList, false, false)
         }
+    },
+    guardian: {
+        id          : 4,
+        cost        : 15,
+        category    : [TraitCategory.Armour],
+        events      : {}, 
+        async onGetFinalDamage (this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
+            if (relayVar >= 1) {
+                return relayVar - 1;
+            } else {
+                return relayVar;
+            }
+        }
     }
 }

@@ -607,7 +607,7 @@ class BattleEvents {
 
             let dmg;
             const FinalDamage = await this.Battle.runEvent('GetFinalDamage', _source, _target, null, ModifiedDamage, null, this.Battle.MessageList )
-            
+
             dmg = await _target.Monster.TakeDamage(FinalDamage, this.Battle.MessageList);
             
             if (dmg) {
@@ -688,7 +688,6 @@ class BattleEvents {
 
         if (!_skipBoosts) {
             StatMod = await this.Battle.runEvent(('GetStatMod'+_stat), _mon, null, null, _mon.GetStatBoost(_stat), null, this.Battle.MessageList)        
-            console.log(StatMod);
         }
         FinalStat = await (Math.floor(BaseStat + (Math.floor(BaseStat * (StatMod/4)))))
 
