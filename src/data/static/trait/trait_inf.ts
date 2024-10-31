@@ -28,5 +28,13 @@ export const TraitInfoDex : TraitInfoTable = {
             {cat: "general", text: " for each 25% "},
             {cat: "stat", text: "HP"},
             {cat: "general", text: " lost."}]
+    },
+    soulsucker: {
+        id          : 3,
+        name        : 'Soul Sucker',
+        description : [ 
+            {cat: "positive", text: " Recover 1 "},
+            {cat: "stat", text: "HP"},
+            {cat: "general", text: " when inflicting effects."}]
     }
 }

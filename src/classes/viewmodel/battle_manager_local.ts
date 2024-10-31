@@ -119,6 +119,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[4].AddFreshAction("payoff");
         _Team.Monsters[4].AddFreshAction("vomit");
         _Team.Monsters[4].AddFreshAction("command");
+        _Team.Monsters[4].Traits.push("soulsucker");
         _Team.AddFreshMonster("evolvea");
         _Team.Monsters[5].AddFreshAction("help");
         _Team.Monsters[5].AddFreshAction("radiate");

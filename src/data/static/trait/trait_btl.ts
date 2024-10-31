@@ -5,7 +5,7 @@ import { ActiveMonster } from "../../../classes/sim/models/active_monster";
 import { FieldedMonster } from "../../../classes/sim/models/team";
 import { Plot } from "../../../classes/sim/models/terrain/terrain_plot";
 import { Scene } from "../../../classes/sim/models/terrain/terrain_scene";
-import { MessageSet, TraitBattleTable } from "../../../global_types";
+import { IEffectData, MessageSet, TraitBattleTable } from "../../../global_types";
 import { TokenCategory, TraitCategory } from "../../enum/categories";
 import { MonsterType } from "../../enum/types";
 import { ActionBattleDex } from "../action/action_btl";
@@ -29,8 +29,8 @@ export const TraitBattleDex : TraitBattleTable = {
         }
     },
     retreat: {
-        id          : 2,
-        cost        : 10,
+        id          : 1,
+        cost        : 20,
         category    : [TraitCategory.Movement],
         events      : {},
         async onGetStatModpt(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
@@ -45,8 +45,8 @@ export const TraitBattleDex : TraitBattleTable = {
         }
     },
     stressed: {
-        id          : 1,
-        cost        : 20,
+        id          : 2,
+        cost        : 10,
         category    : [TraitCategory.Armour],
         events      : {},
         async onGetStatModsp(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
@@ -59,6 +59,15 @@ export const TraitBattleDex : TraitBattleTable = {
             }
             
             return FinalOutput;
+        }
+    },
+    soulsucker: {
+        id          : 3,
+        cost        : 10,
+        category    : [TraitCategory.Restoration],
+        events      : {},        
+        async onOnEffectApply(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, trackVal : IEffectData, messageList : MessageSet, fromSource : boolean) {
+            const HealVal = await this.Events.HealDamage(1, 0, source, source.Monster, source.Owner.Owner, source.Owner.Owner, messageList, false, false)
         }
     }
 }
