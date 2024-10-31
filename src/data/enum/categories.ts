@@ -25,7 +25,8 @@ enum TraitCategory {
     Terraform = "Terraform", // Changes the terrain
     Sacrifice = "Sacrifice", // The monster suffers in some way because of it
     Skill = "Skill", // Deals with the Skill stat
-    Debuff = "Debuff" // Reduces a monster's efficiency
+    Debuff = "Debuff", // Reduces a monster's efficiency
+    Movement = "Movement"
 }
 
 enum WeatherCategory {

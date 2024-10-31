@@ -29,11 +29,27 @@ export const TraitBattleDex : TraitBattleTable = {
         }
     },
     retreat: {
+        id          : 2,
+        cost        : 10,
+        category    : [TraitCategory.Movement],
+        events      : {},
+        async onGetStatModpt(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
+            const SourceMonster = (source instanceof FieldedMonster)? source.Monster : source;
+            let FinalOutput = relayVar
+            const BaseHP = await this.Events.GetStatValue(SourceMonster, 'hp', false, false)
+            const Proportion = 4 - (Math.floor((4/BaseHP) * SourceMonster.HP_Current))
+            
+            FinalOutput += Proportion;
+            
+            return FinalOutput;
+        }
+    },
+    stressed: {
         id          : 1,
         cost        : 20,
         category    : [TraitCategory.Armour],
         events      : {},
-        async onGetStatModpt(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
+        async onGetStatModsp(this : Battle, eventSource : any, source : FieldedMonster | ActiveMonster, relayVar : number, messageList : MessageSet, fromSource : boolean) {
             const SourceMonster = (source instanceof FieldedMonster)? source.Monster : source;
             let FinalOutput = relayVar
             const BaseHP = await this.Events.GetStatValue(SourceMonster, 'hp', false, false)

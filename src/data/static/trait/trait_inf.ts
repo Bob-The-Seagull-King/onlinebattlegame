@@ -18,5 +18,15 @@ export const TraitInfoDex : TraitInfoTable = {
         description : [ {cat: "general", text: "When at half HP "},
             {cat: "positive", text: " Gain +2 "},
             {cat: "stat", text: "Protection"}]
+    },
+    stressed: {
+        id          : 2,
+        name        : 'Stressed',
+        description : [ 
+            {cat: "positive", text: " Gain +1 "},
+            {cat: "stat", text: "Speed"},
+            {cat: "general", text: " for each 25% "},
+            {cat: "stat", text: "HP"},
+            {cat: "general", text: " lost."}]
     }
 }
