@@ -82,5 +82,25 @@ export const TraitBattleDex : TraitBattleTable = {
                 return relayVar;
             }
         }
+    },
+    overgrown: {
+        id          : 5,
+        cost        : 10,
+        category    : [TraitCategory.Damage, TraitCategory.Skill],
+        events      : {},
+        async onGetDamageNumberModified(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : number, trackVal: boolean, messageList : MessageSet, fromSource : boolean) {
+            if (ActionBattleDex[sourceEffect.Action].type === MonsterType.Enchanted) {
+                return Math.ceil(relayVar * 1.25)
+            } else {
+                return relayVar
+            }
+        },        
+        async onModifySKMod(this : Battle, eventSource : any, source : FieldedMonster, target : FieldedMonster, sourceEffect : ActiveAction, relayVar : number, trackVal: IEffectData, messageList : MessageSet, fromSource : boolean) {
+            if (ActionBattleDex[sourceEffect.Action].type === MonsterType.Enchanted) {
+                return Math.ceil(relayVar * 1.25)
+            } else {
+                return relayVar
+            }
+        }
     }
 }

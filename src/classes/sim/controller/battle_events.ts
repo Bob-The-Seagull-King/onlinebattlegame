@@ -371,7 +371,7 @@ class BattleEvents {
         const ResistMod = await this.Battle.runEvent( "ModifyRSMod", source, target, effect, this.GetStatValue(target, "rs", await this.Battle.runEvent( "UseRSMods", source, target, effect, false, skilleffect, this.Battle.MessageList ), await this.Battle.runEvent( "UseRSBoosts", source, target, effect, false, skilleffect, this.Battle.MessageList )), skilleffect, this.Battle.MessageList ) 
         const TotalChance = Math.min(100, BaseChance + SkillMod - ResistMod);
         const rnmd = Math.floor(Math.random() * 100) + 1;
-
+        
         return (rnmd <= TotalChance);
     }
 

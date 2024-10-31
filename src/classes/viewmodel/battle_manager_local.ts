@@ -130,6 +130,7 @@ class OfflineBattleManager extends BattleManager {
         _Team.Monsters[5].AddFreshAction("smite");
         _Team.Monsters[5].AddFreshAction("honourablearrow");
         _Team.Monsters[5].AddFreshAction("command");
+        _Team.Monsters[5].Traits.push("overgrown");
 
         _Team.AddFreshItem("greenherb");
         _Team.AddFreshItem("blockofstone");

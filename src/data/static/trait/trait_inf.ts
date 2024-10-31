@@ -43,5 +43,12 @@ export const TraitInfoDex : TraitInfoTable = {
         description : [ 
             {cat: "positive", text: "Reduce "},
             {cat: "general", text: " incoming damage by 1."}]
+    },
+    overgrown: {
+        id          : 5,
+        name        : 'Overgrown',
+        description : [ 
+            {cat: "general", text: "Enchanted type Actions"},
+            {cat: "positive", text: "Gain 25% Damage and Skill chance."}]
     }
 }
