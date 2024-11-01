@@ -1,4 +1,4 @@
-import { BotBehaviourWeight, BotOptions, ChosenAction, IDEntry, MoveAction, SelectedAction, TargetAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
+import { BaseBotOptions, BotBehaviourWeight, BotOptions, ChosenAction, IDEntry, MoveAction, SelectedAction, TargetAction, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../../global_types";
 import { BattleSide } from "../../models/battle_side";
 import { Battle } from "../battle";
 import { ITrainer, TrainerBase } from "./trainer_basic";
@@ -31,53 +31,41 @@ class TrainerBot extends TrainerBase {
      */
     public async SelectChoice(_options: TurnSelect, _room : any, _battle : Battle) {
         
-        const randomCharValue = Math.floor( Math.random() * (_options.Options.length));
-        const TurnChar = _options.Options[randomCharValue];
+        const BaseOptions = await this.GenerateBasicWeightedArray(_options, _battle);
+        const FullOptions = await this.ConvertBaseOptionsToWeightedArray(BaseOptions, _battle);
 
-        const randomTypeValue = Math.floor( Math.random() * (Object.keys(TurnChar.Choices).length));
-        const TypeVal : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE' = Object.keys(TurnChar.Choices)[randomTypeValue] as 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE'
-
-        const randomTypeIndexVal =  Math.floor( Math.random() * (TurnChar.Choices[TypeVal].length));
-
-        let randomHypeVal = 0;
-
-        if ((TypeVal === 'SWITCH') || (TypeVal === 'ITEM') || (TypeVal === 'ACTION') || (TypeVal === 'PLACE')) {
-            randomHypeVal = Math.floor(  Math.random() * ((TurnChar.Choices[TypeVal][randomTypeIndexVal] as TargetAction).target_id.length));
-        }
-        if (TypeVal === 'MOVE') {
-            randomHypeVal =  Math.floor( Math.random() * ((TurnChar.Choices[TypeVal][randomTypeIndexVal] as MoveAction).paths.length));
-        }
-
-        let ReturnedAction : ChosenAction = { 
-            type: TypeVal,
-            type_index : randomTypeIndexVal, 
-            hypo_index : randomCharValue,
-            hype_index : randomHypeVal
-         }
+        const FinalOption = await this.SelectedMoveWeighted(FullOptions, _battle)
 
         const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
         await delay(500);
 
-        return ReturnedAction
+        if (FinalOption) {
+            return FinalOption.chosen;
+        }
     }
 
     /**
-     * Given a suite of choices, create an array of options
-     * with the default weights (based on the type of action).
-     * @param _choices the choices for the bot to select from
-     * @param _battle the battle the bot it a part of
-     * @returns array of weighted options (BotOptions)
      */
-    public ConvertToWeightedArray(_choices : TurnSelect, _battle : Battle) {
-        const _botoptions : BotOptions = [];
+    public async GenerateBasicWeightedArray(_choices : TurnSelect, _battle : Battle) {
+        const _botoptions : BaseBotOptions = [];
 
-        Object.keys(_choices).forEach(_key => {
-            _choices[_key].forEach(item => {
+        for (let i = 0; i < _choices.Options.length; i++) {
+            const relevantChoice = _choices.Options[i];
+            const OptionsList = Object.keys(relevantChoice.Choices)
+            for (let j = 0; j < OptionsList.length; j++) {
+                const relevantKey = OptionsList[j]
                 let BaseMod = 1000;
-                /*BaseMod = _battle.runBehaviour('GetBase'+_key+"Chance", this, null, null, BaseMod);*/
-                _botoptions.push({action: item, weight: BaseMod})
-            })
-        })
+                BaseMod = await _battle.runBehaviour('GetBase'+relevantKey+"Chance", this, null, null, null, null, null, BaseMod, null);
+                _botoptions.push(
+                {
+                    actions : relevantChoice.Choices[relevantKey],  // The action associated with this weighting
+                    weight  : BaseMod,
+                    charpos : i,
+                    type    : relevantKey as 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE'
+                }
+                )
+            }
+        }
 
         return _botoptions;
     }
@@ -90,15 +78,53 @@ class TrainerBot extends TrainerBase {
      * @param _battle the battle the bot is a part of
      * @returns array of weighted options (BotOptions)
      */
-    public ConvertSubOptionsToWeightedArray(_choices : SelectedAction[], _base : BotBehaviourWeight, _battle : Battle) {
+    public async ConvertBaseOptionsToWeightedArray(_choices : BaseBotOptions, _battle : Battle) {
         const _botoptions : BotOptions = [];
 
-        _choices.forEach(item => {
-            let BaseMod = _base.weight / _choices.length
-            const newOption : BotBehaviourWeight = { action : item, weight : BaseMod }
-            /*newOption.weight = _battle.runBehaviour('ModifySub'+_base.action.type+"Chance", this, null, newOption, BaseMod);*/
-            _botoptions.push(newOption)
-        })
+
+        for (let i = 0; i < _choices.length; i++) {
+            const RelevantChoice = _choices[i]
+            for (let j = 0; j < RelevantChoice.actions.length; j++) {
+                const RelevantAction = RelevantChoice.actions[j]
+
+                let BaseMod = RelevantChoice.weight / await _battle.runBehaviour('GetRatio'+RelevantChoice.type+"Chance", this, null, RelevantChoice, null, null, RelevantAction, RelevantChoice.actions.length, RelevantAction);
+                BaseMod = await _battle.runBehaviour('GetSpecific'+RelevantChoice.type+"Chance", this, null, RelevantChoice, null, null, null, BaseMod, RelevantAction);
+                
+                if ((RelevantAction.type === "ACTION") || (RelevantAction.type === "ITEM") || (RelevantAction.type === "SWITCH") || (RelevantAction.type === "PLACE")) {
+                    for (let k = 0; k < (RelevantAction as TargetAction).target_id.length; k++) {
+                        const RelevantSubAction = (RelevantAction as TargetAction).target_id[k];
+                        
+                        let EndMod = BaseMod / await _battle.runBehaviour('GetFinalRatio'+RelevantChoice.type+"Chance", this, null, RelevantChoice, null, null, RelevantAction, (RelevantAction as TargetAction).target_id.length, RelevantSubAction);
+                        EndMod = await _battle.runBehaviour('GetFinalSpecific'+RelevantChoice.type+"Chance", this, null, RelevantChoice, null, null, RelevantAction, EndMod, RelevantSubAction);
+                        
+                        const newOption : BotBehaviourWeight = { action : RelevantAction, weight : EndMod, chosen: {
+                            type: RelevantChoice.type,
+                            hypo_index: RelevantChoice.charpos,
+                            type_index: j,
+                            hype_index: k
+                        } }
+
+                        _botoptions.push(newOption)
+                    }
+                } else if (RelevantAction.type === "MOVE") {
+                    for (let k = 0; k < (RelevantAction as MoveAction).paths.length; k++) {
+                        const RelevantSubAction = (RelevantAction as MoveAction).paths[k];
+                        
+                        let EndMod = BaseMod / await _battle.runBehaviour('GetFinalRatio'+RelevantChoice.type+"Chance", this, null, RelevantChoice, null, null, RelevantAction, (RelevantAction as MoveAction).paths.length, RelevantSubAction);
+                        EndMod = await _battle.runBehaviour('GetFinalSpecific'+RelevantChoice.type+"Chance", this, null, RelevantChoice, null, null, RelevantAction, EndMod, RelevantSubAction);
+                        
+                        const newOption : BotBehaviourWeight = { action : RelevantAction, weight : EndMod, chosen: {
+                            type: RelevantChoice.type,
+                            hypo_index: RelevantChoice.charpos,
+                            type_index: j,
+                            hype_index: k
+                        } }
+
+                        _botoptions.push(newOption)
+                    }
+                }
+            }
+        }
 
         return _botoptions;
     }
@@ -111,25 +137,31 @@ class TrainerBot extends TrainerBase {
      * @param _battle the battle this bot is a part of
      * @returns the final BotOption being selected
      */
-    public SelectedMoveWeighted(options : BotOptions, _battle : Battle) {
-        const culledOptions = options //_battle.runBehaviour('CullOptions', this, options, null, options);
+    public async SelectedMoveWeighted(options : BotOptions, _battle : Battle): Promise<BotBehaviourWeight> {
+        
+        const culledOptions = await _battle.runBehaviour('CullOptions', this, null, null, options, null, null, options);
         const totalWeight = culledOptions.reduce((sum, culledOptions) => sum + culledOptions.weight, 0);
+
 
         // Generate a random number between 0 and totalWeight
         const randomWeight = Math.random() * totalWeight;
 
         // Iterate over the items to find the one that corresponds to the random weight
+        let ChosenItem : BotBehaviourWeight;
         let cumulativeWeight = 0;
         for (const item of culledOptions) {
             cumulativeWeight += item.weight;
+            console.log(cumulativeWeight)
             if (randomWeight < cumulativeWeight) {
-                return item;
+                ChosenItem = item;
+                break;
             }
         }
 
+        return ChosenItem;
         // Emergency return
-        const noneoption : BotBehaviourWeight = {action: {type: "NONE"}, weight: 1}
-        return noneoption
+        //const noneoption : BotBehaviourWeight = {action: {type: "NONE"}, weight: 1}
+        //return noneoption
     }
 
 }

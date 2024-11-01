@@ -3,7 +3,7 @@ import { ItemBattleDex } from "../../../data/static/item/item_btl";
 import { TokenMonsterBattleDex } from "../../../data/static/token/t_monster/token_monster_btl";
 import { TokenTerrainBattleDex } from "../../../data/static/token/t_terrain/token_terrain_btl";
 import { TraitBattleDex } from "../../../data/static/trait/trait_btl";
-import { ActionAction, BotBehaviourWeight, BotOptions, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
+import { ActionAction, BaseBotOptions, BotBehaviourOptions, BotBehaviourWeight, BotOptions, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SwapAction, TurnCharacter, TurnChoices, TurnSelect, TurnSelectReturn } from "../../../global_types";
 import { ActiveAction } from "../models/active_action";
 import { ActiveItem } from "../models/active_item";
 import { FieldedMonster, Team } from "../models/team";
@@ -1236,6 +1236,89 @@ class Battle {
                 events.push( { priority: 3, self: target, source: target, callback: func, fromsource: _fromSource } )
             }    
         } 
+    }
+
+    
+    /**
+     * Handles running Trainer Bot descision making. Takes a collection of possible options
+     * and runs any events in that trainer's behaviour modifiers to change the proportional
+     * weight of those options.
+     * @param behaviourid       The string name of the event, with the function being "on" + the eventid
+     * @param trainer           The trainer making this descision
+     * @param options           The available options to choose from
+     * @param optionSpecific    The specific option to modify, if any
+     * @param relayVar          A variable which, if included, is passed through the event functions to be modifier and returned
+     * @param trackVal          A variable which is set once, and used to modify the way event functions run
+     * @returns if relayVar is non null, it returns the value of the relayVar after each event has been run
+     */
+    public async runBehaviour(
+        behaviourid: string,
+        trainer: TrainerBot, 
+        baseOptions? : BaseBotOptions,
+        baseBotOptionSpecific? : BotBehaviourOptions,
+        options? : BotOptions,
+        optionSpecific? : BotBehaviourWeight,
+        action?: any,
+        relayVar?: any, 
+        trackVal?: any
+    ) {
+
+        // Gather all event functions to call
+        const Events : EventHolder[] = [];
+
+        // Get events from the trainer
+        this.getBehaviour(behaviourid, trainer, Events, true);
+
+        // Initialize the return value
+        let relay_variable = relayVar;
+        let returnVal;
+
+        // Organize events by priority
+        Events.sort((a, b) => a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0)
+
+        // Run each event
+        for (const _event of Events) {
+            
+            // Determine function arguments
+            const args = [];
+
+            let i = 0;
+            if ((trainer !== undefined) && (trainer !== null)) { args[i] = trainer; i += 1; }
+            if ((baseOptions !== undefined) && (baseOptions !== null)) { args[i] = baseOptions; i += 1; }
+            if ((baseBotOptionSpecific !== undefined) && (baseBotOptionSpecific !== null)) { args[i] = baseBotOptionSpecific; i += 1; }
+            if ((options !== undefined) && (options !== null)) { args[i] = options; i += 1; }
+            if ((optionSpecific !== undefined) && (optionSpecific !== null)) { args[i] = optionSpecific; i += 1; }
+            if ((action !== undefined) && (action !== null)) { args[i] = action; i += 1; }
+            if ((relay_variable !== undefined) && (relay_variable !== null)) { args[i] = relay_variable; i += 1; }
+            if ((trackVal !== undefined) && (trackVal !== null)) { args[i] = trackVal; i += 1; }
+
+            // Run the event
+            returnVal = _event.callback.apply(this, args);
+            relay_variable = returnVal;
+        }
+
+        return relay_variable;
+    }
+    
+    /**
+     * Given a trainer and the name of a behaviour, find any behaviours
+     * which have the function "on"+eventid in them and add that function 
+     * as an Event to the battle's list of events to run.
+     * @param eventid the name of the event being searched for
+     * @param target the trainer being searched within for events
+     * @param events the array of events to add to
+     * @param _fromSource if the target is the thing that triggered this event in the first place.
+     */
+    public getBehaviour( eventid: string, target: TrainerBot, events : EventHolder[], _fromSource : boolean ) {
+        for (let i = 0; i < target.Behaviour.length; i ++) {
+            // Check the monster's passive traits
+            let temp_condition = BehaviourDex[target.Behaviour[i]]
+            // @ts-ignore - dynamic lookup
+            const func = temp_condition['on'+eventid];
+            if (func !== undefined) {
+                events.push( { priority: 1, self: target, source: target, callback: func, fromsource: _fromSource } )
+            }
+        }
     }
 
 

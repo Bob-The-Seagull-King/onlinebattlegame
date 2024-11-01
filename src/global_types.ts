@@ -80,8 +80,16 @@ export type TurnSelectReturn = {
  * when a bot is selection an action.
  */
 export type BotBehaviourWeight = {
-    action : SelectedAction,  // The action associated with this weighting
-    weight : number             // Weight of the move (higher weight === more likely to select)
+    action  : SelectedAction,  // The action associated with this weighting
+    chosen  : ChosenAction,
+    weight  : number             // Weight of the move (higher weight === more likely to select)
+}
+
+export type BotBehaviourOptions = {
+    actions : SelectedAction[],  // The action associated with this weighting
+    weight  : number,             // Weight of the move (higher weight === more likely to select)
+    charpos : number,
+    type    : 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE'
 }
 
 /**
@@ -89,6 +97,7 @@ export type BotBehaviourWeight = {
  * an action in battle.
  */
 export type BotOptions = BotBehaviourWeight[]
+export type BaseBotOptions = BotBehaviourOptions[]
 
 /**
  * Base interface for possible actions that can be taken.
@@ -103,7 +112,7 @@ export interface TargetAction extends SelectedAction {
 
 export interface ChosenAction extends SelectedAction {
     type_index : number, // The index within the array of X-Type actions (ie 1 === the second X type action)
-    hypo_index? : number // The index within the options selector (ie for ACTION, 0 would be the first action item)
+    hypo_index? : number // TurnCharacterPos
     hype_index? : number // The index within a suboption (ie for ACTION, 3 would be the 4th position item)
 }
 
