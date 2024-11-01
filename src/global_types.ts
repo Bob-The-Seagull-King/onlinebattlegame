@@ -341,11 +341,14 @@ export interface CallEvents {
 /**
  * Events called by Trainer Bots to determine what move
  * to select.
+ * 'SWITCH' | 'ITEM' | 'ACTION' | 'NONE' | 'MOVE' | 'PLACE'
  */
 export interface BehaviourEvents {
-    onGetBaseSWITCHChance? : (this : Battle, trainer : TrainerBot, relay : number) => number,
-    onGetBaseITEMChance? : (this : Battle, trainer : TrainerBot, relay : number) => number,
-    onGetBaseACTIONChance? : (this : Battle, trainer : TrainerBot, relay : number) => number,
+    onGetBaseSWITCHChance? : (this : Battle, trainer : TrainerBot, relayVar : number) => Promise<number>,
+    onGetBaseITEMChance? : (this : Battle, trainer : TrainerBot, relayVar : number) => Promise<number>,
+    onGetBaseACTIONChance? : (this : Battle, trainer : TrainerBot, relayVar : number) => Promise<number>,
+    onGetBaseMOVEChance? : (this : Battle, trainer : TrainerBot, relayVar : number) => Promise<number>,
+    onGetBasePLACEChance? : (this : Battle, trainer : TrainerBot, relayVar : number) => Promise<number>,
     onModifySWITCHChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
     onModifyITEMChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,
     onModifyACTIONChance? : (this : Battle, trainer : TrainerBot, options: BotOptions, optionSpecific : BotBehaviourWeight, relay: any) => number,

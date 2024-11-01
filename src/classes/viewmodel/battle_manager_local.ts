@@ -46,7 +46,7 @@ class OfflineBattleManager extends BattleManager {
         const myTrainer : ITrainerLocal = {team: myTeam, pos: 0, manager: this, name: "Local", type: 'local'};
 
         const otherTeam : ITeam = this.TempBotTeam();
-        const otherTrainer : ITrainerBot = {type : 'bot', team: otherTeam, pos: 1, behaviour: ['random'], name: "Bot"};
+        const otherTrainer : ITrainerBot = {type : 'bot', team: otherTeam, pos: 1, behaviour: ['basic'], name: "Bot"};
 
         const Trainers : ITrainer[][] = [];
         const newScene : IScene = TerrainFactory.CreateIScene(6,6)

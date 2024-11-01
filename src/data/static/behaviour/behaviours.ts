@@ -10,10 +10,25 @@ import { SpeciesBattleDex } from "../species/species_btl";
  * Trainer Bot action selection behaviour database
  */
 export const BehaviourDex : BehaviourTable = {
-    random : {
+    basic : {
         id : 0,
-        name : "Random",
-        description: [{cat: "generic", text: "Randomly Select Moves"}]
+        name : "Basic",
+        description: [{cat: "generic", text: "General Purpose"}],
+        async onGetBaseSWITCHChance(this : Battle, trainer : TrainerBot, relayVar : number) {
+            return 500;
+        },
+        async onGetBaseITEMChance(this : Battle, trainer : TrainerBot, relayVar : number) {
+            return 500;
+        },
+        async onGetBaseACTIONChance(this : Battle, trainer : TrainerBot, relayVar : number) {
+            return 2000;
+        },
+        async onGetBaseMOVEChance(this : Battle, trainer : TrainerBot, relayVar : number) {
+            return 1000;
+        },
+        async onGetBasePLACEChance(this : Battle, trainer : TrainerBot, relayVar : number) {
+            return relayVar;
+        }
     },
     predictable : {
         id : 2,
