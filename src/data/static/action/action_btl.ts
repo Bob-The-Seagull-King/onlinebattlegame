@@ -87,7 +87,7 @@ export const ActionBattleDex : ActionBattleTable = {
         category            : [ActionCategory.Recovery, ActionCategory.Help],
         events              : {},
         effects             : [],
-        target_team         : "TEAM",
+        target_team         : "ALLY",
         target_pos          : "SINGLE",
         target_type         : "MONSTER",
         target_direction    : "ALL", 

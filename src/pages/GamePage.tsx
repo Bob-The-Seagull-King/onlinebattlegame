@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.css';
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../resources/styles/App.css';
 import '../resources/styles/CustomStyleHost.scss'
 import { OfflineBattleManager } from '../classes/viewmodel/battle_manager_local';
@@ -13,13 +13,17 @@ import TextWobble from './SubComponents/Generics/TextWobble';
 const GamePage = (props: any) => {
   const myManager : BattleManager = props.manager;
   const StartGameMethod = props.joinmethod
+
+  useEffect(() => {
+    StartGameMethod();
+  }, []);
   
   return (
     <div className="TestWebBody">
       <div className="row">
         <div className="col-6">
           {/** Battle start button */}
-          <Button bsPrefix="TestButton BigText ForceHeight15" style={{margin:"0em"}} onClick={StartGameMethod} size="lg"> <TextWobble value={"Start Battle"}/> </Button>
+          <Button bsPrefix="TestButton BigText ForceHeight15" style={{margin:"0em"}} size="lg"> <TextWobble value={"Start Battle"}/> </Button>
         </div>
         <div className="col-6">
             {/** Display battle text log */}
