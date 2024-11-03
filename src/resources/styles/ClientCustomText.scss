@@ -37,3 +37,45 @@
     font-weight: 800;
     color: var(--colour_main_blue);
 }
+
+  
+  .wobbly-animation {
+    animation: wobble 1.5s infinite;
+  }
+  
+  @keyframes wobble {
+    0% {
+      filter: url(#wobble1);
+    }
+    10% {
+      filter: url(#wobble2);
+    }
+    20% {
+      filter: url(#wobble3);
+    }
+    30% {
+      filter: url(#wobble4);
+    }
+    40% {
+      filter: url(#wobble2);
+    }
+    50% {
+      filter: url(#wobble1);
+    }
+    60% {
+      filter: url(#wobble4);
+    }
+    70% {
+      filter: url(#wobble3);
+    }
+    80% {
+      filter: url(#wobble2);
+    }
+    90% {
+      filter: url(#wobble5);
+    }
+    100% {
+      filter: url(#wobble1);
+    }
+  }
+  

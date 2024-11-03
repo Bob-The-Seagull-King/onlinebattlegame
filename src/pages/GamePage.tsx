@@ -8,6 +8,7 @@ import OptionsDisplay from './Screen/OptionsDisplay';
 import Button from 'react-bootstrap/Button';
 import PlotsDisplay from './Screen/PlotsDisplay';
 import { BattleManager } from '../classes/viewmodel/battle_manager';
+import TextWobble from './SubComponents/Generics/TextWobble';
 
 const GamePage = (props: any) => {
   const myManager : BattleManager = props.manager;
@@ -18,7 +19,7 @@ const GamePage = (props: any) => {
       <div className="row">
         <div className="col-6">
           {/** Battle start button */}
-          <Button bsPrefix="TestButton MedText ForceHeight15" style={{margin:"0em"}} onClick={StartGameMethod} size="lg"> Start Battle</Button>
+          <Button bsPrefix="TestButton BigText ForceHeight15" style={{margin:"0em"}} onClick={StartGameMethod} size="lg"> <TextWobble value={"Start Battle"}/> </Button>
         </div>
         <div className="col-6">
             {/** Display battle text log */}
