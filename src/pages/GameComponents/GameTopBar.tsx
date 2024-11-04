@@ -19,12 +19,26 @@ const GameTopBar = (props: any) => {
   // Collection of options available for the user to choose from
   const [gameState, setGameState] = useState(Manager.BattleState);
   const [stateKey, setStateKey] = useState(0);
+  const [leftTrainers, setLeftTrainers] = useState(GetSplitTrainers(true))
+  const [rightTrainers, setRightTrainers] = useState(GetSplitTrainers(false))
   
+  function GetSplitTrainers(side : boolean) {
+    const trainers : ITrainer[] = []
+
+    Manager.BattleState.sides.forEach(_side => {
+      _side.trainers.forEach(_trainer => {trainers.push(_trainer)})
+    })
+
+    return trainers.slice( (side)? 0 : Math.floor((trainers.length/2)) , (side)? Math.floor((trainers.length/2)) : trainers.length );
+  }
+
   // Update the state of options to match the manager
   const receiveOptions = () => {
     console.log("UPDATE STATE")
     setGameState(Manager.BattleState);
     setStateKey(stateKey + 1)
+    setLeftTrainers(GetSplitTrainers(true))
+    setRightTrainers(GetSplitTrainers(false))
   }
 
   // Assign the relevant function to the manager
@@ -33,7 +47,7 @@ const GameTopBar = (props: any) => {
   function TrainerTopBarUI(_trainer : ITrainer) {
 
     return (
-      <span className="MedText" style={{display:"flex"}}>
+      <span className="MedText" style={{display:"flex",width:"fit-content"}}>
         <div >
           {((_trainer.sidepos === gameState.current) ) &&
             <TextWobble value={_trainer.name} />
@@ -60,7 +74,7 @@ const GameTopBar = (props: any) => {
 
   function ReturnRoundCount() {
     return (
-      <div className="BigText">
+      <div className="BiggerText" style={{width:"fit-content"}}>
          <TextWobble value={gameState.rounds} />
       </div>
     )
@@ -69,15 +83,16 @@ const GameTopBar = (props: any) => {
   return (
     <div className="sticky-nav" key={stateKey}>
       {gameState != null && 
-        <div>
-            {gameState.sides.map(_side => 
-              <div style={{display:"flex"}}> {_side.trainers.map(_trainer =>  <>
+        <div style={{display:"flex"}}>
+            {leftTrainers.map(_trainer =>  <>
                     {TrainerTopBarUI(_trainer)}
-              </> )} </div>
-            )}
+              </> )}
             {
               ReturnRoundCount()
             }
+            {rightTrainers.map(_trainer =>  <>
+                    {TrainerTopBarUI(_trainer)}
+              </> )}
         </div>
       }
     </div>
