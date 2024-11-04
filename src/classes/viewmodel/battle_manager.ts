@@ -3,7 +3,7 @@ import { ActionInfoDex } from "../../data/static/action/action_inf";
 import { ItemBattleDex } from "../../data/static/item/item_btl";
 import { ActionAction, ChoiceTarget, ChosenAction, ItemAction, MessageSet, MoveAction, PlaceAction, SelectedAction, TurnCharacter, TurnChoices, TurnSelect } from "../../global_types";
 import { returnChoiceTargetPlots } from "../../util/sharedfunctions";
-import { IBattle } from "../sim/controller/battle";
+import { Battle, IBattle } from "../sim/controller/battle";
 import { MessageTranslator } from "../tools/translator";
 import { GamePlot } from "./game_plot";
 import { GameScene } from "./game_scene";
@@ -20,6 +20,7 @@ class BattleManager {
     public funcReceiveResults   : any;  // method from the Page for receiving battle messages
     public funcReceiveOptions   : any;  // method from the Page for receiving battle options
     public funcReceivePlots   : any;  // method from the Page for receiving battle options
+    public funcRecieveGameData  : any[] = [];
 
     public SidePosition : number = 0;
     public BattlePosition : number = 0;
@@ -75,6 +76,14 @@ class BattleManager {
      * Assign the method for updating the page's list of battle options
      * @param receiveoptions the react function involved
      */
+    public addGameUpdater(receiveoptions : any) {
+        this.funcRecieveGameData.push(receiveoptions);
+    }
+
+    /**
+     * Assign the method for updating the page's list of battle options
+     * @param receiveoptions the react function involved
+     */
     public setPlotsFuncs(receiveoptions : any) {
         this.funcReceivePlots = receiveoptions;
     }
@@ -114,6 +123,7 @@ class BattleManager {
      */
     public UpdateBattleState(_battle : IBattle) {
         this.BattleState = _battle;
+        this.funcRecieveGameData.forEach( method => {method();})
         this.CurrentScene = null;
         this.CurrentPlots = [];
         this.CurrentScene = new GameScene( _battle.scene);

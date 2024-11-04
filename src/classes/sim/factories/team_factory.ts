@@ -23,7 +23,8 @@ class TeamFactory {
             name: _name, 
             items: [],
             monsters: [],
-            active: []
+            active: [],
+            turns: 0
         }
         return TeamFactory.CreateTeam(freshTeam, _owner);
     }

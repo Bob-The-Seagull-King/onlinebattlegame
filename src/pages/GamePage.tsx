@@ -9,17 +9,25 @@ import Button from 'react-bootstrap/Button';
 import PlotsDisplay from './Screen/PlotsDisplay';
 import { BattleManager } from '../classes/viewmodel/battle_manager';
 import TextWobble from './SubComponents/Generics/TextWobble';
+import GameTopBar from './GameComponents/GameTopBar';
 
 const GamePage = (props: any) => {
   const myManager : BattleManager = props.manager;
   const StartGameMethod = props.joinmethod
 
   useEffect(() => {
-    StartGameMethod();
-  }, []);
+    // Check if myManager is not null
+    if (myManager !== null) {
+      // Run your function here
+      StartGameMethod();
+    }
+  }, [myManager]);
   
   return (
     <div className="TestWebBody">
+      <div>
+        <GameTopBar manager={myManager} />
+      </div>
       <div className="row">
         <div className="col-6">
           {/** Battle start button */}

@@ -28,3 +28,8 @@
   opacity: 1 !important;
   --bs-tooltip-bg: none !important;
 }
+
+.sticky-nav {
+  position: sticky;
+  top: 0;
+}

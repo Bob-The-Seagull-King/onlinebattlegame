@@ -19,6 +19,7 @@ interface ITeam {
     items       : IActiveItem[],    // Items held by the team
     monsters    : IActiveMonster[], // All monsters that are part of this team
     active      : IFieldedMonster[]      // Monsters that are currently 'in play' and on the field
+    turns       : number
 }
 
 /**
@@ -71,6 +72,7 @@ class Team {
     public Leads    : FieldedMonster[];      // Currently 'in play' monsters
     public Name     : string            // Name the team is reffered by
     public Owner    : TrainerBase;
+    public TurnsTaken : number;
 
 
     /**
@@ -191,7 +193,8 @@ class Team {
             name        : this.Name,
             items       : _items,
             monsters    : _monsters,
-            active      : _leads
+            active      : _leads,
+            turns       : this.TurnsTaken
         }
         return _interface;
     }

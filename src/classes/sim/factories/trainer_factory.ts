@@ -40,7 +40,8 @@ class TrainerFactory {
             name: _name, 
             items: [],
             monsters: [],
-            active: []
+            active: [],
+            turns: 0
         }
         
         if (_type === "local") {

@@ -44,6 +44,8 @@ interface IBattle {
     sides       : IBattleSide[]
     scene       : IScene        // The interface form of the battle Scene
     turns       : number // the number of turns a player gets per round
+    rounds?     : number
+    current?    : number
 }
 
 class Battle {
@@ -53,6 +55,9 @@ class Battle {
     public Events       : BattleEvents;     // The Event running object that handles performing actions
     public Turns        : number;
     public MessageList  : MessageSet;
+
+    public RoundCount   : number;
+    public CurrentTrainer : number;
 
     /**
      * Simple constructor
@@ -166,7 +171,9 @@ class Battle {
         const _interface : IBattle = {
             sides: _side,
             scene: this.Scene.ConvertToInterface(),
-            turns: this.Turns
+            turns: this.Turns,
+            rounds: this.RoundCount,
+            current: this.CurrentTrainer
         }
         return _interface;
     }
@@ -195,6 +202,7 @@ class Battle {
             this.SendOutMessage(this.MessageList);
             await this.UpdateBattleState();
             cont = await this.EnactRound();
+            this.RoundCount += 1;
             roundVar ++;
         }
 
@@ -225,9 +233,11 @@ class Battle {
             if (ContinueRound) {
                 for (let j = 0; j < this.Sides.length; j++) {
                     if (this.Sides[i].IsSideAlive() === true) {
+                        this.CurrentTrainer = i;
                         for (let k = 0; k < this.Sides[j].Trainers.length; k++) {
                             if (this.Sides[j].Trainers[k].Team.IsTeamAlive()) {
                                 await this.EnactTurn(this.Sides[j].Trainers[k])
+                                this.Sides[j].Trainers[k].Team.TurnsTaken += 1;
                             }
                         }
                     }                
@@ -241,6 +251,7 @@ class Battle {
         this.runEvent( "EndRound", null, null, null, null, null, this.MessageList )
         
         this.Sides.forEach(_side => {_side.Trainers.forEach(_trainer => {_trainer.Team.Leads.forEach(_lead => {_lead.Activated = false})})})
+        this.Sides.forEach(_side => {_side.Trainers.forEach(_trainer => {_trainer.Team.TurnsTaken = 0})})
 
         return ContinueRound 
     }
