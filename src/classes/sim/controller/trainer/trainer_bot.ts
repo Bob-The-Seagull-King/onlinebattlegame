@@ -151,7 +151,6 @@ class TrainerBot extends TrainerBase {
         let cumulativeWeight = 0;
         for (const item of culledOptions) {
             cumulativeWeight += item.weight;
-            console.log(cumulativeWeight)
             if (randomWeight < cumulativeWeight) {
                 ChosenItem = item;
                 break;

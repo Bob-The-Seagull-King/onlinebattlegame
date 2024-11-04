@@ -72,6 +72,11 @@ class Battle {
         this.Events = new BattleEvents(this);
         this.Turns = _data.turns;
         this.MessageList = [];
+        if (_data.rounds) {
+            this.RoundCount = _data.rounds
+        } else {
+            this.RoundCount = 0;
+        }
     }
 
     /**
@@ -198,11 +203,11 @@ class Battle {
         let roundVar = 1;
 
         while(cont) {
+            this.RoundCount += 1;
             this.MessageList.push({ "generic" : "Round " + roundVar})
             this.SendOutMessage(this.MessageList);
             await this.UpdateBattleState();
             cont = await this.EnactRound();
-            this.RoundCount += 1;
             roundVar ++;
         }
 
@@ -232,8 +237,8 @@ class Battle {
         for (let i = 0; i < this.Turns; i++) {
             if (ContinueRound) {
                 for (let j = 0; j < this.Sides.length; j++) {
-                    if (this.Sides[i].IsSideAlive() === true) {
-                        this.CurrentTrainer = i;
+                    if (this.Sides[j].IsSideAlive() === true) {
+                        this.CurrentTrainer = j;
                         for (let k = 0; k < this.Sides[j].Trainers.length; k++) {
                             if (this.Sides[j].Trainers[k].Team.IsTeamAlive()) {
                                 await this.EnactTurn(this.Sides[j].Trainers[k])

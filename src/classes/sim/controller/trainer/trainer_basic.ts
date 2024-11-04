@@ -13,6 +13,7 @@ class ITrainer {
     pos  : number // The position (side) the trainer takes in the battle
     name : string // The name/username of the trainer
     type : IDEntry // the type of Trainer this is
+    sidepos? : number
 }
 
 class TrainerBase {
@@ -63,7 +64,8 @@ class TrainerBase {
             team : this.Team.ConvertToInterface(),
             pos  : this.Position,
             name : this.Name,
-            type : this.Type
+            type : this.Type,
+            sidepos : this.Owner.Owner.Sides.indexOf(this.Owner)
         }
         return _interface;
     }

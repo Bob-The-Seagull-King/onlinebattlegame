@@ -87,6 +87,11 @@ class Team {
         this.MonsterGenerator(_data.monsters)
         this.LeadGenerator(_data.active)
         this.Owner = _owner
+        if (_data.turns) {
+            this.TurnsTaken = _data.turns
+        } else {
+            this.TurnsTaken = 0;
+        }
     }
 
     /**
