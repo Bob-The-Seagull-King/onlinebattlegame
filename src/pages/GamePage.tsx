@@ -22,22 +22,20 @@ const GamePage = (props: any) => {
       StartGameMethod();
     }
   }, [myManager]);
+
+  const receiveMessage = () => {
+    console.log("MESSAGE")
+  }
+  // Assign the relevant function to the manager
+  myManager.setResultFuncs(receiveMessage)
   
   return (
-    <div className="TestWebBody">
-      <div>
+    <div>
+    <div>
         <GameTopBar manager={myManager} />
       </div>
-      <div className="row">
-        <div className="col-6">
-          {/** Battle start button */}
-          <Button bsPrefix="TestButton BigText ForceHeight15" style={{margin:"0em"}} size="lg"> <TextWobble value={"Start Battle"}/> </Button>
-        </div>
-        <div className="col-6">
-            {/** Display battle text log */}
-            <MessagesDisplay manager={myManager}/>
-        </div>
-      </div>
+    <div className="TestWebBody">
+      
       <div className="row">
         <div className="col-12">
           <div className="TestWebComponentHolder">
@@ -47,6 +45,7 @@ const GamePage = (props: any) => {
         </div>
       </div>
 
+    </div>
     </div>
   );
 }

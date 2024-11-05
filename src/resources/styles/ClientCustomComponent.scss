@@ -227,3 +227,36 @@
 .plottooltip {
   color: var(--colour_main_grey) !important;
 }
+
+.roundcounter {
+  border-radius: 0rem 0rem 0.5rem 0.5rem;
+  border-color: var(--colour_main_blue) !important; 
+  border-style: solid;
+  border-width: 0px 3px 3px 3px; 
+  width: 5rem;
+  text-align: center;
+  background-color: white !important;
+}
+
+.leftnames {
+  float: right;
+  border-radius: 0rem 0rem 0rem 0.5rem;
+  border-color: var(--colour_main_blue) !important; 
+  border-style: solid;
+  border-width: 0px 0px 3px 3px; 
+  text-align: center;
+  margin: 0px !important;
+  padding: 0.5rem;
+  background-color: white !important;
+}
+
+.rightnames {
+  border-radius: 0rem 0rem 0.5rem 0rem;
+  border-color: var(--colour_main_blue) !important; 
+  border-style: solid;
+  border-width: 0px 3px 3px 0px; 
+  text-align: center;
+  margin: 0px !important;
+  padding: 0.5rem;
+  background-color: white !important;
+}
