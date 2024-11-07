@@ -166,7 +166,7 @@ class RoomHold {
     }
 
     public SetUserPosition(_user : TrainerUser, _sidepos : number, _battlepos : number) {
-        _user.User.socket.MySocket.emit("receive_battle_position", {sidepos: _sidepos, battlepos: _battlepos, battle : _user.Owner.Owner.ConvertToInterface()});
+        _user.User.socket.MySocket.emit("receive_battle_position", {sidepos: _sidepos, battlepos: _battlepos});
     }
     
     /**
@@ -189,15 +189,12 @@ class RoomHold {
     public GenerateBattle() {
         const Trainers : ITrainerUser[][] = [];
         const newScene : IScene = TerrainFactory.CreateIScene(6,6)
-    
         let i = 0
         for (i = 0; i < this.MyMembers.length; i++) {
             const newTrainer : ITrainerUser = {type : "user", user : this.MyMembers[i], team: this.MyMembers[i].team, pos : i, name: this.MyMembers[i].user.Name.toString()};
             Trainers.push([newTrainer]);
         }
-        
         this.GameRoom = BattleFactory.CreateNewBattle(Trainers, newScene, this, 2);
-
         this.GameRoom.Sides.forEach(element => {
             element.Trainers.forEach((item) => {
                 (item as TrainerUser).User.trainer = (item as TrainerUser);
@@ -207,7 +204,7 @@ class RoomHold {
         });
     }
 
-    public UpdateState(_battle : IBattle) {
+    public async UpdateState(_battle : IBattle) {
         this.GameRoom.Sides.forEach(element => {
             element.Trainers.forEach((item) => {
                 (item as TrainerUser).User.socket.MySocket.to(this.MyID).emit("receive_battle_state", {battle: _battle});

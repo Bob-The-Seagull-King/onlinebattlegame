@@ -40,7 +40,6 @@ class SocketManager {
         // Used when the battle provides possible actions and awaits a user response
         this.ActiveSocket.on("receive_battle_position", async (data : any) => {
             this.BattleManager.SetUserInfo(data.sidepos, data.battlepos)
-            this.BattleManager.UpdateBattleState(data.battle)
         });
 
         // Used when the battle provides possible actions and awaits a user response
@@ -72,18 +71,55 @@ class SocketManager {
      */
     public JoinRoom() {
         const _Team : ITeam = this.TempNewTeam();    
-        this.ActiveSocket.emit("join_room", _Team);    
+        this.ActiveSocket.emit("join_room", _Team);  
     }
 
     private TempNewTeam() : ITeam {
-        const _Team : Team = TeamFactory.CreateNewTeam('TeamTeam', null);
+        const _Team : Team = TeamFactory.CreateNewTeam('TempTeam', null);
 
         _Team.AddFreshMonster("cleric");
+        _Team.Monsters[0].AddFreshAction("intothepit");
+        _Team.Monsters[0].AddFreshAction("pixiedust");
+        _Team.Monsters[0].AddFreshAction("payoff");
+        _Team.Monsters[0].AddFreshAction("vaccine");
+        _Team.Monsters[0].Traits.push("hospitality");
         _Team.AddFreshMonster("terrain");
+        _Team.Monsters[1].AddFreshAction("oilspit");
+        _Team.Monsters[1].AddFreshAction("graveyard");
+        _Team.Monsters[1].AddFreshAction("blackdart");
+        _Team.Monsters[1].AddFreshAction("vomit");
+        _Team.Monsters[1].Traits.push("retreat");
         _Team.AddFreshMonster("nimble");
+        _Team.Monsters[2].AddFreshAction("mindwipe");
+        _Team.Monsters[2].AddFreshAction("whirlgang");
+        _Team.Monsters[2].AddFreshAction("deathroll");
+        _Team.Monsters[2].AddFreshAction("blackdart");
+        _Team.Monsters[2].Traits.push("stressed");
         _Team.AddFreshMonster("bruiser");
+        _Team.Monsters[3].AddFreshAction("rotshot");
+        _Team.Monsters[3].AddFreshAction("whirlgang");
+        _Team.Monsters[3].AddFreshAction("stitchup");
+        _Team.Monsters[3].AddFreshAction("deathroll");
+        _Team.Monsters[3].Traits.push("guardian");
         _Team.AddFreshMonster("arcane");
+        _Team.Monsters[4].AddFreshAction("ritualblade");
+        _Team.Monsters[4].AddFreshAction("radiate");
+        _Team.Monsters[4].AddFreshAction("collectcall");
+        _Team.Monsters[4].AddFreshAction("vomit");
+        _Team.Monsters[4].Traits.push("soulsucker");
         _Team.AddFreshMonster("evolvea");
+        _Team.Monsters[5].AddFreshAction("radiate");
+        _Team.Monsters[5].AddFreshAction("pixiedust");
+        _Team.Monsters[5].AddFreshAction("smite");
+        _Team.Monsters[5].AddFreshAction("honourablearrow");
+        _Team.Monsters[5].Traits.push("overgrown");
+
+        _Team.AddFreshItem("greenherb");
+        _Team.AddFreshItem("blockofstone");
+        _Team.AddFreshItem("mudshot");
+        _Team.AddFreshItem("microbomb");
+        _Team.AddFreshItem("gunklauncher");
+        _Team.AddFreshItem("boomboom");
 
         const _teamfinal : ITeam =  _Team.ConvertToInterface();
         return _teamfinal;

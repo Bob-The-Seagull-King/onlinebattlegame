@@ -66,9 +66,9 @@ class Battle {
      * @param _manager The manager object this battle will talk to
      */
     constructor(_data : IBattle, _manager : any) {
+        this.Manager = _manager;
         this.Scene = TerrainFactory.CreateTerrain(_data.scene, this)
         this.Sides = this.SideGenerator(_data.sides)
-        this.Manager = _manager;
         this.Events = new BattleEvents(this);
         this.Turns = _data.turns;
         this.MessageList = [];

@@ -51,7 +51,7 @@ class TrainerBase {
      * the battle this trainer is located
      * @param _room the room to have transmit this information
      */
-    public SendPositionInfo(_room? : RoomHold) { undefined; }
+    public SendPositionInfo(_room? : any) { undefined; }
 
     /**
      * Given a TrainerBase object, give us the

@@ -17,7 +17,7 @@ import { WeatherEffect } from "./classes/sim/models/Effects/weather_effect";
 export type IDEntry = Lowercase<string>; // Used for mapping to entries on tables
 export type InfoSetNumber = {[type : number]: number}; // Used for type chart matchups
 export type InfoSetGeneric = {[id : IDEntry]: any}; // Generic dictionary type used for most putposes
-export type MessageSet = InfoSetGeneric[]; // Collection of generically typed dictionaries
+export type MessageSet = MessageBasic[]; // Collection of generically typed dictionaries
 export type TargetSet = (FieldedMonster | Scene | Plot)[]; // Array of potential targets (of various types) for an item/move
 
 /**
@@ -41,6 +41,14 @@ export type BaseStats = {
     rs  : number,   // The modifier applied to the chance to receive effects
     sp  : number    // The speed of a monster, determining action order
 }
+
+// --------------------------------- Messages --------------------------------------------
+
+export type MessageBasic = {[id : IDEntry]: MessageContentGeneric | MessageContentCharacter | MessageContentAnimation | MessageContentAnimationSet};
+export type MessageContentGeneric = string;
+export type MessageContentCharacter = { sidepos : number, teampos : number, message : DescBlock[] }
+export type MessageContentAnimation = { category : "ALL" | "PLOT" | "MONSTER" | "EFFECT", position : number[][], type : IDEntry, context : any }
+export type MessageContentAnimationSet = MessageContentAnimation[]
 
 // --------------------------------- Interface -------------------------------------------
 
