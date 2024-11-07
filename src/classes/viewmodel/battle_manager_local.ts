@@ -175,7 +175,8 @@ class OfflineBattleManager extends BattleManager {
             this.ChoicesLog.push({ action : item.Choices, pos : item.Position})
         })
         this.UpdateBattleState(_options.Battle);
-        this.funcReceiveOptions();
+        
+        this.funcReceiveOptions.forEach( method => {method();})
         return new Promise((resolve) => {
             const handleEvent = (event: CustomEvent<EventAction>) => {
               resolve(event.detail.payload);
@@ -205,7 +206,7 @@ class OfflineBattleManager extends BattleManager {
         document.dispatchEvent(event);
         this.ChoicesLog = []
         this.ClearSelectShow();
-        this.funcReceiveOptions();
+        this.funcReceiveOptions.forEach( method => {method();})
     }
 
 }

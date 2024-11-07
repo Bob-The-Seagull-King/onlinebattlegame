@@ -243,6 +243,7 @@ class Battle {
                             if (this.Sides[j].Trainers[k].Team.IsTeamAlive()) {
                                 await this.EnactTurn(this.Sides[j].Trainers[k])
                                 this.Sides[j].Trainers[k].Team.TurnsTaken += 1;
+                                this.UpdateBattleState();
                             }
                         }
                     }                

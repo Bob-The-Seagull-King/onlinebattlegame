@@ -34,7 +34,6 @@ const GameTopBar = (props: any) => {
 
   // Update the state of options to match the manager
   const receiveOptions = () => {
-    console.log("UPDATE STATE")
     setGameState(Manager.BattleState);
     setStateKey(stateKey + 1)
     setLeftTrainers(GetSplitTrainers(true))

@@ -9,6 +9,7 @@ import { useState } from "react";
 import { BattleManager } from '../../classes/viewmodel/battle_manager';
 import PlotsDisplay from './PlotsDisplay';
 import TurnCharacterDisplay from '../Components/Options/TurnCharacter';
+import TrainerInfoDisplay from '../GameComponents/TrainerInfoDisplay';
 
 const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager; // The manager running this battle
@@ -28,6 +29,10 @@ const OptionsDisplay = (props: any) => {
   return (
     <div className="row">
       <div className="col-6">
+        <div className="row">
+          <TrainerInfoDisplay manager={Manager}/>
+        </div>
+        <div className="row">
             <Tab.Container id="left-tabs-example" defaultActiveKey={(optionsReceived.length > 0)? optionsReceived[0].pos: 0}>
            
                   <Nav  variant="tabs" >
@@ -46,6 +51,7 @@ const OptionsDisplay = (props: any) => {
                     ) }
                   </Tab.Content>
             </Tab.Container>
+          </div>
       </div>
       <div className="col-6">
         <PlotsDisplay  manager={Manager}/>

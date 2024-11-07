@@ -18,7 +18,7 @@ interface IBattleManager {
 class BattleManager {
 
     public funcReceiveResults   : any;  // method from the Page for receiving battle messages
-    public funcReceiveOptions   : any;  // method from the Page for receiving battle options
+    public funcReceiveOptions   : any[] = [];  // method from the Page for receiving battle options
     public funcReceivePlots   : any;  // method from the Page for receiving battle options
     public funcRecieveGameData  : any[] = [];
 
@@ -69,7 +69,7 @@ class BattleManager {
      * @param receiveoptions the react function involved
      */
     public setOptionsFuncs(receiveoptions : any) {
-        this.funcReceiveOptions = receiveoptions;
+        this.funcReceiveOptions.push(receiveoptions);
     }
 
     /**
