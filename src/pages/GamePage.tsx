@@ -24,7 +24,6 @@ const GamePage = (props: any) => {
   }, [myManager]);
 
   const receiveMessage = () => {
-    console.log("MESSAGE")
   }
   // Assign the relevant function to the manager
   myManager.setResultFuncs(receiveMessage)

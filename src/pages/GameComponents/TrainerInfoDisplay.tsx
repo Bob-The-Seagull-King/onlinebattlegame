@@ -12,6 +12,9 @@ import { ITrainer } from '../../classes/sim/controller/trainer/trainer_basic';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSquare  } from '@fortawesome/free-solid-svg-icons'
 import TextWobble from '../SubComponents/Generics/TextWobble';
+import { IActiveItem } from '../../classes/sim/models/active_item';
+import { ItemAction } from '../../global_types';
+import TrainerItem from '../Components/Options/TrainerItem';
 
 const TrainerInfoDisplay = (props: any) => {
   const Manager : BattleManager = props.manager; // The manager running this battle
@@ -29,6 +32,8 @@ const TrainerInfoDisplay = (props: any) => {
     setRelevantTrainer(GetRelevantTrainer());
   }
 
+
+
   function GetRelevantTrainer() {
     let returnVal = null;
     Manager.BattleState.sides.forEach(_side => {
@@ -38,7 +43,7 @@ const TrainerInfoDisplay = (props: any) => {
         }
       })
     })
-
+    console.log(returnVal)
     return returnVal
   }
 
@@ -54,11 +59,50 @@ const TrainerInfoDisplay = (props: any) => {
 
   // Assign the relevant function to the manager
   Manager.addGameUpdater(receiveState)
+
+  function ShowItemOption(item : IActiveItem) {
+
+    console.log("ITEM START")
+
+    let position = -1;
+    let turnchar = null;
+    let relAction = null;
+
+    let HasAction = false;
+
+    for(let i = 0; i < optionsReceived.length; i++) {
+      const option = optionsReceived[i];
+      if (option.pos === -1) {        
+        if (option.action["ITEM"]) {
+          for (let j = 0; j < option.action["ITEM"].length; j++) {
+            const action = option.action["ITEM"][j]
+            if ((action as ItemAction).item === (relevantTrainer as ITrainer).team.items.indexOf(item)) {
+              relAction = action
+              turnchar = option;
+              HasAction = true;
+            }
+          }
+        }
+      }
+    }
+
+    return (
+      <div>
+        <TrainerItem manager={Manager} item={item} trainer={relevantTrainer} displayaction={HasAction} position={position} turn={turnchar} action={relAction}/>
+      </div>
+    )
+  }
   
   return (
     <div className="" key={stateKey}>
       {relevantTrainer != null &&
-        <TextWobble value={relevantTrainer.name}/>
+        <div className="row">
+          {(relevantTrainer as ITrainer).team.items.map(_item => 
+            <div className="col-4">
+              {ShowItemOption(_item)}
+            </div>
+          )}
+        </div>
       }
     </div>
   );
