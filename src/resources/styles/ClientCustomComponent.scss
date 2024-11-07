@@ -14,7 +14,11 @@
     color: var(--colour_text_bright);
 }
 
-
+.baseBorder {
+  border-width: 3px !important;
+  border-color: var(--colour_main_blue) !important;
+  border-radius: 0.25rem !important;
+}
 
 .plotboxtest {
     margin: 0.25em;
@@ -102,6 +106,22 @@
     border-radius: 0.5rem;
 }
 
+.ItemPreview {
+  outline-width: 5px;
+  outline-offset: 0;
+  outline-color: var(--colour_sub_blue);
+  outline-style: solid;
+}
+
+.ActivePreview {  
+  outline-color: var(--colour_main_starpower);
+}
+
+.ActivePreview:hover {  
+  animation: animateHoverOutline 1s ease infinite;
+  animation-fill-mode: forwards;
+}
+
 .example-4 {
   outline-width: 1px;
   outline-offset: 0;
@@ -186,6 +206,35 @@
         outline-width: 4px;
         outline-offset: 0;
         outline-color: var(--colour_main_grey);
+      }
+  }
+
+  @keyframes animateHoverOutline {
+    0% {
+      outline-width: 4px;
+      outline-offset: 0;
+      outline-color: var(--colour_main_starpower);
+    }
+  
+    20% {
+      outline-color:var(--colour_main_starpower);
+    }
+  
+    /* The animation finishes at 50% */
+    50% {
+      outline-width: 7px;
+      outline-color: var(--colour_main_starpower);
+    }
+  
+    80% {
+        outline-color:var(--colour_main_starpower);
+      }
+
+      
+    100% {
+        outline-width: 4px;
+        outline-offset: 0;
+        outline-color: var(--colour_main_starpower);
       }
   }
 

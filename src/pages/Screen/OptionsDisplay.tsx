@@ -30,13 +30,15 @@ const OptionsDisplay = (props: any) => {
     <div className="row">
       <div className="col-6">
         <div className="row">
+          <div className="previewborder">
           <TrainerInfoDisplay manager={Manager}/>
+          </div>
         </div>
         <div className="row">
             <Tab.Container id="left-tabs-example" defaultActiveKey={(optionsReceived.length > 0)? optionsReceived[0].pos: 0}>
            
                   <Nav  variant="tabs" >
-                    {optionsReceived.map(item => 
+                    {optionsReceived.filter(item => item.pos != -1).map(item => 
                       <Nav.Item >
                         <Nav.Link eventKey={item.pos}>{(item.pos < 0)? "TRAINER" : Manager.BattleState.sides[Manager.BattlePosition].trainers[Manager.SidePosition].team.monsters[item.pos].nickname}</Nav.Link>
                       </Nav.Item>
@@ -44,7 +46,7 @@ const OptionsDisplay = (props: any) => {
                   </Nav>
                   
                   <Tab.Content>
-                    {optionsReceived.map(item => 
+                    {optionsReceived.filter(item => item.pos != -1).map(item => 
                         <Tab.Pane  eventKey={item.pos}>
                           <TurnCharacterDisplay manager={Manager} position={item.pos} turn={item}/>
                         </Tab.Pane>
