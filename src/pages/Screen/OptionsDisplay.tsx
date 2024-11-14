@@ -10,6 +10,7 @@ import { BattleManager } from '../../classes/viewmodel/battle_manager';
 import PlotsDisplay from './PlotsDisplay';
 import TurnCharacterDisplay from '../Components/Options/TurnCharacter';
 import TrainerInfoDisplay from '../GameComponents/TrainerInfoDisplay';
+import MonsterInfoDisplay from '../GameComponents/MonsterInfoDisplay';
 
 const OptionsDisplay = (props: any) => {
   const Manager : BattleManager = props.manager; // The manager running this battle
@@ -25,15 +26,9 @@ const OptionsDisplay = (props: any) => {
 
   // Assign the relevant function to the manager
   Manager.setOptionsFuncs(receiveOptions)
-  
-  return (
-    <div className="row">
-      <div className="col-6">
-        <div className="row">
-          <div className="previewborder">
-          <TrainerInfoDisplay manager={Manager}/>
-          </div>
-        </div>
+
+  /**
+   * 
         <div className="row">
             <Tab.Container id="left-tabs-example" defaultActiveKey={(optionsReceived.length > 0)? optionsReceived[0].pos: 0}>
            
@@ -54,6 +49,21 @@ const OptionsDisplay = (props: any) => {
                   </Tab.Content>
             </Tab.Container>
           </div>
+   */
+  
+  return (
+    <div className="row">
+      <div className="col-6">
+        <div className="row">
+          <div className="previewborder">
+          <TrainerInfoDisplay manager={Manager}/>
+          </div>
+        </div>
+        <div className="row">
+          <div className="">
+          <MonsterInfoDisplay manager={Manager}/>
+          </div>
+        </div>
       </div>
       <div className="col-6">
         <PlotsDisplay  manager={Manager}/>

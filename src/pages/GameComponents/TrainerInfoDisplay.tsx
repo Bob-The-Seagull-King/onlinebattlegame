@@ -61,7 +61,7 @@ const TrainerInfoDisplay = (props: any) => {
     let returnVal = null;
     Manager.BattleState.sides.forEach(_side => {
       _side.trainers.forEach(_trainer => {
-        if ((_trainer.sidepos === Manager.SidePosition)) {
+        if ((_trainer.sidepos === Manager.BattlePosition)) {
           returnVal = _trainer;
         }
       })
